@@ -1,23 +1,11 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  app:
-    build: .
-    ports:
-      - "8080:8080"
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      spring.datasource.url: jdbc:mysql://db:3306/plusfy
-      spring.datasource.username: root
-      spring.datasource.password: root
-      spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
-      spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQLDialect
-      spring.jpa.hibernate.ddl-auto: update
-      spring.sql.init.platform: mysql
   db:
     image: mysql:8
+    container_name: plusfy-db
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
     ports:
       - "3306:3306"
     environment:
@@ -27,9 +15,35 @@ services:
       test: ["CMD", "mysqladmin" , "ping", "-h", "localhost"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 20
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - plusfy-net
+
+  app:
+    build: .
+    container_name: plusfy-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/plusfy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
+    networks:
+      - plusfy-net
 
 volumes:
   db_data:
+
+networks:
+  plusfy-net:
+    driver: bridge
