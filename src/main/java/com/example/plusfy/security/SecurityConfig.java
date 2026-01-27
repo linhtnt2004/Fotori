@@ -18,9 +18,13 @@ import java.util.List;
 public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    public SecurityConfig(UserDetailsServiceImpl userDetailsService) {
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService, CustomAccessDeniedHandler accessDeniedHandler, CustomAuthenticationEntryPoint authenticationEntryPoint) {
         this.userDetailsService = userDetailsService;
+        this.accessDeniedHandler = accessDeniedHandler;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     @Bean
@@ -45,8 +49,11 @@ public class SecurityConfig {
         http
         .csrf(csrf -> csrf.disable())
         .authenticationProvider(provider)
+        .exceptionHandling(ex -> ex
+        .authenticationEntryPoint(authenticationEntryPoint)
+        .accessDeniedHandler(accessDeniedHandler))
         .authorizeHttpRequests(auth -> auth
-        .requestMatchers("/api/auth/login").permitAll()
+        .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
         .anyRequest().authenticated()
         );
 

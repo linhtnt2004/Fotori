@@ -20,12 +20,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        com.example.plusfy.model.User user = userRepository.findByName(username)
-        .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    public UserDetails loadUserByUsername(String fullName) throws UsernameNotFoundException {
+        com.example.plusfy.model.User user = userRepository.findByFullname(fullName)
+        .orElseThrow(() -> new UsernameNotFoundException("User not found: " + fullName));
 
         return new User(
-        user.getName(),
+        user.getFullname(),
         user.getPassword(),
         Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"))
         );
