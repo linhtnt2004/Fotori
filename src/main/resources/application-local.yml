@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/plusfy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3307/plusfy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password: root
 
@@ -13,5 +13,10 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
+
 server:
   port: 8081
+
+app:
+  jwt:
+    secret: SvC5m5iD3H5IEXfcaUru+gF2eqBjKbMVC67TAJU7CzpL0x3MHsv3FoZg7jXc23nXQWRI8ke7W4g0uJT4EIiKag==

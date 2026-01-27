@@ -5,9 +5,8 @@ services:
     image: mysql:8
     container_name: plusfy-db
     restart: always
-    command: --default-authentication-plugin=mysql_native_password
     ports:
-      - "3306:3306"
+      - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: plusfy
