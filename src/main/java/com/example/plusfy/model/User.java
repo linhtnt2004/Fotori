@@ -30,5 +30,4 @@ public class User {
     String phone;
 
     private String role;
-
 }
