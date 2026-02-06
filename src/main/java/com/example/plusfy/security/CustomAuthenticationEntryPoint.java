@@ -1,33 +1,38 @@
 package com.example.plusfy.security;
 
 import com.example.plusfy.common.ApiResponse;
-import com.example.plusfy.common.ErrorCode;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
-import org.springframework.security.core.AuthenticationException;
-
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
-    public void commence(HttpServletRequest request,
-                         HttpServletResponse response,
-                         AuthenticationException authException) throws IOException {
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+    public void commence(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        AuthenticationException authException
+    ) throws IOException {
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
 
         ApiResponse apiResponse = new ApiResponse(
-        ErrorCode.INVALID_CREDENTIALS.name(),
-        "Invalid username or password",
-        null
+            "UNAUTHORIZED",
+            authException.getMessage(),
+            null
         );
 
-        new ObjectMapper().writeValue(response.getOutputStream(), apiResponse);
+        response.getWriter().write(
+            objectMapper.writeValueAsString(apiResponse)
+        );
     }
 }

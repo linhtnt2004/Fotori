@@ -6,18 +6,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthResponse {
-    String token;
-    String userType;
-    String role;
-
-    public AuthResponse(String token, String userType) {
-        this.token = token;
-        this.userType = userType;
-        this.role = null;
-    }
+public class CustomerRegisterRequest {
+    String email;
+    String password;
+    String fullName;
+    String phoneNumber;
+    String gender;
+    LocalDate birthDate;
 }
