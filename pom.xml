@@ -9,10 +9,10 @@
         <relativePath/>
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>plusfy</artifactId>
+    <artifactId>Fotori</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>plusfy</name>
-    <description>An online shopping platform for plus-size fashion, empowering confidence and style for every body.
+    <name>Fotori</name>
+    <description>A professional photo booking platform connecting photographers with clients to capture every moment.
     </description>
     <url/>
     <licenses>

@@ -3,13 +3,13 @@ version: "3.8"
 services:
   db:
     image: mysql:8
-    container_name: plusfy-db
+    container_name: fotori-db
     restart: always
     ports:
       - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: plusfy
+      MYSQL_DATABASE: fotori
     healthcheck:
       test: ["CMD", "mysqladmin" , "ping", "-h", "localhost"]
       interval: 5s
@@ -18,11 +18,11 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     networks:
-      - plusfy-net
+      - fotori-net
 
   app:
     build: .
-    container_name: plusfy-app
+    container_name: fotori-app
     ports:
       - "8080:8080"
     depends_on:
@@ -30,7 +30,7 @@ services:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/plusfy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/fotori?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
@@ -38,11 +38,11 @@ services:
       SPRING_JPA_SHOW_SQL: "true"
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
     networks:
-      - plusfy-net
+      - fotori-net
 
 volumes:
   db_data:
 
 networks:
-  plusfy-net:
+  fotori-net:
     driver: bridge
