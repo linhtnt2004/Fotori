@@ -2,11 +2,11 @@ package com.example.fotori.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -64,38 +64,45 @@ public class SecurityConfig {
     }
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-            .antMatchers("/uploads/**");
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            .cors().and()
             .csrf().disable()
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
             .exceptionHandling()
             .authenticationEntryPoint(authenticationEntryPoint)
             .accessDeniedHandler(accessDeniedHandler)
             .and()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
             .authorizeRequests()
-            .antMatchers(
-                "/uploads/**"
-            ).permitAll()
+
+            // STATIC
+            .antMatchers("/uploads/**").permitAll()
+
+            // AUTH
             .antMatchers("/api/auth/**").permitAll()
-            .antMatchers("/api/customers/**").hasRole("CUSTOMER")
-            .antMatchers("/api/staff/**").hasRole("STAFF")
+
+            // PUBLIC
+            .antMatchers(HttpMethod.GET, "/api/packages").permitAll()
+
+            // BOOKING - CUSTOMER
+            .antMatchers(HttpMethod.POST, "/api/bookings").hasRole("CUSTOMER")
+            .antMatchers(HttpMethod.GET, "/api/bookings/me").hasRole("CUSTOMER")
+
+            // PHOTOGRAPHER
+            .antMatchers("/api/photographer/**").hasRole("PHOTOGRAPHER")
+            .antMatchers("/api/photographers/**").hasRole("PHOTOGRAPHER")
+
+            // ADMIN
+            .antMatchers("/api/admin/**").hasRole("ADMIN")
+
+            // OTHER
             .anyRequest().authenticated()
             .and()
-            .addFilterBefore(
-                jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class
-            );
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
 
 }

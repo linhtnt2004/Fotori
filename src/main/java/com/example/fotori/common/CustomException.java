@@ -1,5 +1,6 @@
 package com.example.fotori.common;
 
+import com.example.fotori.common.enums.ErrorCode;
 import lombok.Getter;
 
 @Getter

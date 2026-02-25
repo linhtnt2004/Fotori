@@ -1,6 +1,6 @@
 package com.example.fotori.security;
 
-import com.example.fotori.service.UserDetailsServiceImpl;
+import com.example.fotori.service.impl.UserDetailsServiceImpl;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
