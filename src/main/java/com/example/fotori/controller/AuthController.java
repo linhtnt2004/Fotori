@@ -18,10 +18,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -43,7 +40,8 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
         try {
-            User user = authService.register(request);
+            authService.register(request);
+
             return ResponseEntity.ok(
                 new ApiResponse(
                     ErrorCode.SUCCESS.name(),
@@ -51,7 +49,9 @@ public class AuthController {
                     null
                 )
             );
+
         } catch (Exception e) {
+
             return ResponseEntity.badRequest().body(
                 new ApiResponse(
                     ErrorCode.BAD_REQUEST.name(),
@@ -67,27 +67,32 @@ public class AuthController {
         @RequestBody LoginRequest request,
         HttpServletResponse response
     ) {
+
         Authentication auth = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
-                request.getEmail(), request.getPassword()
+                request.getEmail(),
+                request.getPassword()
             )
         );
 
         UserDetails user = (UserDetails) auth.getPrincipal();
 
         String accessToken = jwtTokenProvider.generateAccessToken(user);
+
         RefreshToken refreshToken =
             refreshTokenService.create(((UserDetailsImpl) user).getUser());
 
         Cookie cookie = new Cookie("refresh_token", refreshToken.getToken());
         cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         cookie.setPath("/api/auth");
         cookie.setMaxAge((int) (refreshExpirationMs / 1000));
+
         response.addCookie(cookie);
 
         return ResponseEntity.ok(
             new ApiResponse(
-                "SUCCESS",
+                ErrorCode.SUCCESS.name(),
                 "Login successful",
                 new LoginResponse(accessToken)
             )
@@ -102,8 +107,13 @@ public class AuthController {
         Cookie[] cookies = request.getCookies();
 
         if (cookies == null) {
-            return ResponseEntity.status(401)
-                .body(new ApiResponse("UNAUTHORIZED", "Refresh token not found", null));
+            return ResponseEntity.status(401).body(
+                new ApiResponse(
+                    ErrorCode.UNAUTHORIZED.name(),
+                    "Refresh token not found",
+                    null
+                )
+            );
         }
 
         String refreshTokenStr = null;
@@ -111,12 +121,18 @@ public class AuthController {
         for (Cookie cookie : cookies) {
             if ("refresh_token".equals(cookie.getName())) {
                 refreshTokenStr = cookie.getValue();
+                break;
             }
         }
 
         if (refreshTokenStr == null) {
-            return ResponseEntity.status(401)
-                .body(new ApiResponse("UNAUTHORIZED", "Refresh token not found", null));
+            return ResponseEntity.status(401).body(
+                new ApiResponse(
+                    ErrorCode.UNAUTHORIZED.name(),
+                    "Refresh token not found",
+                    null
+                )
+            );
         }
 
         RefreshToken refreshToken =
@@ -126,11 +142,12 @@ public class AuthController {
 
         UserDetails userDetails = new UserDetailsImpl(user);
 
-        String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
+        String accessToken =
+            jwtTokenProvider.generateAccessToken(userDetails);
 
         return ResponseEntity.ok(
             new ApiResponse(
-                "SUCCESS",
+                ErrorCode.SUCCESS.name(),
                 "Token refreshed",
                 new LoginResponse(accessToken)
             )
@@ -146,6 +163,7 @@ public class AuthController {
         Cookie[] cookies = request.getCookies();
 
         if (cookies != null) {
+
             for (Cookie cookie : cookies) {
 
                 if ("refresh_token".equals(cookie.getName())) {
@@ -153,20 +171,24 @@ public class AuthController {
                     refreshTokenService.revoke(cookie.getValue());
 
                     cookie.setValue("");
+                    cookie.setHttpOnly(true);
+                    cookie.setSecure(true);
                     cookie.setPath("/api/auth");
                     cookie.setMaxAge(0);
+
                     response.addCookie(cookie);
+
+                    break;
                 }
             }
         }
 
         return ResponseEntity.ok(
             new ApiResponse(
-                "SUCCESS",
+                ErrorCode.SUCCESS.name(),
                 "Logout successful",
                 null
             )
         );
     }
 }
-
