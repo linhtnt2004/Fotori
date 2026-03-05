@@ -11,6 +11,7 @@ CREATE TABLE users
     gender        VARCHAR(20),
     birth_date    DATE,
     avatar_url    VARCHAR(255),
+    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
     status        VARCHAR(50)  NOT NULL,
     created_at    DATETIME     NOT NULL,
     updated_at    DATETIME,
@@ -184,4 +185,26 @@ CREATE TABLE photographer_availability
     CONSTRAINT fk_availability_photographer
         FOREIGN KEY (photographer_id)
             REFERENCES photographers(id)
+);
+
+-- =========================
+-- EMAIL VERIFY TOKENS
+-- =========================
+CREATE TABLE email_verification_tokens
+(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    user_id BIGINT NOT NULL,
+
+    token VARCHAR(255) NOT NULL UNIQUE,
+
+    expiry_date DATETIME NOT NULL,
+
+    verified BOOLEAN DEFAULT FALSE,
+
+    created_at DATETIME NOT NULL,
+
+    CONSTRAINT fk_verify_token_user
+        FOREIGN KEY (user_id)
+            REFERENCES users(id)
 );

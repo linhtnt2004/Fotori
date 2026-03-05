@@ -2,6 +2,7 @@ package com.example.fotori.controller;
 
 import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.enums.ErrorCode;
+import com.example.fotori.common.enums.UserStatus;
 import com.example.fotori.dto.LoginRequest;
 import com.example.fotori.dto.LoginResponse;
 import com.example.fotori.dto.RegisterRequest;
@@ -10,7 +11,11 @@ import com.example.fotori.model.User;
 import com.example.fotori.security.JwtTokenProvider;
 import com.example.fotori.security.UserDetailsImpl;
 import com.example.fotori.service.AuthService;
+import com.example.fotori.service.EmailService;
+import com.example.fotori.service.EmailVerificationService;
 import com.example.fotori.service.RefreshTokenService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +29,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@Tag(name = "Authentication", description = "Auth APIs for login/register/refresh/logout")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -33,10 +39,12 @@ public class AuthController {
     private final AuthService authService;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
+    private final EmailVerificationService emailService;
 
     @Value("${app.jwt.refresh-expiration-ms}")
     private long refreshExpirationMs;
 
+    @Operation(summary = "Register new user")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
         try {
@@ -62,6 +70,7 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "Login user and return access token")
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> login(
         @RequestBody LoginRequest request,
@@ -75,12 +84,23 @@ public class AuthController {
             )
         );
 
-        UserDetails user = (UserDetails) auth.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
+        User user = userDetails.getUser();
 
-        String accessToken = jwtTokenProvider.generateAccessToken(user);
+        if (user.getStatus() == UserStatus.PENDING) {
+            return ResponseEntity.status(403).body(
+                new ApiResponse(
+                    ErrorCode.FORBIDDEN.name(),
+                    "Please verify your email before login",
+                    null
+                )
+            );
+        }
+
+        String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
 
         RefreshToken refreshToken =
-            refreshTokenService.create(((UserDetailsImpl) user).getUser());
+            refreshTokenService.create(((UserDetailsImpl) userDetails).getUser());
 
         Cookie cookie = new Cookie("refresh_token", refreshToken.getToken());
         cookie.setHttpOnly(true);
@@ -99,6 +119,7 @@ public class AuthController {
         );
     }
 
+    @Operation(summary = "Refresh access token using refresh token cookie")
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse> refreshToken(
         HttpServletRequest request
@@ -154,6 +175,7 @@ public class AuthController {
         );
     }
 
+    @Operation(summary = "Logout and revoke refresh token")
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse> logout(
         HttpServletRequest request,
@@ -187,6 +209,26 @@ public class AuthController {
             new ApiResponse(
                 ErrorCode.SUCCESS.name(),
                 "Logout successful",
+                null
+            )
+        );
+    }
+
+    @Operation(
+        summary = "Verify user email",
+        description = "Verifies the user's email address using the unique token sent to their inbox."
+    )
+    @GetMapping("/verify-email")
+    public ResponseEntity<ApiResponse> verifyEmail(
+        @RequestParam String token
+    ) {
+
+        emailService.verify(token);
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Email verified successfully",
                 null
             )
         );

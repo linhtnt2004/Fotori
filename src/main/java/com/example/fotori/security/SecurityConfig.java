@@ -89,6 +89,13 @@ public class SecurityConfig {
             // ADMIN
             .antMatchers("/api/admin/**").hasRole("ADMIN")
 
+            // SWAGGER
+            .antMatchers(
+                "/v3/api-docs/**",
+                "/swagger-ui/**",
+                "/swagger-ui.html"
+            ).permitAll()
+
             // OTHER
             .anyRequest().authenticated()
             .and()

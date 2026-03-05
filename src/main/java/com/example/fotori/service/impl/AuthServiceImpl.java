@@ -11,6 +11,8 @@ import com.example.fotori.repository.PhotographerRepository;
 import com.example.fotori.repository.RoleRepository;
 import com.example.fotori.repository.UserRepository;
 import com.example.fotori.service.AuthService;
+import com.example.fotori.service.EmailService;
+import com.example.fotori.service.EmailVerificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,9 @@ public class AuthServiceImpl implements AuthService {
     private final PhotographerRepository photographerRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
+    private final EmailVerificationService emailVerificationService;
+    private final EmailService emailService;
+
     @Override
     @Transactional
     public User register(RegisterRequest request) {
@@ -42,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
             .email(request.getEmail())
             .password(passwordEncoder.encode(request.getPassword()))
             .fullName(request.getFullName())
-            .status(UserStatus.ACTIVE)
+            .status(UserStatus.PENDING)
             .roles(Set.of(userRole))
             .build();
 
@@ -50,7 +55,9 @@ public class AuthServiceImpl implements AuthService {
 
         RegisterType type =
             request.getType() != null ? request.getType() : RegisterType.CUSTOMER;
+
         if (type == RegisterType.PHOTOGRAPHER) {
+
             PhotographerProfile photographer = PhotographerProfile.builder()
                 .user(user)
                 .approvalStatus(ApprovalStatus.PENDING)
@@ -58,6 +65,11 @@ public class AuthServiceImpl implements AuthService {
 
             photographerRepository.save(photographer);
         }
+
+        String token = emailVerificationService.createToken(user);
+
+
+        emailService.sendVerificationEmail(user.getEmail(), token);
 
         return user;
     }
