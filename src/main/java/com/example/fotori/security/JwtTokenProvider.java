@@ -3,15 +3,12 @@ package com.example.fotori.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.List;
 
 @Component
 public class JwtTokenProvider {
@@ -19,41 +16,32 @@ public class JwtTokenProvider {
     @Value("${app.jwt.secret}")
     private String jwtSecret;
 
-    @Value("${app.jwt.expiration-ms}")
-    private long jwtExpirationMs;
+    @Value("${app.jwt.access-expiration-ms}")
+    private long accessExpirationMs;
 
     public SecretKey getSigningKey() {
-        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
+    public String generateAccessToken(UserDetails user) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
-
-        List<String> roles = userDetails.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .toList();
+        Date expiry = new Date(now.getTime() + accessExpirationMs);
 
         return Jwts.builder()
-            .setSubject(userDetails.getUsername())
-            .claim("roles", roles)
+            .setSubject(user.getUsername())
             .setIssuedAt(now)
-            .setExpiration(expiryDate)
+            .setExpiration(expiry)
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)
             .compact();
     }
 
-    public String getEmailFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
+    public String getEmailFromAccessToken(String token) {
+        return Jwts.parserBuilder()
             .setSigningKey(getSigningKey())
             .build()
             .parseClaimsJws(token)
-            .getBody();
-
-        return claims.getSubject();
+            .getBody()
+            .getSubject();
     }
 
     public boolean validateToken(String authToken) {

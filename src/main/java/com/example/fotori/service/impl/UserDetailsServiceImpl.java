@@ -2,11 +2,9 @@ package com.example.fotori.service.impl;
 
 import com.example.fotori.model.User;
 import com.example.fotori.repository.UserRepository;
+import com.example.fotori.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,17 +19,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         User user = userRepository.findByEmail(email)
             .orElseThrow(() ->
-                             new UsernameNotFoundException("User not found with email: " + email)
-            );
+                             new UsernameNotFoundException("User not found"));
 
-        var authorities = user.getRoles().stream()
-            .map(role -> new SimpleGrantedAuthority(role.getName()))
-            .toList();
-
-        return new org.springframework.security.core.userdetails.User(
-            user.getEmail(),
-            user.getPassword(),
-            authorities
-        );
+        return new UserDetailsImpl(user);
     }
 }

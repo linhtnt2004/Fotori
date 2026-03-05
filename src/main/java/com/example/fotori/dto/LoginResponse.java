@@ -1,8 +1,14 @@
 package com.example.fotori.dto;
 
-import java.util.List;
+public class LoginResponse {
 
-public record LoginResponse(
-    String token,
-    List<String> roles
-) {}
+    private String accessToken;
+
+    public LoginResponse(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+}

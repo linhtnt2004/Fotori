@@ -18,6 +18,23 @@ CREATE TABLE users
 );
 
 -- =========================
+-- REFRESH TOKENS
+-- =========================
+CREATE TABLE refresh_tokens
+(
+    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
+    token       VARCHAR(255) NOT NULL UNIQUE,
+    expiry_date DATETIME     NOT NULL,
+    revoked     BOOLEAN      NOT NULL DEFAULT FALSE,
+    user_id     BIGINT       NOT NULL,
+
+    CONSTRAINT fk_refresh_token_user
+        FOREIGN KEY (user_id)
+            REFERENCES users (id)
+            ON DELETE CASCADE
+);
+
+-- =========================
 -- ROLES
 -- =========================
 CREATE TABLE roles

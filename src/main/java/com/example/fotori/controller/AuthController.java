@@ -5,24 +5,26 @@ import com.example.fotori.common.enums.ErrorCode;
 import com.example.fotori.dto.LoginRequest;
 import com.example.fotori.dto.LoginResponse;
 import com.example.fotori.dto.RegisterRequest;
+import com.example.fotori.model.RefreshToken;
 import com.example.fotori.model.User;
 import com.example.fotori.security.JwtTokenProvider;
+import com.example.fotori.security.UserDetailsImpl;
 import com.example.fotori.service.AuthService;
+import com.example.fotori.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -32,6 +34,10 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final AuthService authService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenService refreshTokenService;
+
+    @Value("${app.jwt.refresh-expiration-ms}")
+    private long refreshExpirationMs;
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
@@ -56,41 +62,35 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    request.getEmail(),
-                    request.getPassword()
-                )
-            );
+    public ResponseEntity<ApiResponse> login(
+        @RequestBody LoginRequest request,
+        HttpServletResponse response
+    ) {
+        Authentication auth = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                request.getEmail(), request.getPassword()
+            )
+        );
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserDetails user = (UserDetails) auth.getPrincipal();
 
-            String token = jwtTokenProvider.generateToken(authentication);
+        String accessToken = jwtTokenProvider.generateAccessToken(user);
+        RefreshToken refreshToken =
+            refreshTokenService.create(((UserDetailsImpl) user).getUser());
 
-            List<String> roles = authentication.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
+        Cookie cookie = new Cookie("refresh_token", refreshToken.getToken());
+        cookie.setHttpOnly(true);
+        cookie.setPath("/api/auth");
+        cookie.setMaxAge((int) (refreshExpirationMs / 1000));
+        response.addCookie(cookie);
 
-            return ResponseEntity.ok(
-                new ApiResponse(
-                    ErrorCode.SUCCESS.name(),
-                    "Login successful",
-                    new LoginResponse(token, roles)
-                )
-            );
-
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                new ApiResponse(
-                    ErrorCode.UNAUTHORIZED.name(),
-                    "Invalid email or password",
-                    null
-                )
-            );
-        }
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Login successful",
+                new LoginResponse(accessToken)
+            )
+        );
     }
 }
 
