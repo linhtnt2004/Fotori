@@ -93,7 +93,7 @@
             <version>9.22.3</version>
         </dependency>
 
-        <!-- FLYWAY MYSQL SUPPORT (BẮT BUỘC) -->
+        <!-- FLYWAY MYSQL  -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-mysql</artifactId>
@@ -105,6 +105,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- SWAGGER -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.7.0</version>
         </dependency>
 
         <dependency>
