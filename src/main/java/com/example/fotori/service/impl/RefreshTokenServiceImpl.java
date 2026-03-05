@@ -1,6 +1,5 @@
 package com.example.fotori.service.impl;
 
-import com.example.fotori.exception.BusinessException;
 import com.example.fotori.model.RefreshToken;
 import com.example.fotori.model.User;
 import com.example.fotori.repository.RefreshTokenRepository;
@@ -34,12 +33,18 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public RefreshToken verify(String token) {
-        RefreshToken refreshToken = repository.findByToken(token)
-            .orElseThrow(() -> new BusinessException("INVALID_REFRESH_TOKEN"));
 
-        if (refreshToken.isRevoked()
-            || refreshToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new BusinessException("REFRESH_TOKEN_EXPIRED");
+        RefreshToken refreshToken =
+            repository.findByToken(token)
+                .orElseThrow(() ->
+                                 new RuntimeException("Refresh token not found"));
+
+        if (refreshToken.isRevoked()) {
+            throw new RuntimeException("Token revoked");
+        }
+
+        if (refreshToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token expired");
         }
 
         return refreshToken;
@@ -47,6 +52,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public void revoke(String token) {
+
         repository.findByToken(token)
             .ifPresent(rt -> {
                 rt.setRevoked(true);
