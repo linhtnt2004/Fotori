@@ -136,5 +136,37 @@ public class AuthController {
             )
         );
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse> logout(
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+
+                if ("refresh_token".equals(cookie.getName())) {
+
+                    refreshTokenService.revoke(cookie.getValue());
+
+                    cookie.setValue("");
+                    cookie.setPath("/api/auth");
+                    cookie.setMaxAge(0);
+                    response.addCookie(cookie);
+                }
+            }
+        }
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Logout successful",
+                null
+            )
+        );
+    }
 }
 
