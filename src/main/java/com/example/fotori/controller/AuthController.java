@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
@@ -88,6 +89,49 @@ public class AuthController {
             new ApiResponse(
                 "SUCCESS",
                 "Login successful",
+                new LoginResponse(accessToken)
+            )
+        );
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse> refreshToken(
+        HttpServletRequest request
+    ) {
+
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            return ResponseEntity.status(401)
+                .body(new ApiResponse("UNAUTHORIZED", "Refresh token not found", null));
+        }
+
+        String refreshTokenStr = null;
+
+        for (Cookie cookie : cookies) {
+            if ("refresh_token".equals(cookie.getName())) {
+                refreshTokenStr = cookie.getValue();
+            }
+        }
+
+        if (refreshTokenStr == null) {
+            return ResponseEntity.status(401)
+                .body(new ApiResponse("UNAUTHORIZED", "Refresh token not found", null));
+        }
+
+        RefreshToken refreshToken =
+            refreshTokenService.verify(refreshTokenStr);
+
+        User user = refreshToken.getUser();
+
+        UserDetails userDetails = new UserDetailsImpl(user);
+
+        String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Token refreshed",
                 new LoginResponse(accessToken)
             )
         );
