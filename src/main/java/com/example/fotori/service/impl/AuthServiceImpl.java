@@ -77,4 +77,28 @@ public class AuthServiceImpl implements AuthService {
 
         return user;
     }
+
+    @Override
+    @Transactional
+    public void resetPassword(String email) {
+
+        User user = userRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String token = emailVerificationService.createToken(user);
+
+        emailService.sendResetPasswordEmail(user.getEmail(), token);
+    }
+
+    @Override
+    @Transactional
+    public void resetPasswordWithToken(String token, String newPassword) {
+
+        User user = emailVerificationService.verifyAndGetUser(token);
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        userRepository.save(user);
+    }
 }

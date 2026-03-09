@@ -1,6 +1,7 @@
 package com.example.fotori.service.impl;
 
 import com.example.fotori.common.enums.UserStatus;
+import com.example.fotori.exception.BusinessException;
 import com.example.fotori.model.EmailVerificationToken;
 import com.example.fotori.model.User;
 import com.example.fotori.repository.EmailVerificationTokenRepository;
@@ -42,14 +43,14 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
 
         EmailVerificationToken verificationToken =
             tokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElseThrow(() -> new BusinessException("Invalid token"));
 
         if (verificationToken.isVerified()) {
-            throw new RuntimeException("Email already verified");
+            throw new BusinessException("Email already verified");
         }
 
         if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Token expired");
+            throw new BusinessException("Token expired");
         }
 
         User user = verificationToken.getUser();
@@ -60,5 +61,19 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
 
         userRepository.save(user);
         tokenRepository.save(verificationToken);
+    }
+
+    @Override
+    public User verifyAndGetUser(String token) {
+
+        EmailVerificationToken verification =
+            tokenRepository.findByToken(token)
+                .orElseThrow(() -> new BusinessException("Invalid token"));
+
+        if (verification.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new BusinessException("Token expired");
+        }
+
+        return verification.getUser();
     }
 }

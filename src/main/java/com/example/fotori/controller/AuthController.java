@@ -3,9 +3,7 @@ package com.example.fotori.controller;
 import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.enums.ErrorCode;
 import com.example.fotori.common.enums.UserStatus;
-import com.example.fotori.dto.LoginRequest;
-import com.example.fotori.dto.LoginResponse;
-import com.example.fotori.dto.RegisterRequest;
+import com.example.fotori.dto.*;
 import com.example.fotori.model.RefreshToken;
 import com.example.fotori.model.User;
 import com.example.fotori.security.JwtTokenProvider;
@@ -233,6 +231,43 @@ public class AuthController {
             new ApiResponse(
                 "SUCCESS",
                 "Email verified successfully",
+                null
+            )
+        );
+    }
+
+    @Operation(summary = "Request password reset")
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse> resetPassword(
+        @RequestBody ResetPasswordRequest request
+    ) {
+
+        authService.resetPassword(request.getEmail());
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Password reset email sent",
+                null
+            )
+        );
+    }
+
+    @Operation(summary = "Reset password with token")
+    @PostMapping("/new-password")
+    public ResponseEntity<ApiResponse> newPassword(
+        @RequestBody NewPasswordRequest request
+    ) {
+
+        authService.resetPasswordWithToken(
+            request.getToken(),
+            request.getNewPassword()
+        );
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Password reset successfully",
                 null
             )
         );

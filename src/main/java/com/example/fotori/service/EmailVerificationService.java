@@ -8,4 +8,5 @@ public interface EmailVerificationService {
 
     void verify(String token);
 
+    User verifyAndGetUser(String token);
 }
