@@ -1,19 +1,26 @@
 package com.example.fotori.dto;
 
 import com.example.fotori.common.enums.RegisterType;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
+
+import java.util.List;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class RegisterRequest {
-    String email;
-    String password;
-    String fullName;
-    RegisterType type;
+
+    private String email;
+
+    private String fullName;
+
+    private String phone;
+
+    private RegisterType userType;
+
+    private String bio;
+
+    private List<String> specialties;
+
+    private String city;
+
+    private Integer experience;
 }

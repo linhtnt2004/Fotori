@@ -40,36 +40,38 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Email already exists");
         }
 
-        Role userRole = roleRepository.findByName("ROLE_CUSTOMER")
-            .orElseThrow(() -> new RuntimeException("ROLE_CUSTOMER not found"));
+        Role role;
+
+        if (request.getUserType() == RegisterType.PHOTOGRAPHER) {
+            role = roleRepository.findByName("ROLE_PHOTOGRAPHER")
+                .orElseThrow(() -> new RuntimeException("ROLE_PHOTOGRAPHER not found"));
+        } else {
+            role = roleRepository.findByName("ROLE_CUSTOMER")
+                .orElseThrow(() -> new RuntimeException("ROLE_CUSTOMER not found"));
+        }
 
         User user = User.builder()
             .email(request.getEmail())
-            .password(passwordEncoder.encode(request.getPassword()))
             .fullName(request.getFullName())
-            .status(UserStatus.PENDING)
-            .roles(Set.of(userRole))
+            .phoneNumber(request.getPhone())
+            .status(UserStatus.ACTIVE)
+            .roles(Set.of(role))
             .build();
 
         user = userRepository.save(user);
 
-        RegisterType type =
-            request.getType() != null ? request.getType() : RegisterType.CUSTOMER;
-
-        if (type == RegisterType.PHOTOGRAPHER) {
+        if (request.getUserType() == RegisterType.PHOTOGRAPHER) {
 
             PhotographerProfile photographer = PhotographerProfile.builder()
                 .user(user)
+                .bio(request.getBio())
+                .city(request.getCity())
+                .experienceYears(request.getExperience())
                 .approvalStatus(ApprovalStatus.PENDING)
                 .build();
 
             photographerRepository.save(photographer);
         }
-
-        String token = emailVerificationService.createToken(user);
-
-
-        emailService.sendVerificationEmail(user.getEmail(), token);
 
         return user;
     }

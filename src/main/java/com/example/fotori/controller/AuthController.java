@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @Tag(name = "Authentication", description = "Auth APIs for login/register/refresh/logout")
 @RestController
@@ -47,27 +48,21 @@ public class AuthController {
     @Operation(summary = "Register new user")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
-        try {
-            authService.register(request);
 
-            return ResponseEntity.ok(
-                new ApiResponse(
-                    ErrorCode.SUCCESS.name(),
-                    "User register successfully!",
-                    null
+        User user = authService.register(request);
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Register new user successfully",
+                Map.of(
+                    "data", Map.of(
+                        "user", user
+                    )
                 )
-            );
+            )
 
-        } catch (Exception e) {
-
-            return ResponseEntity.badRequest().body(
-                new ApiResponse(
-                    ErrorCode.BAD_REQUEST.name(),
-                    e.getMessage(),
-                    null
-                )
-            );
-        }
+        );
     }
 
     @Operation(summary = "Login user and return access token")
