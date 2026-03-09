@@ -11,7 +11,6 @@ import com.example.fotori.model.User;
 import com.example.fotori.security.JwtTokenProvider;
 import com.example.fotori.security.UserDetailsImpl;
 import com.example.fotori.service.AuthService;
-import com.example.fotori.service.EmailService;
 import com.example.fotori.service.EmailVerificationService;
 import com.example.fotori.service.RefreshTokenService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,21 +47,31 @@ public class AuthController {
     @Operation(summary = "Register new user")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
+        try {
+            User user = authService.register(request);
 
-        User user = authService.register(request);
+            Map<String, Object> data = Map.of(
+                "user", user
+            );
 
-        return ResponseEntity.ok(
-            new ApiResponse(
-                ErrorCode.SUCCESS.name(),
-                "Register new user successfully",
-                Map.of(
-                    "data", Map.of(
-                        "user", user
-                    )
+            return ResponseEntity.ok(
+                new ApiResponse(
+                    ErrorCode.SUCCESS.name(),
+                    "User register successfully!",
+                    data
                 )
-            )
+            );
 
-        );
+        } catch (Exception e) {
+
+            return ResponseEntity.badRequest().body(
+                new ApiResponse(
+                    ErrorCode.BAD_REQUEST.name(),
+                    e.getMessage(),
+                    null
+                )
+            );
+        }
     }
 
     @Operation(summary = "Login user and return access token")

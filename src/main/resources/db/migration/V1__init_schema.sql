@@ -3,19 +3,19 @@
 -- =========================
 CREATE TABLE users
 (
-    id            BIGINT PRIMARY KEY AUTO_INCREMENT,
-    email         VARCHAR(255) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    full_name     VARCHAR(255),
-    phone_number  VARCHAR(50),
-    gender        VARCHAR(20),
-    birth_date    DATE,
-    avatar_url    VARCHAR(255),
-    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
-    status        VARCHAR(50)  NOT NULL,
-    created_at    DATETIME     NOT NULL,
-    updated_at    DATETIME,
-    deleted_at    DATETIME
+    id             BIGINT PRIMARY KEY AUTO_INCREMENT,
+    email          VARCHAR(255) NOT NULL UNIQUE,
+    password_hash  VARCHAR(255) NOT NULL,
+    full_name      VARCHAR(255),
+    phone_number   VARCHAR(50),
+    gender         VARCHAR(20),
+    birth_date     DATE,
+    avatar_url     VARCHAR(255),
+    email_verified BOOLEAN      NOT NULL DEFAULT FALSE,
+    status         VARCHAR(50)  NOT NULL,
+    created_at     DATETIME     NOT NULL,
+    updated_at     DATETIME,
+    deleted_at     DATETIME
 );
 
 -- =========================
@@ -68,6 +68,7 @@ CREATE TABLE photographers
     user_id          BIGINT      NOT NULL UNIQUE,
 
     bio              TEXT,
+    city             TEXT,
     experience_years INT,
 
     approval_status  VARCHAR(50) NOT NULL,
@@ -140,24 +141,24 @@ CREATE TABLE photo_package_concepts
 -- =========================
 CREATE TABLE bookings
 (
-    id               BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
 
-    user_id          BIGINT      NOT NULL,
-    photographer_id  BIGINT      NOT NULL,
-    photo_package_id BIGINT      NOT NULL,
+    user_id             BIGINT      NOT NULL,
+    photographer_id     BIGINT      NOT NULL,
+    photo_package_id    BIGINT      NOT NULL,
 
-    start_time       DATETIME    NOT NULL,
-    end_time         DATETIME    NOT NULL,
+    start_time          DATETIME    NOT NULL,
+    end_time            DATETIME    NOT NULL,
 
-    status           VARCHAR(50) NOT NULL,
+    status              VARCHAR(50) NOT NULL,
 
     customer_status     VARCHAR(50) NOT NULL,
     photographer_status VARCHAR(50) NOT NULL,
 
-    note             TEXT,
+    note                TEXT,
 
-    created_at       DATETIME    NOT NULL,
-    updated_at       DATETIME,
+    created_at          DATETIME    NOT NULL,
+    updated_at          DATETIME,
 
     CONSTRAINT fk_booking_user
         FOREIGN KEY (user_id) REFERENCES users (id),
@@ -174,17 +175,17 @@ CREATE TABLE bookings
 -- =========================
 CREATE TABLE photographer_availability
 (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    photographer_id BIGINT NOT NULL,
-    start_time DATETIME NOT NULL,
-    end_time DATETIME NOT NULL,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME,
-    deleted_at DATETIME,
+    id              BIGINT PRIMARY KEY AUTO_INCREMENT,
+    photographer_id BIGINT   NOT NULL,
+    start_time      DATETIME NOT NULL,
+    end_time        DATETIME NOT NULL,
+    created_at      DATETIME NOT NULL,
+    updated_at      DATETIME,
+    deleted_at      DATETIME,
 
     CONSTRAINT fk_availability_photographer
         FOREIGN KEY (photographer_id)
-            REFERENCES photographers(id)
+            REFERENCES photographers (id)
 );
 
 -- =========================
@@ -192,19 +193,19 @@ CREATE TABLE photographer_availability
 -- =========================
 CREATE TABLE email_verification_tokens
 (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
 
-    user_id BIGINT NOT NULL,
+    user_id     BIGINT       NOT NULL,
 
-    token VARCHAR(255) NOT NULL UNIQUE,
+    token       VARCHAR(255) NOT NULL UNIQUE,
 
-    expiry_date DATETIME NOT NULL,
+    expiry_date DATETIME     NOT NULL,
 
-    verified BOOLEAN DEFAULT FALSE,
+    verified    BOOLEAN DEFAULT FALSE,
 
-    created_at DATETIME NOT NULL,
+    created_at  DATETIME     NOT NULL,
 
     CONSTRAINT fk_verify_token_user
         FOREIGN KEY (user_id)
-            REFERENCES users(id)
+            REFERENCES users (id)
 );
