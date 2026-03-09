@@ -13,4 +13,6 @@ public interface PhotoPackageRepository extends JpaRepository<PhotoPackage, Long
     List<PhotoPackage> findByPhotographerProfileAndActiveTrue(PhotographerProfile photographerProfile);
 
     List<PhotoPackage> findByActiveTrue();
+
+    List<PhotoPackage> findByPhotographerProfileIdAndActiveTrue(Long photographerId);
 }

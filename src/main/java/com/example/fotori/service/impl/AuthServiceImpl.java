@@ -4,6 +4,7 @@ import com.example.fotori.common.enums.ApprovalStatus;
 import com.example.fotori.common.enums.RegisterType;
 import com.example.fotori.common.enums.UserStatus;
 import com.example.fotori.dto.RegisterRequest;
+import com.example.fotori.dto.UpdateProfileRequest;
 import com.example.fotori.dto.UserResponse;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.Role;
@@ -109,6 +110,37 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository
             .findByEmail(email)
             .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return UserResponse.builder()
+            .id(user.getId())
+            .email(user.getEmail())
+            .fullName(user.getFullName())
+            .phone(user.getPhoneNumber())
+            .avatarUrl(user.getAvatarUrl())
+            .roles(
+                user.getRoles()
+                    .stream()
+                    .map(Role::getName)
+                    .collect(java.util.stream.Collectors.toSet())
+            )
+            .build();
+    }
+
+    @Override
+    @Transactional
+    public UserResponse updateProfile(String email, UpdateProfileRequest request) {
+
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setFullName(request.getName());
+        user.setPhoneNumber(request.getPhone());
+        user.setAvatarUrl(request.getAvatar());
+        user.setGender(request.getGender());
+        user.setBirthDate(request.getBirthDate());
+        user.setAddress(request.getAddress());
+
+        userRepository.save(user);
 
         return UserResponse.builder()
             .id(user.getId())

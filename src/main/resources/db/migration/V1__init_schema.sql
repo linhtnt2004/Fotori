@@ -10,6 +10,7 @@ CREATE TABLE users
     phone_number   VARCHAR(50),
     gender         VARCHAR(20),
     birth_date     DATE,
+    address        VARCHAR(255),
     avatar_url     VARCHAR(255),
     email_verified BOOLEAN      NOT NULL DEFAULT FALSE,
     status         VARCHAR(50)  NOT NULL,

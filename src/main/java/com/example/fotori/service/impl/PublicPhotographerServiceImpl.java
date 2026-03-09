@@ -1,17 +1,23 @@
 package com.example.fotori.service.impl;
 
 import com.example.fotori.common.enums.ApprovalStatus;
+import com.example.fotori.dto.PhotographerPublicDto;
 import com.example.fotori.dto.PublicPhotoPackageResponse;
 import com.example.fotori.dto.PublicPhotographerDetailResponse;
 import com.example.fotori.dto.PublicPhotographerItemResponse;
 import com.example.fotori.exception.BusinessException;
+import com.example.fotori.model.PhotoPackage;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.repository.PhotoPackageRepository;
 import com.example.fotori.repository.PhotographerProfileRepository;
 import com.example.fotori.service.PublicPhotographerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -84,6 +90,45 @@ public class PublicPhotographerServiceImpl
             )
             .toList();
     }
+
+    @Override
+    public Page<PhotographerPublicDto> getPhotographers(
+        int page,
+        int size,
+        String city,
+        Integer minPrice,
+        Integer maxPrice
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<PhotographerProfile> photographers =
+            photographerRepository.findByApprovalStatus(
+                ApprovalStatus.APPROVED,
+                pageable
+            );
+
+        return photographers.map(p -> {
+
+            Integer startingPrice =
+                photoPackageRepository
+                    .findByPhotographerProfileIdAndActiveTrue(p.getId())
+                    .stream()
+                    .map(PhotoPackage::getPrice)
+                    .min(Comparator.naturalOrder())
+                    .orElse(null);
+
+            return PhotographerPublicDto.builder()
+                .id(p.getId())
+                .name(p.getUser().getFullName())
+                .avatar(p.getUser().getAvatarUrl())
+                .city(p.getCity())
+                .bio(p.getBio())
+                .experienceYears(p.getExperienceYears())
+                .startingPrice(startingPrice)
+                .build();
+        });
+    }
+
 
     private PublicPhotographerItemResponse toItemResponse(
         PhotographerProfile profile

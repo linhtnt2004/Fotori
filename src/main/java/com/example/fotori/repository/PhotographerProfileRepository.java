@@ -3,6 +3,8 @@ package com.example.fotori.repository;
 import com.example.fotori.common.enums.ApprovalStatus;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -22,5 +24,10 @@ public interface PhotographerProfileRepository extends JpaRepository<Photographe
     findByIdAndApprovalStatusAndDeletedAtIsNull(
         Long id,
         ApprovalStatus status
+    );
+
+    Page<PhotographerProfile> findByApprovalStatus(
+        ApprovalStatus status,
+        Pageable pageable
     );
 }

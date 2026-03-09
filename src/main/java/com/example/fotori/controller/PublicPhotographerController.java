@@ -2,10 +2,14 @@ package com.example.fotori.controller;
 
 import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.enums.ErrorCode;
+import com.example.fotori.dto.PhotographerPublicDto;
 import com.example.fotori.service.PublicPhotographerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/public/photographers")
@@ -14,7 +18,7 @@ public class PublicPhotographerController {
 
     private final PublicPhotographerService service;
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<ApiResponse> getAll() {
         return ResponseEntity.ok(
             new ApiResponse(
@@ -38,5 +42,32 @@ public class PublicPhotographerController {
         );
     }
 
+    @GetMapping
+    public ApiResponse getPhotographers(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false) String city,
+        @RequestParam(required = false) Integer minPrice,
+        @RequestParam(required = false) Integer maxPrice
+    ) {
 
+        Page<PhotographerPublicDto> result =
+            service.getPhotographers(
+                page,
+                size,
+                city,
+                minPrice,
+                maxPrice
+            );
+
+        Map<String, Object> data = Map.of(
+            "result", result
+        );
+
+        return new ApiResponse(
+            ErrorCode.SUCCESS.name(),
+            "Photographers list",
+            result
+        );
+    }
 }

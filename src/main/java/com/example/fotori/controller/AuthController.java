@@ -291,4 +291,23 @@ public class AuthController {
             )
         );
     }
+
+    @Operation(summary = "Update current user info")
+    @PutMapping("/profile")
+    public ResponseEntity<ApiResponse> updateProfile(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestBody UpdateProfileRequest request
+    ) {
+
+        UserResponse user =
+            authService.updateProfile(userDetails.getUsername(), request);
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Profile updated successfully",
+                java.util.Map.of("user", user)
+            )
+        );
+    }
 }
