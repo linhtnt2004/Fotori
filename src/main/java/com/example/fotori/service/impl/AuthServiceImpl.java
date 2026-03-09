@@ -4,6 +4,7 @@ import com.example.fotori.common.enums.ApprovalStatus;
 import com.example.fotori.common.enums.RegisterType;
 import com.example.fotori.common.enums.UserStatus;
 import com.example.fotori.dto.RegisterRequest;
+import com.example.fotori.dto.UserResponse;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.Role;
 import com.example.fotori.model.User;
@@ -100,5 +101,27 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(newPassword));
 
         userRepository.save(user);
+    }
+
+    @Override
+    public UserResponse getCurrentUser(String email) {
+
+        User user = userRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return UserResponse.builder()
+            .id(user.getId())
+            .email(user.getEmail())
+            .fullName(user.getFullName())
+            .phone(user.getPhoneNumber())
+            .avatarUrl(user.getAvatarUrl())
+            .roles(
+                user.getRoles()
+                    .stream()
+                    .map(Role::getName)
+                    .collect(java.util.stream.Collectors.toSet())
+            )
+            .build();
     }
 }

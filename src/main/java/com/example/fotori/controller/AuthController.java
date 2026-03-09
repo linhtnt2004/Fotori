@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -269,6 +270,24 @@ public class AuthController {
                 ErrorCode.SUCCESS.name(),
                 "Password reset successfully",
                 null
+            )
+        );
+    }
+
+    @Operation(summary = "Get current user info")
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse> getCurrentUser(
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+
+        UserResponse user =
+            authService.getCurrentUser(userDetails.getUsername());
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Current user info",
+                java.util.Map.of("user", user)
             )
         );
     }

@@ -1,6 +1,7 @@
 package com.example.fotori.service;
 
 import com.example.fotori.dto.RegisterRequest;
+import com.example.fotori.dto.UserResponse;
 import com.example.fotori.model.User;
 
 public interface AuthService {
@@ -10,4 +11,6 @@ public interface AuthService {
     void resetPassword(String email);
 
     void resetPasswordWithToken(String token, String newPassword);
+
+    UserResponse getCurrentUser(String email);
 }
