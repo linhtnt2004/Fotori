@@ -6,10 +6,7 @@ import com.example.fotori.service.ForumThreadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -38,6 +35,20 @@ public class ThreadController {
                     "data", threads.getContent(),
                     "total", threads.getTotalElements()
                 )
+            )
+        );
+    }
+
+    @GetMapping("/threads/{id}")
+    public ResponseEntity<ApiResponse> getThreadDetail(
+        @PathVariable Long id
+    ) {
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Thread detail",
+                forumThreadService.getThreadDetail(id)
             )
         );
     }
