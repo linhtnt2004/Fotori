@@ -29,4 +29,10 @@ public interface PublicPhotographerService {
     );
 
     List<PhotographerAvailabilityResponse> getAvailability(Long photographerId);
+
+    Page<PortfolioImageResponse> getPortfolio(
+        Long photographerId,
+        int page,
+        int size
+    );
 }

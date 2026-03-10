@@ -5,11 +5,9 @@ import com.example.fotori.dto.*;
 import com.example.fotori.exception.BusinessException;
 import com.example.fotori.model.PhotoPackage;
 import com.example.fotori.model.PhotographerProfile;
+import com.example.fotori.model.PortfolioImage;
 import com.example.fotori.model.Review;
-import com.example.fotori.repository.PhotoPackageRepository;
-import com.example.fotori.repository.PhotographerAvailabilityRepository;
-import com.example.fotori.repository.PhotographerProfileRepository;
-import com.example.fotori.repository.ReviewRepository;
+import com.example.fotori.repository.*;
 import com.example.fotori.service.PublicPhotographerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,6 +27,7 @@ public class PublicPhotographerServiceImpl
     private final PhotoPackageRepository photoPackageRepository;
     private final ReviewRepository reviewRepository;
     private final PhotographerAvailabilityRepository availabilityRepository;
+    private final PortfolioImageRepository portfolioImageRepository;
 
     @Override
     public List<PublicPhotographerItemResponse> getAllApproved() {
@@ -185,6 +184,30 @@ public class PublicPhotographerServiceImpl
                          .build()
             )
             .toList();
+    }
+
+    @Override
+    public Page<PortfolioImageResponse> getPortfolio(
+        Long photographerId,
+        int page,
+        int size
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<PortfolioImage> images =
+            portfolioImageRepository.findByPhotographerId(
+                photographerId,
+                pageable
+            );
+
+        return images.map(img ->
+                              PortfolioImageResponse.builder()
+                                  .id(img.getId())
+                                  .imageUrl(img.getImageUrl())
+                                  .caption(img.getCaption())
+                                  .build()
+        );
     }
 
     private PublicPhotographerItemResponse toItemResponse(

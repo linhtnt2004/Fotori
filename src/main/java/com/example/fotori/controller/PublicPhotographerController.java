@@ -3,6 +3,7 @@ package com.example.fotori.controller;
 import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.enums.ErrorCode;
 import com.example.fotori.dto.PhotographerPublicDto;
+import com.example.fotori.dto.PortfolioImageResponse;
 import com.example.fotori.dto.PublicReviewResponse;
 import com.example.fotori.service.PublicPhotographerService;
 import lombok.RequiredArgsConstructor;
@@ -118,6 +119,29 @@ public class PublicPhotographerController {
                 ErrorCode.SUCCESS.name(),
                 "Photographer availability",
                 service.getAvailability(id)
+            )
+        );
+    }
+
+    @GetMapping("/{id}/portfolio")
+    public ResponseEntity<ApiResponse> getPortfolio(
+        @PathVariable Long id,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+
+        Page<PortfolioImageResponse> result =
+            service.getPortfolio(id, page, size);
+
+        Map<String, Object> data = Map.of(
+            "data", result.getContent()
+        );
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Photographer portfolio",
+                data
             )
         );
     }

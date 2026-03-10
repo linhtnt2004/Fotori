@@ -241,3 +241,24 @@ CREATE TABLE reviews
         FOREIGN KEY (booking_id)
             REFERENCES bookings (id)
 );
+
+-- =========================
+-- PORTFOLIO IMAGES
+-- =========================
+CREATE TABLE portfolio_images
+(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    photographer_id BIGINT NOT NULL,
+
+    image_url VARCHAR(255) NOT NULL,
+    caption TEXT,
+
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    deleted_at DATETIME,
+
+    CONSTRAINT fk_portfolio_photographer
+        FOREIGN KEY (photographer_id)
+            REFERENCES photographers (id)
+);
