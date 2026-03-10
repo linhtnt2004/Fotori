@@ -14,4 +14,6 @@ public interface VoucherService {
     ValidateVoucherResponse validateVoucher(ValidateVoucherRequest request);
 
     VoucherResponse createVoucher(CreateVoucherRequest request);
+
+    void deleteVoucher(String code);
 }

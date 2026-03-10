@@ -155,4 +155,17 @@ public class VoucherServiceImpl implements VoucherService {
             .description(voucher.getDescription())
             .build();
     }
+
+    @Override
+    @Transactional
+    public void deleteVoucher(String code) {
+
+        Voucher voucher = voucherRepository
+            .findById(code.toUpperCase())
+            .orElseThrow(() -> new RuntimeException("Voucher not found"));
+
+        voucher.setActive(false);
+
+        voucherRepository.save(voucher);
+    }
 }
