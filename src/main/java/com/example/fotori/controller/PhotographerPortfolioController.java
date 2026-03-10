@@ -4,6 +4,7 @@ import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.enums.ErrorCode;
 import com.example.fotori.dto.CreatePortfolioRequest;
 import com.example.fotori.dto.PortfolioResponse;
+import com.example.fotori.dto.UpdatePortfolioRequest;
 import com.example.fotori.service.PortfolioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -60,6 +61,30 @@ public class PhotographerPortfolioController {
             new ApiResponse(
                 ErrorCode.SUCCESS.name(),
                 "Portfolio image created successfully",
+                portfolio
+            )
+        );
+    }
+
+    @Operation(summary = "Update portfolio image info")
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse> updatePortfolio(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id,
+        @RequestBody UpdatePortfolioRequest request
+    ) {
+
+        PortfolioResponse portfolio =
+            portfolioService.updatePortfolio(
+                userDetails.getUsername(),
+                id,
+                request
+            );
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Portfolio updated successfully",
                 portfolio
             )
         );

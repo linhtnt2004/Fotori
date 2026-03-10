@@ -2,6 +2,7 @@ package com.example.fotori.service.impl;
 
 import com.example.fotori.dto.CreatePortfolioRequest;
 import com.example.fotori.dto.PortfolioResponse;
+import com.example.fotori.dto.UpdatePortfolioRequest;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.PortfolioImage;
 import com.example.fotori.model.User;
@@ -71,6 +72,45 @@ public class PortfolioServiceImpl implements PortfolioService {
             .category(request.getCategory())
             .description(request.getDescription())
             .build();
+
+        portfolioRepository.save(image);
+
+        return PortfolioResponse.builder()
+            .id(image.getId())
+            .imageUrl(image.getImageUrl())
+            .title(image.getTitle())
+            .category(image.getCategory())
+            .description(image.getDescription())
+            .build();
+    }
+
+    @Override
+    @Transactional
+    public PortfolioResponse updatePortfolio(
+        String email,
+        Long portfolioId,
+        UpdatePortfolioRequest request
+    ) {
+
+        User user = userRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        PhotographerProfile photographer =
+            photographerRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Photographer profile not found"));
+
+        PortfolioImage image = portfolioRepository
+            .findById(portfolioId)
+            .orElseThrow(() -> new RuntimeException("Portfolio image not found"));
+
+        if (!image.getPhotographer().getId().equals(photographer.getId())) {
+            throw new RuntimeException("You are not allowed to edit this portfolio image");
+        }
+
+        image.setTitle(request.getTitle());
+        image.setCategory(request.getCategory());
+        image.setDescription(request.getDescription());
 
         portfolioRepository.save(image);
 
