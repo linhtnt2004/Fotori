@@ -21,4 +21,5 @@ public interface PortfolioService {
         UpdatePortfolioRequest request
     );
 
+    void deletePortfolio(String email, Long portfolioId);
 }

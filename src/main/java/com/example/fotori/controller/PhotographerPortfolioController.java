@@ -89,4 +89,25 @@ public class PhotographerPortfolioController {
             )
         );
     }
+
+    @Operation(summary = "Delete portfolio image")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse> deletePortfolio(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+
+        portfolioService.deletePortfolio(
+            userDetails.getUsername(),
+            id
+        );
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Portfolio deleted successfully",
+                null
+            )
+        );
+    }
 }

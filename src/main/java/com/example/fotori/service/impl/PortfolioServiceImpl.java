@@ -3,6 +3,7 @@ package com.example.fotori.service.impl;
 import com.example.fotori.dto.CreatePortfolioRequest;
 import com.example.fotori.dto.PortfolioResponse;
 import com.example.fotori.dto.UpdatePortfolioRequest;
+import com.example.fotori.exception.BusinessException;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.PortfolioImage;
 import com.example.fotori.model.User;
@@ -30,11 +31,11 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         User user = userRepository
             .findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new BusinessException("User not found"));
 
         PhotographerProfile photographer =
             photographerRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Photographer profile not found"));
+                .orElseThrow(() -> new BusinessException("Photographer profile not found"));
 
         List<PortfolioImage> images =
             portfolioRepository.findByPhotographer(photographer);
@@ -59,11 +60,11 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         User user = userRepository
             .findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new BusinessException("User not found"));
 
         PhotographerProfile photographer =
             photographerRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Photographer profile not found"));
+                .orElseThrow(() -> new BusinessException("Photographer profile not found"));
 
         PortfolioImage image = PortfolioImage.builder()
             .photographer(photographer)
@@ -94,18 +95,18 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         User user = userRepository
             .findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new BusinessException("User not found"));
 
         PhotographerProfile photographer =
             photographerRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Photographer profile not found"));
+                .orElseThrow(() -> new BusinessException("Photographer profile not found"));
 
         PortfolioImage image = portfolioRepository
             .findById(portfolioId)
-            .orElseThrow(() -> new RuntimeException("Portfolio image not found"));
+            .orElseThrow(() -> new BusinessException("Portfolio image not found"));
 
         if (!image.getPhotographer().getId().equals(photographer.getId())) {
-            throw new RuntimeException("You are not allowed to edit this portfolio image");
+            throw new BusinessException("You are not allowed to edit this portfolio image");
         }
 
         image.setTitle(request.getTitle());
@@ -121,5 +122,28 @@ public class PortfolioServiceImpl implements PortfolioService {
             .category(image.getCategory())
             .description(image.getDescription())
             .build();
+    }
+
+    @Override
+    @Transactional
+    public void deletePortfolio(String email, Long portfolioId) {
+
+        User user = userRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new BusinessException("User not found"));
+
+        PhotographerProfile photographer =
+            photographerRepository.findByUser(user)
+                .orElseThrow(() -> new BusinessException("Photographer profile not found"));
+
+        PortfolioImage image = portfolioRepository
+            .findById(portfolioId)
+            .orElseThrow(() -> new BusinessException("Portfolio image not found"));
+
+        if (!image.getPhotographer().getId().equals(photographer.getId())) {
+            throw new BusinessException("You are not allowed to delete this portfolio image");
+        }
+
+        portfolioRepository.delete(image);
     }
 }
