@@ -270,3 +270,29 @@ CREATE TABLE portfolio_images
         FOREIGN KEY (photographer_id)
             REFERENCES photographers (id)
 );
+
+-- =========================
+-- WISHLISTS
+-- =========================
+CREATE TABLE wishlists
+(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    user_id BIGINT NOT NULL,
+    photographer_id BIGINT NOT NULL,
+
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    deleted_at DATETIME,
+
+    CONSTRAINT fk_wishlist_user
+        FOREIGN KEY (user_id)
+            REFERENCES users (id),
+
+    CONSTRAINT fk_wishlist_photographer
+        FOREIGN KEY (photographer_id)
+            REFERENCES photographers (id),
+
+    CONSTRAINT uq_wishlist_user_photographer
+        UNIQUE (user_id, photographer_id)
+);
