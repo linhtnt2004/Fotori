@@ -431,3 +431,31 @@ CREATE TABLE forum_replies
         FOREIGN KEY (author_id)
             REFERENCES users(id)
 );
+
+-- =========================
+-- VOUCHERS
+-- =========================
+CREATE TABLE vouchers
+(
+    code VARCHAR(100) PRIMARY KEY,
+
+    type VARCHAR(50) NOT NULL,
+
+    value INT NOT NULL,
+
+    min_order_value INT,
+    max_discount INT,
+
+    expires_at DATETIME NOT NULL,
+
+    usage_limit INT,
+    used_count INT NOT NULL DEFAULT 0,
+
+    description TEXT,
+
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    deleted_at DATETIME
+);
