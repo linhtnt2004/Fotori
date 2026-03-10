@@ -27,4 +27,16 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Object[]> findTrendingPhotographers(Pageable pageable);
 
     boolean existsByBooking(Booking booking);
+
+    Page<Review> findByPhotographerProfile_Id(
+        Long photographerId,
+        Pageable pageable
+    );
+
+    @Query("""
+            SELECT AVG(r.rating)
+            FROM Review r
+            WHERE r.photographerProfile.id = :photographerId
+        """)
+    Double getAverageRating(Long photographerId);
 }
