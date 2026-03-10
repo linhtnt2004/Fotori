@@ -16,4 +16,9 @@ public interface PhotoPackageService {
         Long packageId,
         UpdatePhotoPackageRequest request
     );
+
+    void deletePackage(
+        String email,
+        Long packageId
+    );
 }

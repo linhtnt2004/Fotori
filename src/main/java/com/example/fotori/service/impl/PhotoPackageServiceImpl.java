@@ -114,4 +114,37 @@ public class PhotoPackageServiceImpl implements PhotoPackageService {
             .price(photoPackage.getPrice())
             .build();
     }
+
+    @Override
+    @Transactional
+    public void deletePackage(
+        String email,
+        Long packageId
+    ) {
+
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new BusinessException("USER_NOT_FOUND"));
+
+        PhotographerProfile profile =
+            photographerRepository.findByUser(user)
+                .orElseThrow(() ->
+                                 new BusinessException("PROFILE_NOT_FOUND")
+                );
+
+        PhotoPackage photoPackage =
+            photoPackageRepository.findById(packageId)
+                .orElseThrow(() ->
+                                 new BusinessException("PACKAGE_NOT_FOUND")
+                );
+
+        if (!photoPackage.getPhotographerProfile().getId()
+            .equals(profile.getId())) {
+
+            throw new BusinessException("NOT_YOUR_PACKAGE");
+        }
+
+        photoPackage.setActive(false);
+
+        photoPackageRepository.save(photoPackage);
+    }
 }

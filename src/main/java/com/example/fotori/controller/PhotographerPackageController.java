@@ -8,6 +8,7 @@ import com.example.fotori.dto.UpdatePhotoPackageRequest;
 import com.example.fotori.service.PhotoPackageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/photographer/packages")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('PHOTOGRAPHER')")
 public class PhotographerPackageController {
 
     private final PhotoPackageService photoPackageService;
@@ -57,6 +59,26 @@ public class PhotographerPackageController {
                 ErrorCode.SUCCESS.name(),
                 "Package updated",
                 response
+            )
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse> deletePackage(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+
+        photoPackageService.deletePackage(
+            userDetails.getUsername(),
+            id
+        );
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Package deleted",
+                null
             )
         );
     }
