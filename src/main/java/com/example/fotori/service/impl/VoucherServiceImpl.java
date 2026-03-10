@@ -1,6 +1,7 @@
 package com.example.fotori.service.impl;
 
 import com.example.fotori.common.enums.VoucherType;
+import com.example.fotori.dto.CreateVoucherRequest;
 import com.example.fotori.dto.ValidateVoucherRequest;
 import com.example.fotori.dto.ValidateVoucherResponse;
 import com.example.fotori.dto.VoucherResponse;
@@ -10,6 +11,7 @@ import com.example.fotori.service.VoucherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -115,6 +117,42 @@ public class VoucherServiceImpl implements VoucherService {
             .valid(true)
             .discount(discount)
             .message("Voucher applied successfully")
+            .build();
+    }
+
+    @Override
+    @Transactional
+    public VoucherResponse createVoucher(CreateVoucherRequest request) {
+
+        if (voucherRepository.existsById(request.getCode())) {
+            throw new RuntimeException("Voucher code already exists");
+        }
+
+        Voucher voucher = Voucher.builder()
+            .code(request.getCode().toUpperCase())
+            .type(request.getType())
+            .value(request.getValue())
+            .minOrderValue(request.getMinOrderValue())
+            .maxDiscount(request.getMaxDiscount())
+            .expiresAt(request.getExpiresAt())
+            .usageLimit(request.getUsageLimit())
+            .description(request.getDescription())
+            .usedCount(0)
+            .active(true)
+            .build();
+
+        voucher = voucherRepository.save(voucher);
+
+        return VoucherResponse.builder()
+            .code(voucher.getCode())
+            .type(voucher.getType().name().toLowerCase())
+            .value(voucher.getValue())
+            .minOrderValue(voucher.getMinOrderValue())
+            .maxDiscount(voucher.getMaxDiscount())
+            .expiresAt(voucher.getExpiresAt())
+            .usageLimit(voucher.getUsageLimit())
+            .usedCount(voucher.getUsedCount())
+            .description(voucher.getDescription())
             .build();
     }
 }
