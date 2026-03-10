@@ -131,4 +131,24 @@ public class ThreadController {
             )
         );
     }
+
+    @PutMapping("/replies/{id}/accept")
+    public ResponseEntity<ApiResponse> acceptReply(
+        @PathVariable Long id,
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+
+        forumThreadService.acceptReply(
+            userDetails.getUsername(),
+            id
+        );
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Reply accepted",
+                null
+            )
+        );
+    }
 }

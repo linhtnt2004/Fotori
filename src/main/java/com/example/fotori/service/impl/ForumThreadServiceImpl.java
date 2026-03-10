@@ -140,4 +140,31 @@ public class ForumThreadServiceImpl implements ForumThreadService {
 
         return reply.getLikes();
     }
+
+    @Override
+    public void acceptReply(String email, Long replyId) {
+
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
+
+        ForumReply reply = forumReplyRepository.findById(replyId)
+            .orElseThrow(() -> new RuntimeException("REPLY_NOT_FOUND"));
+
+        ForumThread thread = reply.getThread();
+
+        boolean isThreadAuthor =
+            thread.getAuthor().getId().equals(user.getId());
+
+        boolean isAdmin = user.getRoles()
+            .stream()
+            .anyMatch(r -> r.getName().equals("ROLE_ADMIN"));
+
+        if (!isThreadAuthor && !isAdmin) {
+            throw new RuntimeException("NO_PERMISSION");
+        }
+
+        reply.setAccepted(true);
+
+        forumReplyRepository.save(reply);
+    }
 }

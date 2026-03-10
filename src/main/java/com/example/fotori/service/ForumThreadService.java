@@ -25,4 +25,6 @@ public interface ForumThreadService {
     int likeThread(Long threadId);
 
     int likeReply(Long replyId);
+
+    void acceptReply(String email, Long replyId);
 }
