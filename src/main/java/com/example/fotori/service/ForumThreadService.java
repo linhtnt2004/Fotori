@@ -21,4 +21,6 @@ public interface ForumThreadService {
     ForumThread createThread(String email, CreateForumThreadRequest request);
 
     ForumReply createReply(String email, Long threadId, CreateForumReplyRequest request);
+
+    int likeThread(Long threadId);
 }

@@ -110,4 +110,19 @@ public class ForumThreadServiceImpl implements ForumThreadService {
 
         return forumReplyRepository.save(reply);
     }
+
+    @Override
+    public int likeThread(Long threadId) {
+
+        ForumThread thread = forumThreadRepository.findById(threadId)
+            .orElseThrow(() -> new RuntimeException("THREAD_NOT_FOUND"));
+
+        int likes = thread.getLikes() == null ? 0 : thread.getLikes();
+
+        thread.setLikes(likes + 1);
+
+        forumThreadRepository.save(thread);
+
+        return thread.getLikes();
+    }
 }

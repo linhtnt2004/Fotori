@@ -99,4 +99,20 @@ public class ThreadController {
             )
         );
     }
+
+    @PostMapping("/threads/{id}/like")
+    public ResponseEntity<ApiResponse> likeThread(
+        @PathVariable Long id
+    ) {
+
+        int likes = forumThreadService.likeThread(id);
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Thread liked",
+                Map.of("likes", likes)
+            )
+        );
+    }
 }
