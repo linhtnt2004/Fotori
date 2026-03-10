@@ -27,4 +27,6 @@ public interface PublicPhotographerService {
         int page,
         int size
     );
+
+    List<PhotographerAvailabilityResponse> getAvailability(Long photographerId);
 }

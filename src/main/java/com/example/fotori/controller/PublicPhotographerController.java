@@ -68,7 +68,7 @@ public class PublicPhotographerController {
         return new ApiResponse(
             ErrorCode.SUCCESS.name(),
             "Photographers list",
-            result
+            data
         );
     }
 
@@ -104,6 +104,20 @@ public class PublicPhotographerController {
                 ErrorCode.SUCCESS.name(),
                 "Photographer packages",
                 service.getPackages(id)
+            )
+        );
+    }
+
+    @GetMapping("/{id}/availability")
+    public ResponseEntity<ApiResponse> getAvailability(
+        @PathVariable Long id
+    ) {
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Photographer availability",
+                service.getAvailability(id)
             )
         );
     }

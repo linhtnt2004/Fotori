@@ -7,6 +7,7 @@ import com.example.fotori.model.PhotoPackage;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.Review;
 import com.example.fotori.repository.PhotoPackageRepository;
+import com.example.fotori.repository.PhotographerAvailabilityRepository;
 import com.example.fotori.repository.PhotographerProfileRepository;
 import com.example.fotori.repository.ReviewRepository;
 import com.example.fotori.service.PublicPhotographerService;
@@ -27,6 +28,7 @@ public class PublicPhotographerServiceImpl
     private final PhotographerProfileRepository photographerRepository;
     private final PhotoPackageRepository photoPackageRepository;
     private final ReviewRepository reviewRepository;
+    private final PhotographerAvailabilityRepository availabilityRepository;
 
     @Override
     public List<PublicPhotographerItemResponse> getAllApproved() {
@@ -155,6 +157,34 @@ public class PublicPhotographerServiceImpl
                                    .createdAt(r.getCreatedAt())
                                    .build()
         );
+    }
+
+    @Override
+    public List<PhotographerAvailabilityResponse> getAvailability(
+        Long photographerId
+    ) {
+
+        PhotographerProfile profile =
+            photographerRepository
+                .findByIdAndApprovalStatusAndDeletedAtIsNull(
+                    photographerId,
+                    ApprovalStatus.APPROVED
+                )
+                .orElseThrow(() ->
+                                 new BusinessException("PHOTOGRAPHER_NOT_FOUND")
+                );
+
+        return availabilityRepository
+            .findByPhotographerAndDeletedAtIsNull(profile)
+            .stream()
+            .map(a ->
+                     PhotographerAvailabilityResponse.builder()
+                         .id(a.getId())
+                         .startTime(a.getStartTime())
+                         .endTime(a.getEndTime())
+                         .build()
+            )
+            .toList();
     }
 
     private PublicPhotographerItemResponse toItemResponse(
