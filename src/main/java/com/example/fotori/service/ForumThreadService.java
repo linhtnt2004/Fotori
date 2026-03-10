@@ -2,10 +2,12 @@ package com.example.fotori.service;
 
 import com.example.fotori.dto.CreateForumReplyRequest;
 import com.example.fotori.dto.CreateForumThreadRequest;
+import com.example.fotori.model.ForumCategory;
 import com.example.fotori.model.ForumReply;
 import com.example.fotori.model.ForumThread;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.Map;
 
 public interface ForumThreadService {
@@ -27,4 +29,6 @@ public interface ForumThreadService {
     int likeReply(Long replyId);
 
     void acceptReply(String email, Long replyId);
+
+    List<ForumCategory> getCategories();
 }

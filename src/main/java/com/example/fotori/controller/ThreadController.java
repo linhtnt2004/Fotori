@@ -151,4 +151,16 @@ public class ThreadController {
             )
         );
     }
+
+    @GetMapping("/categories")
+    public ResponseEntity<ApiResponse> getCategories() {
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Forum categories",
+                forumThreadService.getCategories()
+            )
+        );
+    }
 }

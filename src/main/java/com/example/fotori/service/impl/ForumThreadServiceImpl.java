@@ -167,4 +167,10 @@ public class ForumThreadServiceImpl implements ForumThreadService {
 
         forumReplyRepository.save(reply);
     }
+
+    @Override
+    public List<ForumCategory> getCategories() {
+
+        return forumCategoryRepository.findAll();
+    }
 }
