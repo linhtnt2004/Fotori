@@ -210,3 +210,34 @@ CREATE TABLE email_verification_tokens
         FOREIGN KEY (user_id)
             REFERENCES users (id)
 );
+
+-- =========================
+-- REVIEWS
+-- =========================
+CREATE TABLE reviews
+(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    customer_id BIGINT NOT NULL,
+    photographer_id BIGINT NOT NULL,
+    booking_id BIGINT,
+
+    rating INT NOT NULL,
+    comment TEXT,
+
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    deleted_at DATETIME,
+
+    CONSTRAINT fk_review_customer
+        FOREIGN KEY (customer_id)
+            REFERENCES users (id),
+
+    CONSTRAINT fk_review_photographer
+        FOREIGN KEY (photographer_id)
+            REFERENCES photographers (id),
+
+    CONSTRAINT fk_review_booking
+        FOREIGN KEY (booking_id)
+            REFERENCES bookings (id)
+);

@@ -3,6 +3,7 @@ package com.example.fotori.controller;
 import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.enums.ErrorCode;
 import com.example.fotori.dto.PhotographerPublicDto;
+import com.example.fotori.dto.PublicReviewResponse;
 import com.example.fotori.service.PublicPhotographerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -68,6 +69,42 @@ public class PublicPhotographerController {
             ErrorCode.SUCCESS.name(),
             "Photographers list",
             result
+        );
+    }
+
+    @GetMapping("/{id}/reviews")
+    public ApiResponse getPhotographerReviews(
+        @PathVariable Long id,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+
+        Page<PublicReviewResponse> result =
+            service.getPhotographerReviews(id, page, size);
+
+        Map<String, Object> data = Map.of(
+            "data", result.getContent(),
+            "total", result.getTotalElements()
+        );
+
+        return new ApiResponse(
+            ErrorCode.SUCCESS.name(),
+            "Photographer reviews",
+            data
+        );
+    }
+
+    @GetMapping("/{id}/packages")
+    public ResponseEntity<ApiResponse> getPackages(
+        @PathVariable Long id
+    ) {
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Photographer packages",
+                service.getPackages(id)
+            )
         );
     }
 }

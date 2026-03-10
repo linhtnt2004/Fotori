@@ -1,15 +1,14 @@
 package com.example.fotori.service.impl;
 
 import com.example.fotori.common.enums.ApprovalStatus;
-import com.example.fotori.dto.PhotographerPublicDto;
-import com.example.fotori.dto.PublicPhotoPackageResponse;
-import com.example.fotori.dto.PublicPhotographerDetailResponse;
-import com.example.fotori.dto.PublicPhotographerItemResponse;
+import com.example.fotori.dto.*;
 import com.example.fotori.exception.BusinessException;
 import com.example.fotori.model.PhotoPackage;
 import com.example.fotori.model.PhotographerProfile;
+import com.example.fotori.model.Review;
 import com.example.fotori.repository.PhotoPackageRepository;
 import com.example.fotori.repository.PhotographerProfileRepository;
+import com.example.fotori.repository.ReviewRepository;
 import com.example.fotori.service.PublicPhotographerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +26,7 @@ public class PublicPhotographerServiceImpl
 
     private final PhotographerProfileRepository photographerRepository;
     private final PhotoPackageRepository photoPackageRepository;
+    private final ReviewRepository reviewRepository;
 
     @Override
     public List<PublicPhotographerItemResponse> getAllApproved() {
@@ -86,6 +86,7 @@ public class PublicPhotographerServiceImpl
                          .title(pkg.getTitle())
                          .description(pkg.getDescription())
                          .price(pkg.getPrice())
+                         .durationMinutes(pkg.getDurationMinutes())
                          .build()
             )
             .toList();
@@ -129,6 +130,32 @@ public class PublicPhotographerServiceImpl
         });
     }
 
+    @Override
+    public Page<PublicReviewResponse> getPhotographerReviews(
+        Long photographerId,
+        int page,
+        int size
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Review> reviews =
+            reviewRepository.findByPhotographerProfileId(
+                photographerId,
+                pageable
+            );
+
+        return reviews.map(r ->
+                               PublicReviewResponse.builder()
+                                   .id(r.getId())
+                                   .customerName(r.getCustomer().getFullName())
+                                   .customerAvatar(r.getCustomer().getAvatarUrl())
+                                   .rating(r.getRating())
+                                   .comment(r.getComment())
+                                   .createdAt(r.getCreatedAt())
+                                   .build()
+        );
+    }
 
     private PublicPhotographerItemResponse toItemResponse(
         PhotographerProfile profile
