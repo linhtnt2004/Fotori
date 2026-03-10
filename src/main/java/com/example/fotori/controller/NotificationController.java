@@ -3,6 +3,7 @@ package com.example.fotori.controller;
 import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.enums.ErrorCode;
 import com.example.fotori.dto.NotificationResponse;
+import com.example.fotori.service.NotificationCommandService;
 import com.example.fotori.service.NotificationQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import java.util.Map;
 public class NotificationController {
 
     private final NotificationQueryService notificationQueryService;
+    private final NotificationCommandService notificationCommandService;
 
     @GetMapping
     public ResponseEntity<ApiResponse> getNotifications(
@@ -52,6 +54,26 @@ public class NotificationController {
                 ErrorCode.SUCCESS.name(),
                 "Notifications fetched successfully",
                 data
+            )
+        );
+    }
+
+    @PutMapping("/{id}/read")
+    public ResponseEntity<ApiResponse> markAsRead(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+
+        notificationCommandService.markAsRead(
+            userDetails.getUsername(),
+            id
+        );
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Notification marked as read",
+                null
             )
         );
     }
