@@ -103,4 +103,23 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         PhotographerProfile photographer,
         Pageable pageable
     );
+
+    long countByUser(User user);
+
+    @Query("""
+        SELECT COALESCE(SUM(b.finalPrice),0)
+        FROM Booking b
+        WHERE b.user = :user
+        AND b.paymentStatus = 'PAID'
+        """)
+    Double getTotalSpent(User user);
+
+    @Query("""
+        SELECT COUNT(b)
+        FROM Booking b
+        WHERE b.user = :user
+        AND b.startTime > CURRENT_TIMESTAMP
+        AND b.status = 'CONFIRMED'
+        """)
+    Long countUpcomingBookings(User user);
 }
