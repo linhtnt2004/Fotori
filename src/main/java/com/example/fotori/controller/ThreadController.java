@@ -115,4 +115,20 @@ public class ThreadController {
             )
         );
     }
+
+    @PostMapping("/replies/{id}/like")
+    public ResponseEntity<ApiResponse> likeReply(
+        @PathVariable Long id
+    ) {
+
+        int likes = forumThreadService.likeReply(id);
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Reply liked",
+                Map.of("likes", likes)
+            )
+        );
+    }
 }

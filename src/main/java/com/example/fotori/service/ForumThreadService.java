@@ -23,4 +23,6 @@ public interface ForumThreadService {
     ForumReply createReply(String email, Long threadId, CreateForumReplyRequest request);
 
     int likeThread(Long threadId);
+
+    int likeReply(Long replyId);
 }
