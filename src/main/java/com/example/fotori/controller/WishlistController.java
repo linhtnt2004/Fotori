@@ -63,4 +63,24 @@ public class WishlistController {
             )
         );
     }
+
+    @DeleteMapping("/{photographerId}")
+    public ResponseEntity<ApiResponse> removeFromWishlist(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long photographerId
+    ) {
+
+        wishlistCommandService.removeFromWishlist(
+            userDetails.getUsername(),
+            photographerId
+        );
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Removed from wishlist",
+                null
+            )
+        );
+    }
 }

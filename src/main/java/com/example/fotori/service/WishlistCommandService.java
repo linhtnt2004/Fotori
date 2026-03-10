@@ -6,4 +6,5 @@ public interface WishlistCommandService {
 
     WishlistItemResponse addToWishlist(String email, Long photographerId);
 
+    void removeFromWishlist(String email, Long photographerId);
 }

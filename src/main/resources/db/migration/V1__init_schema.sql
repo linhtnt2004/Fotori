@@ -296,3 +296,27 @@ CREATE TABLE wishlists
     CONSTRAINT uq_wishlist_user_photographer
         UNIQUE (user_id, photographer_id)
 );
+
+-- =========================
+-- NOTIFICATIONS
+-- =========================
+CREATE TABLE notifications
+(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    user_id BIGINT NOT NULL,
+
+    title VARCHAR(255),
+
+    content TEXT,
+
+    is_read BOOLEAN DEFAULT FALSE,
+
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    deleted_at DATETIME,
+
+    CONSTRAINT fk_notification_user
+        FOREIGN KEY (user_id)
+            REFERENCES users (id)
+);

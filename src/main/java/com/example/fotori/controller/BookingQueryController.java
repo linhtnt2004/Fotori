@@ -28,7 +28,7 @@ public class BookingQueryController {
         @PathVariable Long id
     ) {
 
-        BookingDetailResponse result =
+        BookingDetailResponse data =
             service.getBookingDetail(
                 userDetails.getUsername(),
                 id
@@ -38,7 +38,7 @@ public class BookingQueryController {
             new ApiResponse(
                 ErrorCode.SUCCESS.name(),
                 "Booking detail",
-                result
+                data
             )
         );
     }

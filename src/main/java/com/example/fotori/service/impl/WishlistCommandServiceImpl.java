@@ -53,4 +53,21 @@ public class WishlistCommandServiceImpl implements WishlistCommandService {
             )
             .build();
     }
+
+    @Override
+    public void removeFromWishlist(String email, Long photographerId) {
+
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
+
+        PhotographerProfile photographer =
+            photographerRepository.findById(photographerId)
+                .orElseThrow(() -> new RuntimeException("PHOTOGRAPHER_NOT_FOUND"));
+
+        Wishlist wishlist = wishlistRepository
+            .findByUserAndPhotographer(user, photographer)
+            .orElseThrow(() -> new RuntimeException("NOT_IN_WISHLIST"));
+
+        wishlistRepository.delete(wishlist);
+    }
 }
