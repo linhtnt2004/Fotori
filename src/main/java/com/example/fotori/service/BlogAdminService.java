@@ -11,4 +11,6 @@ public interface BlogAdminService {
     BlogPost updateBlog(Long id, UpdateBlogRequest request);
 
     void deleteBlog(Long id);
+
+    int likeBlog(Long id);
 }

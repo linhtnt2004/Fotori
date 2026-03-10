@@ -79,6 +79,21 @@ public class BlogAdminServiceImpl implements BlogAdminService {
         blogRepository.delete(blog);
     }
 
+    @Override
+    public int likeBlog(Long id) {
+
+        BlogPost blog = blogRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("BLOG_NOT_FOUND"));
+
+        int likes = blog.getLikes() == null ? 0 : blog.getLikes();
+
+        blog.setLikes(likes + 1);
+
+        blogRepository.save(blog);
+
+        return blog.getLikes();
+    }
+
     private String generateSlug(String title) {
 
         return title
