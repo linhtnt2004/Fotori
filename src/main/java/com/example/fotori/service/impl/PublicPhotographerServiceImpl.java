@@ -141,7 +141,7 @@ public class PublicPhotographerServiceImpl
         Pageable pageable = PageRequest.of(page, size);
 
         Page<Review> reviews =
-            reviewRepository.findByPhotographerProfileId(
+            reviewRepository.findByPhotographerId(
                 photographerId,
                 pageable
             );
@@ -205,7 +205,7 @@ public class PublicPhotographerServiceImpl
                               PortfolioImageResponse.builder()
                                   .id(img.getId())
                                   .imageUrl(img.getImageUrl())
-                                  .caption(img.getCaption())
+                                  .caption(img.getDescription())
                                   .build()
         );
     }

@@ -140,7 +140,7 @@ CREATE TABLE photo_package_concepts
 );
 
 -- =========================
--- Bookings
+-- BOOKINGS
 -- =========================
 CREATE TABLE bookings
 (
@@ -160,17 +160,26 @@ CREATE TABLE bookings
 
     note                TEXT,
 
+    total_price DOUBLE NOT NULL,
+    final_price DOUBLE,
+
+    payment_status      VARCHAR(50),
+
     created_at          DATETIME    NOT NULL,
     updated_at          DATETIME,
+    deleted_at          DATETIME,
 
     CONSTRAINT fk_booking_user
-        FOREIGN KEY (user_id) REFERENCES users (id),
+        FOREIGN KEY (user_id)
+            REFERENCES users (id),
 
     CONSTRAINT fk_booking_photographer
-        FOREIGN KEY (photographer_id) REFERENCES photographers (id),
+        FOREIGN KEY (photographer_id)
+            REFERENCES photographers (id),
 
     CONSTRAINT fk_booking_package
-        FOREIGN KEY (photo_package_id) REFERENCES photo_packages (id)
+        FOREIGN KEY (photo_package_id)
+            REFERENCES photo_packages (id)
 );
 
 -- =========================
@@ -222,9 +231,9 @@ CREATE TABLE reviews
 
     customer_id     BIGINT   NOT NULL,
     photographer_id BIGINT   NOT NULL,
-    booking_id      BIGINT   NOT NULL UNIQUE,
+    booking_id      BIGINT   NOT NULL,
 
-    rating          INT,
+    rating          INT      NOT NULL,
     skills          INT,
     attitude        INT,
     punctuality     INT,
@@ -236,6 +245,9 @@ CREATE TABLE reviews
     created_at      DATETIME NOT NULL,
     updated_at      DATETIME,
     deleted_at      DATETIME,
+
+    CONSTRAINT uk_review_booking
+        UNIQUE (booking_id),
 
     CONSTRAINT fk_review_customer
         FOREIGN KEY (customer_id)
@@ -255,19 +267,19 @@ CREATE TABLE reviews
 -- =========================
 CREATE TABLE portfolio_images
 (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id              BIGINT PRIMARY KEY AUTO_INCREMENT,
 
-    photographer_id BIGINT NOT NULL,
+    photographer_id BIGINT       NOT NULL,
 
-    image_url VARCHAR(255) NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    category VARCHAR(100),
+    image_url       VARCHAR(255) NOT NULL,
+    title           VARCHAR(255) NOT NULL,
+    category        VARCHAR(100),
 
-    description TEXT,
+    description     TEXT,
 
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME,
-    deleted_at DATETIME,
+    created_at      DATETIME     NOT NULL,
+    updated_at      DATETIME,
+    deleted_at      DATETIME,
 
     CONSTRAINT fk_portfolio_photographer
         FOREIGN KEY (photographer_id)
@@ -279,14 +291,14 @@ CREATE TABLE portfolio_images
 -- =========================
 CREATE TABLE wishlists
 (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id              BIGINT PRIMARY KEY AUTO_INCREMENT,
 
-    user_id BIGINT NOT NULL,
-    photographer_id BIGINT NOT NULL,
+    user_id         BIGINT   NOT NULL,
+    photographer_id BIGINT   NOT NULL,
 
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME,
-    deleted_at DATETIME,
+    created_at      DATETIME NOT NULL,
+    updated_at      DATETIME,
+    deleted_at      DATETIME,
 
     CONSTRAINT fk_wishlist_user
         FOREIGN KEY (user_id)
@@ -305,15 +317,15 @@ CREATE TABLE wishlists
 -- =========================
 CREATE TABLE notifications
 (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id         BIGINT PRIMARY KEY AUTO_INCREMENT,
 
-    user_id BIGINT NOT NULL,
+    user_id    BIGINT   NOT NULL,
 
-    title VARCHAR(255),
+    title      VARCHAR(255),
 
-    content TEXT,
+    content    TEXT,
 
-    is_read BOOLEAN DEFAULT FALSE,
+    is_read    BOOLEAN DEFAULT FALSE,
 
     created_at DATETIME NOT NULL,
     updated_at DATETIME,
@@ -329,7 +341,7 @@ CREATE TABLE notifications
 -- =========================
 CREATE TABLE blog_categories
 (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id   BIGINT PRIMARY KEY AUTO_INCREMENT,
 
     name VARCHAR(255) NOT NULL UNIQUE,
     slug VARCHAR(255) UNIQUE
@@ -340,24 +352,24 @@ CREATE TABLE blog_categories
 -- =========================
 CREATE TABLE blogs
 (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
 
-    title VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) NOT NULL UNIQUE,
+    title       VARCHAR(255) NOT NULL,
+    slug        VARCHAR(255) NOT NULL UNIQUE,
 
-    excerpt TEXT,
-    content LONGTEXT,
+    excerpt     TEXT,
+    content     LONGTEXT,
 
     cover_image VARCHAR(255),
 
     category_id BIGINT,
 
-    featured BOOLEAN DEFAULT FALSE,
-    likes INT DEFAULT 0,
+    featured    BOOLEAN DEFAULT FALSE,
+    likes       INT     DEFAULT 0,
 
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME,
-    deleted_at DATETIME,
+    created_at  DATETIME     NOT NULL,
+    updated_at  DATETIME,
+    deleted_at  DATETIME,
 
     CONSTRAINT fk_blog_category
         FOREIGN KEY (category_id)
@@ -369,12 +381,12 @@ CREATE TABLE blogs
 -- =========================
 CREATE TABLE forum_categories
 (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id         BIGINT PRIMARY KEY AUTO_INCREMENT,
 
-    name VARCHAR(255) NOT NULL UNIQUE,
-    slug VARCHAR(255) NOT NULL UNIQUE,
+    name       VARCHAR(255) NOT NULL UNIQUE,
+    slug       VARCHAR(255) NOT NULL UNIQUE,
 
-    created_at DATETIME NOT NULL,
+    created_at DATETIME     NOT NULL,
     updated_at DATETIME,
     deleted_at DATETIME
 );
@@ -384,27 +396,27 @@ CREATE TABLE forum_categories
 -- =========================
 CREATE TABLE forum_threads
 (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
 
-    title VARCHAR(255) NOT NULL,
-    content TEXT,
+    title       VARCHAR(255) NOT NULL,
+    content     TEXT,
 
-    author_id BIGINT,
+    author_id   BIGINT,
     category_id BIGINT,
 
-    likes INT DEFAULT 0,
+    likes       INT DEFAULT 0,
 
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME,
-    deleted_at DATETIME,
+    created_at  DATETIME     NOT NULL,
+    updated_at  DATETIME,
+    deleted_at  DATETIME,
 
     CONSTRAINT fk_thread_author
         FOREIGN KEY (author_id)
-            REFERENCES users(id),
+            REFERENCES users (id),
 
     CONSTRAINT fk_thread_category
         FOREIGN KEY (category_id)
-            REFERENCES forum_categories(id)
+            REFERENCES forum_categories (id)
 );
 
 -- =========================
@@ -412,15 +424,15 @@ CREATE TABLE forum_threads
 -- =========================
 CREATE TABLE forum_replies
 (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id         BIGINT PRIMARY KEY AUTO_INCREMENT,
 
-    thread_id BIGINT,
-    author_id BIGINT,
+    thread_id  BIGINT,
+    author_id  BIGINT,
 
-    content TEXT,
+    content    TEXT,
 
-    likes INT DEFAULT 0,
-    accepted BOOLEAN DEFAULT FALSE,
+    likes      INT     DEFAULT 0,
+    accepted   BOOLEAN DEFAULT FALSE,
 
     created_at DATETIME NOT NULL,
     updated_at DATETIME,
@@ -428,11 +440,11 @@ CREATE TABLE forum_replies
 
     CONSTRAINT fk_reply_thread
         FOREIGN KEY (thread_id)
-            REFERENCES forum_threads(id),
+            REFERENCES forum_threads (id),
 
     CONSTRAINT fk_reply_author
         FOREIGN KEY (author_id)
-            REFERENCES users(id)
+            REFERENCES users (id)
 );
 
 -- =========================
@@ -440,25 +452,25 @@ CREATE TABLE forum_replies
 -- =========================
 CREATE TABLE vouchers
 (
-    code VARCHAR(100) PRIMARY KEY,
+    code            VARCHAR(100) PRIMARY KEY,
 
-    type VARCHAR(50) NOT NULL,
+    type            VARCHAR(50) NOT NULL,
 
-    value INT NOT NULL,
+    value           INT         NOT NULL,
 
     min_order_value INT,
-    max_discount INT,
+    max_discount    INT,
 
-    expires_at DATETIME NOT NULL,
+    expires_at      DATETIME    NOT NULL,
 
-    usage_limit INT,
-    used_count INT NOT NULL DEFAULT 0,
+    usage_limit     INT,
+    used_count      INT         NOT NULL DEFAULT 0,
 
-    description TEXT,
+    description     TEXT,
 
-    active BOOLEAN NOT NULL DEFAULT TRUE,
+    active          BOOLEAN     NOT NULL DEFAULT TRUE,
 
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME,
-    deleted_at DATETIME
+    created_at      DATETIME    NOT NULL,
+    updated_at      DATETIME,
+    deleted_at      DATETIME
 );

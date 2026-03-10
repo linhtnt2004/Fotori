@@ -34,8 +34,7 @@ public class ReviewActionServiceImpl implements ReviewActionService {
                                  new RuntimeException("PHOTOGRAPHER_PROFILE_NOT_FOUND")
                 );
 
-        Review review = reviewRepository
-            .findByIdAndPhotographerProfile_Id(
+        Review review = reviewRepository.findByIdAndPhotographerId(
                 reviewId,
                 photographer.getId()
             )

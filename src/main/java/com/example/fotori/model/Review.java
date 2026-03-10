@@ -12,7 +12,15 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "reviews")
+@Table(
+    name = "reviews",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uk_review_booking",
+            columnNames = {"booking_id"}
+        )
+    }
+)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Review extends BaseEntity {
 
@@ -26,12 +34,13 @@ public class Review extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "photographer_id", nullable = false)
-    PhotographerProfile photographerProfile;
+    PhotographerProfile photographer;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booking_id", nullable = false)
     Booking booking;
 
+    @Column(nullable = false)
     Integer rating;
 
     Integer skills;
@@ -45,5 +54,6 @@ public class Review extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     String comment;
 
+    @Column(columnDefinition = "TEXT")
     String response;
 }

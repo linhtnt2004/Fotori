@@ -29,7 +29,7 @@ public class ReviewQueryServiceImpl implements ReviewQueryService {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<Review> reviewPage =
-            reviewRepository.findByPhotographerProfile_Id(
+            reviewRepository.findByPhotographerId(
                 photographerId,
                 pageable
             );

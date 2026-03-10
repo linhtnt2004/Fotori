@@ -1,5 +1,6 @@
 package com.example.fotori.repository;
 
+import com.example.fotori.common.enums.BookingActorStatus;
 import com.example.fotori.common.enums.BookingStatus;
 import com.example.fotori.model.Booking;
 import com.example.fotori.model.PhotographerProfile;
@@ -80,6 +81,26 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Page<Booking> findByPhotographerAndStatus(
         PhotographerProfile photographer,
         BookingStatus status,
+        Pageable pageable
+    );
+
+    long countByPhotographer(PhotographerProfile photographer);
+
+    long countByPhotographerAndPhotographerStatus(
+        PhotographerProfile photographer,
+        BookingActorStatus status
+    );
+
+    @Query("""
+        SELECT COALESCE(SUM(b.finalPrice),0)
+        FROM Booking b
+        WHERE b.photographer = :photographer
+        AND b.paymentStatus = 'PAID'
+        """)
+    Double getTotalRevenue(PhotographerProfile photographer);
+
+    List<Booking> findByPhotographerOrderByCreatedAtDesc(
+        PhotographerProfile photographer,
         Pageable pageable
     );
 }

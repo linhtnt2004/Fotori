@@ -3,6 +3,7 @@ package com.example.fotori.model;
 import com.example.fotori.common.entity.BaseEntity;
 import com.example.fotori.common.enums.BookingActorStatus;
 import com.example.fotori.common.enums.BookingStatus;
+import com.example.fotori.common.enums.PaymentStatus;
 import com.example.fotori.common.resolver.BookingStatusResolver;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -57,6 +58,16 @@ public class Booking extends BaseEntity {
 
     @Column(name = "note", columnDefinition = "TEXT")
     String note;
+
+    @Column(name = "total_price", nullable = false)
+    Double totalPrice;
+
+    @Column(name = "final_price")
+    Double finalPrice;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status")
+    PaymentStatus paymentStatus;
 
     public void refreshStatus() {
         this.status = BookingStatusResolver.resolve(
