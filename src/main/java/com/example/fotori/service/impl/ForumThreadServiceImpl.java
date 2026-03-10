@@ -1,9 +1,14 @@
 package com.example.fotori.service.impl;
 
+import com.example.fotori.dto.CreateForumThreadRequest;
+import com.example.fotori.model.ForumCategory;
 import com.example.fotori.model.ForumReply;
 import com.example.fotori.model.ForumThread;
+import com.example.fotori.model.User;
+import com.example.fotori.repository.ForumCategoryRepository;
 import com.example.fotori.repository.ForumReplyRepository;
 import com.example.fotori.repository.ForumThreadRepository;
+import com.example.fotori.repository.UserRepository;
 import com.example.fotori.service.ForumThreadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +26,8 @@ public class ForumThreadServiceImpl implements ForumThreadService {
 
     private final ForumThreadRepository forumThreadRepository;
     private final ForumReplyRepository forumReplyRepository;
+    private final UserRepository userRepository;
+    private final ForumCategoryRepository forumCategoryRepository;
 
     @Override
     public Page<ForumThread> getThreads(
@@ -55,5 +62,27 @@ public class ForumThreadServiceImpl implements ForumThreadService {
             "data", thread,
             "replies", replies
         );
+    }
+
+    @Override
+    public ForumThread createThread(String email, CreateForumThreadRequest request) {
+
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
+
+        ForumCategory category = forumCategoryRepository
+            .findBySlug(request.getCategory())
+            .orElseThrow(() -> new RuntimeException("CATEGORY_NOT_FOUND"));
+
+        ForumThread thread = ForumThread.builder()
+            .title(request.getTitle())
+            .content(request.getContent())
+            .author(user)
+            .category(category)
+            .tags(request.getTags())
+            .likes(0)
+            .build();
+
+        return forumThreadRepository.save(thread);
     }
 }

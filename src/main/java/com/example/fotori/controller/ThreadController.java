@@ -1,11 +1,14 @@
 package com.example.fotori.controller;
 
 import com.example.fotori.common.ApiResponse;
+import com.example.fotori.dto.CreateForumThreadRequest;
 import com.example.fotori.model.ForumThread;
 import com.example.fotori.service.ForumThreadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -49,6 +52,26 @@ public class ThreadController {
                 "SUCCESS",
                 "Thread detail",
                 forumThreadService.getThreadDetail(id)
+            )
+        );
+    }
+
+    @PostMapping("/threads")
+    public ResponseEntity<ApiResponse> createThread(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestBody CreateForumThreadRequest request
+    ) {
+
+        ForumThread thread = forumThreadService.createThread(
+            userDetails.getUsername(),
+            request
+        );
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Thread created",
+                thread
             )
         );
     }
