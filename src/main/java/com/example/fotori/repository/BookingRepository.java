@@ -71,4 +71,15 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         BookingStatus status,
         Pageable pageable
     );
+
+    Page<Booking> findByPhotographer(
+        PhotographerProfile photographer,
+        Pageable pageable
+    );
+
+    Page<Booking> findByPhotographerAndStatus(
+        PhotographerProfile photographer,
+        BookingStatus status,
+        Pageable pageable
+    );
 }
