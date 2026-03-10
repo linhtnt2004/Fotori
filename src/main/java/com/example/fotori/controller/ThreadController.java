@@ -1,7 +1,9 @@
 package com.example.fotori.controller;
 
 import com.example.fotori.common.ApiResponse;
+import com.example.fotori.dto.CreateForumReplyRequest;
 import com.example.fotori.dto.CreateForumThreadRequest;
+import com.example.fotori.model.ForumReply;
 import com.example.fotori.model.ForumThread;
 import com.example.fotori.service.ForumThreadService;
 import lombok.RequiredArgsConstructor;
@@ -72,6 +74,28 @@ public class ThreadController {
                 "SUCCESS",
                 "Thread created",
                 thread
+            )
+        );
+    }
+
+    @PostMapping("/threads/{id}/replies")
+    public ResponseEntity<ApiResponse> createReply(
+        @PathVariable Long id,
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestBody CreateForumReplyRequest request
+    ) {
+
+        ForumReply reply = forumThreadService.createReply(
+            userDetails.getUsername(),
+            id,
+            request
+        );
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Reply created",
+                reply
             )
         );
     }

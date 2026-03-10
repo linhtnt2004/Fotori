@@ -1,6 +1,8 @@
 package com.example.fotori.service;
 
+import com.example.fotori.dto.CreateForumReplyRequest;
 import com.example.fotori.dto.CreateForumThreadRequest;
+import com.example.fotori.model.ForumReply;
 import com.example.fotori.model.ForumThread;
 import org.springframework.data.domain.Page;
 
@@ -17,4 +19,6 @@ public interface ForumThreadService {
     Map<String, Object> getThreadDetail(Long id);
 
     ForumThread createThread(String email, CreateForumThreadRequest request);
+
+    ForumReply createReply(String email, Long threadId, CreateForumReplyRequest request);
 }

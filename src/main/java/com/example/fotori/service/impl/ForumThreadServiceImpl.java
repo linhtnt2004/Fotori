@@ -1,5 +1,6 @@
 package com.example.fotori.service.impl;
 
+import com.example.fotori.dto.CreateForumReplyRequest;
 import com.example.fotori.dto.CreateForumThreadRequest;
 import com.example.fotori.model.ForumCategory;
 import com.example.fotori.model.ForumReply;
@@ -84,5 +85,29 @@ public class ForumThreadServiceImpl implements ForumThreadService {
             .build();
 
         return forumThreadRepository.save(thread);
+    }
+
+    @Override
+    public ForumReply createReply(
+        String email,
+        Long threadId,
+        CreateForumReplyRequest request
+    ) {
+
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
+
+        ForumThread thread = forumThreadRepository.findById(threadId)
+            .orElseThrow(() -> new RuntimeException("THREAD_NOT_FOUND"));
+
+        ForumReply reply = ForumReply.builder()
+            .thread(thread)
+            .author(user)
+            .content(request.getContent())
+            .likes(0)
+            .accepted(false)
+            .build();
+
+        return forumReplyRepository.save(reply);
     }
 }
