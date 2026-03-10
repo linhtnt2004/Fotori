@@ -9,4 +9,6 @@ public interface BlogAdminService {
     BlogPost createBlog(CreateBlogRequest request);
 
     BlogPost updateBlog(Long id, UpdateBlogRequest request);
+
+    void deleteBlog(Long id);
 }

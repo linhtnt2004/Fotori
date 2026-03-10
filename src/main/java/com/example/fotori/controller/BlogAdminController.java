@@ -50,4 +50,20 @@ public class BlogAdminController {
             )
         );
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse> deleteBlog(
+        @PathVariable Long id
+    ) {
+
+        blogAdminService.deleteBlog(id);
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Blog deleted",
+                null
+            )
+        );
+    }
 }

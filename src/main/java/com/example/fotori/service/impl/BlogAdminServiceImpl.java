@@ -70,6 +70,15 @@ public class BlogAdminServiceImpl implements BlogAdminService {
         return blogRepository.save(blog);
     }
 
+    @Override
+    public void deleteBlog(Long id) {
+
+        BlogPost blog = blogRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("BLOG_NOT_FOUND"));
+
+        blogRepository.delete(blog);
+    }
+
     private String generateSlug(String title) {
 
         return title
