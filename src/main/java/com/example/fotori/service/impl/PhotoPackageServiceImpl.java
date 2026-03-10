@@ -3,6 +3,8 @@ package com.example.fotori.service.impl;
 import com.example.fotori.common.enums.ApprovalStatus;
 import com.example.fotori.dto.PhotoPackageCreateRequest;
 import com.example.fotori.dto.PhotoPackageResponse;
+import com.example.fotori.dto.UpdatePhotoPackageRequest;
+import com.example.fotori.exception.BusinessException;
 import com.example.fotori.model.PhotoPackage;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.User;
@@ -66,5 +68,50 @@ public class PhotoPackageServiceImpl implements PhotoPackageService {
                     .getFullName()
             ))
             .toList();
+    }
+
+    @Override
+    @Transactional
+    public PhotoPackageResponse updatePackage(
+        String email,
+        Long packageId,
+        UpdatePhotoPackageRequest request
+    ) {
+
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new BusinessException("USER_NOT_FOUND"));
+
+        PhotographerProfile profile =
+            photographerRepository.findByUser(user)
+                .orElseThrow(() ->
+                                 new BusinessException("PROFILE_NOT_FOUND")
+                );
+
+        PhotoPackage photoPackage =
+            photoPackageRepository.findById(packageId)
+                .orElseThrow(() ->
+                                 new BusinessException("PACKAGE_NOT_FOUND")
+                );
+
+        if (!photoPackage.getPhotographerProfile().getId()
+            .equals(profile.getId())) {
+
+            throw new BusinessException("NOT_YOUR_PACKAGE");
+        }
+
+        photoPackage.setTitle(request.getTitle());
+        photoPackage.setDescription(request.getDescription());
+        photoPackage.setDurationMinutes(request.getDurationMinutes());
+        photoPackage.setPrice(request.getPrice());
+
+        photoPackageRepository.save(photoPackage);
+
+        return PhotoPackageResponse.builder()
+            .id(photoPackage.getId())
+            .title(photoPackage.getTitle())
+            .description(photoPackage.getDescription())
+            .durationMinutes(photoPackage.getDurationMinutes())
+            .price(photoPackage.getPrice())
+            .build();
     }
 }

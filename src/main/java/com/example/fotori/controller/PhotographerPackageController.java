@@ -3,16 +3,14 @@ package com.example.fotori.controller;
 import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.enums.ErrorCode;
 import com.example.fotori.dto.PhotoPackageCreateRequest;
+import com.example.fotori.dto.PhotoPackageResponse;
+import com.example.fotori.dto.UpdatePhotoPackageRequest;
 import com.example.fotori.service.PhotoPackageService;
-import com.example.fotori.service.impl.PhotoPackageServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/photographer/packages")
@@ -36,6 +34,29 @@ public class PhotographerPackageController {
                 ErrorCode.SUCCESS.name(),
                 "Package created successfully!",
                 null
+            )
+        );
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse> updatePackage(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id,
+        @RequestBody UpdatePhotoPackageRequest request
+    ) {
+
+        PhotoPackageResponse response =
+            photoPackageService.updatePackage(
+                userDetails.getUsername(),
+                id,
+                request
+            );
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Package updated",
+                response
             )
         );
     }
