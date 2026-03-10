@@ -5,6 +5,10 @@ import com.example.fotori.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+
+import javax.transaction.Transactional;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
@@ -14,4 +18,13 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     long countByUserAndIsReadFalse(User user);
 
+
+    @Modifying
+    @Transactional
+    @Query("""
+        UPDATE Notification n
+        SET n.isRead = true
+        WHERE n.user = :user AND n.isRead = false
+        """)
+    void markAllAsRead(User user);
 }

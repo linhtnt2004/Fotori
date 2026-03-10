@@ -32,4 +32,13 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
 
         notificationRepository.save(notification);
     }
+
+    @Override
+    public void markAllAsRead(String email) {
+
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
+
+        notificationRepository.markAllAsRead(user);
+    }
 }

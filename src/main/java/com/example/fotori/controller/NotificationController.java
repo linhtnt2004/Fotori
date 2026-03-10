@@ -77,4 +77,22 @@ public class NotificationController {
             )
         );
     }
+
+    @PutMapping("/read-all")
+    public ResponseEntity<ApiResponse> markAllAsRead(
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+
+        notificationCommandService.markAllAsRead(
+            userDetails.getUsername()
+        );
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "All notifications marked as read",
+                null
+            )
+        );
+    }
 }
