@@ -27,7 +27,12 @@ public class PortfolioImage extends BaseEntity {
     @Column(name = "image_url", nullable = false)
     String imageUrl;
 
+    @Column(nullable = false)
+    String title;
+
+    String category;
+
     @Column(columnDefinition = "TEXT")
-    String caption;
+    String description;
 
 }

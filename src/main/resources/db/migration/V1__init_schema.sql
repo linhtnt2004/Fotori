@@ -255,16 +255,19 @@ CREATE TABLE reviews
 -- =========================
 CREATE TABLE portfolio_images
 (
-    id              BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
 
-    photographer_id BIGINT       NOT NULL,
+    photographer_id BIGINT NOT NULL,
 
-    image_url       VARCHAR(255) NOT NULL,
-    caption         TEXT,
+    image_url VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    category VARCHAR(100),
 
-    created_at      DATETIME     NOT NULL,
-    updated_at      DATETIME,
-    deleted_at      DATETIME,
+    description TEXT,
+
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    deleted_at DATETIME,
 
     CONSTRAINT fk_portfolio_photographer
         FOREIGN KEY (photographer_id)
