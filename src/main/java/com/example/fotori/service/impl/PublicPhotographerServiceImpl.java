@@ -245,6 +245,23 @@ public class PublicPhotographerServiceImpl
             .toList();
     }
 
+    @Override
+    public List<PublicPhotographerItemResponse> searchPhotographers(
+        String keyword,
+        String city
+    ) {
+
+        List<PhotographerProfile> photographers =
+            photographerRepository.searchPhotographers(
+                keyword,
+                city
+            );
+
+        return photographers.stream()
+            .map(this::toItemResponse)
+            .toList();
+    }
+
     private PublicPhotographerItemResponse toItemResponse(
         PhotographerProfile profile
     ) {

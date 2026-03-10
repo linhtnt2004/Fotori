@@ -37,4 +37,9 @@ public interface PublicPhotographerService {
     );
 
     List<TrendingPhotographerResponse> getTrendingPhotographers(int limit);
+
+    List<PublicPhotographerItemResponse> searchPhotographers(
+        String keyword,
+        String city
+    );
 }

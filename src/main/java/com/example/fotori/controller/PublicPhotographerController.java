@@ -159,4 +159,19 @@ public class PublicPhotographerController {
             )
         );
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse> search(
+        @RequestParam(required = false) String keyword,
+        @RequestParam(required = false) String city
+    ) {
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Search photographers",
+                service.searchPhotographers(keyword, city)
+            )
+        );
+    }
 }
