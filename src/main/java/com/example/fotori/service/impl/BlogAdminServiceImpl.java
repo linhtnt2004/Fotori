@@ -1,6 +1,7 @@
 package com.example.fotori.service.impl;
 
 import com.example.fotori.dto.CreateBlogRequest;
+import com.example.fotori.dto.UpdateBlogRequest;
 import com.example.fotori.model.BlogCategory;
 import com.example.fotori.model.BlogPost;
 import com.example.fotori.repository.BlogCategoryRepository;
@@ -39,6 +40,32 @@ public class BlogAdminServiceImpl implements BlogAdminService {
             .featured(false)
             .likes(0)
             .build();
+
+        return blogRepository.save(blog);
+    }
+
+    @Override
+    public BlogPost updateBlog(Long id, UpdateBlogRequest request) {
+
+        BlogPost blog = blogRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("BLOG_NOT_FOUND"));
+
+        BlogCategory category = categoryRepository
+            .findAll()
+            .stream()
+            .filter(c -> c.getName().equalsIgnoreCase(request.getCategory()))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("CATEGORY_NOT_FOUND"));
+
+        blog.setTitle(request.getTitle());
+        blog.setContent(request.getContent());
+        blog.setExcerpt(request.getExcerpt());
+        blog.setCoverImage(request.getCoverImage());
+        blog.setCategory(category);
+        blog.setTags(request.getTags());
+        blog.setFeatured(request.getFeatured());
+
+        blog.setSlug(generateSlug(request.getTitle()));
 
         return blogRepository.save(blog);
     }

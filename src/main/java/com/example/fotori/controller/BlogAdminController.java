@@ -2,15 +2,13 @@ package com.example.fotori.controller;
 
 import com.example.fotori.common.ApiResponse;
 import com.example.fotori.dto.CreateBlogRequest;
+import com.example.fotori.dto.UpdateBlogRequest;
 import com.example.fotori.model.BlogPost;
 import com.example.fotori.service.BlogAdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/blogs")
@@ -31,6 +29,23 @@ public class BlogAdminController {
             new ApiResponse(
                 "SUCCESS",
                 "Blog created",
+                blog
+            )
+        );
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse> updateBlog(
+        @PathVariable Long id,
+        @RequestBody UpdateBlogRequest request
+    ) {
+
+        BlogPost blog = blogAdminService.updateBlog(id, request);
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Blog updated",
                 blog
             )
         );
