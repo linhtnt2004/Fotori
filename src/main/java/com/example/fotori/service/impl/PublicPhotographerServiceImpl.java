@@ -210,6 +210,41 @@ public class PublicPhotographerServiceImpl
         );
     }
 
+    @Override
+    public List<TrendingPhotographerResponse> getTrendingPhotographers(
+        int limit
+    ) {
+
+        Pageable pageable = PageRequest.of(0, limit);
+
+        List<Object[]> results =
+            reviewRepository.findTrendingPhotographers(pageable);
+
+        return results.stream()
+            .map(row -> {
+
+                Long photographerId = (Long) row[0];
+                Double avgRating = (Double) row[1];
+                Long totalReviews = (Long) row[2];
+
+                PhotographerProfile p =
+                    photographerRepository.findById(photographerId)
+                        .orElseThrow(() ->
+                                         new BusinessException("PHOTOGRAPHER_NOT_FOUND")
+                        );
+
+                return TrendingPhotographerResponse.builder()
+                    .id(p.getId())
+                    .name(p.getUser().getFullName())
+                    .avatar(p.getUser().getAvatarUrl())
+                    .city(p.getCity())
+                    .avgRating(avgRating)
+                    .totalReviews(totalReviews)
+                    .build();
+            })
+            .toList();
+    }
+
     private PublicPhotographerItemResponse toItemResponse(
         PhotographerProfile profile
     ) {

@@ -35,4 +35,6 @@ public interface PublicPhotographerService {
         int page,
         int size
     );
+
+    List<TrendingPhotographerResponse> getTrendingPhotographers(int limit);
 }

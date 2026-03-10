@@ -145,4 +145,18 @@ public class PublicPhotographerController {
             )
         );
     }
+
+    @GetMapping("/trending")
+    public ResponseEntity<ApiResponse> getTrending(
+        @RequestParam(defaultValue = "6") int limit
+    ) {
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Trending photographers",
+                service.getTrendingPhotographers(limit)
+            )
+        );
+    }
 }
