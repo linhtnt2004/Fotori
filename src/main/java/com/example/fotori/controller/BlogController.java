@@ -3,6 +3,7 @@ package com.example.fotori.controller;
 import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.enums.ErrorCode;
 import com.example.fotori.dto.BlogPostResponse;
+import com.example.fotori.service.BlogCategoryQueryService;
 import com.example.fotori.service.BlogQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class BlogController {
 
     private final BlogQueryService blogQueryService;
+    private final BlogCategoryQueryService blogCategoryQueryService;
 
     @GetMapping
     public ResponseEntity<ApiResponse> getBlogs(
@@ -60,6 +62,18 @@ public class BlogController {
                 ErrorCode.SUCCESS.name(),
                 "Blog detail",
                 blog
+            )
+        );
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<ApiResponse> getCategories() {
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Blog categories",
+                blogCategoryQueryService.getCategories()
             )
         );
     }
