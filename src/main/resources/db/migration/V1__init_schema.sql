@@ -320,3 +320,43 @@ CREATE TABLE notifications
         FOREIGN KEY (user_id)
             REFERENCES users (id)
 );
+
+-- =========================
+-- BLOG CATEGORIES
+-- =========================
+CREATE TABLE blog_categories
+(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    name VARCHAR(255) NOT NULL UNIQUE,
+    slug VARCHAR(255) UNIQUE
+);
+
+-- =========================
+-- BLOGS
+-- =========================
+CREATE TABLE blogs
+(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+
+    excerpt TEXT,
+    content LONGTEXT,
+
+    cover_image VARCHAR(255),
+
+    category_id BIGINT,
+
+    featured BOOLEAN DEFAULT FALSE,
+    likes INT DEFAULT 0,
+
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    deleted_at DATETIME,
+
+    CONSTRAINT fk_blog_category
+        FOREIGN KEY (category_id)
+            REFERENCES blog_categories (id)
+);
