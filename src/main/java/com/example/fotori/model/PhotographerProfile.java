@@ -35,6 +35,9 @@ public class PhotographerProfile extends BaseEntity {
     @Column(name = "experience_years")
     Integer experienceYears;
 
+    @Column(name = "average_rating")
+    Double averageRating;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "approval_status", nullable = false)
     ApprovalStatus approvalStatus;

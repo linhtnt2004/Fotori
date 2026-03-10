@@ -72,6 +72,8 @@ CREATE TABLE photographers
     city             TEXT,
     experience_years INT,
 
+    average_rating DOUBLE,
+
     approval_status  VARCHAR(50) NOT NULL,
     approved_at      DATETIME,
 
@@ -216,24 +218,24 @@ CREATE TABLE email_verification_tokens
 -- =========================
 CREATE TABLE reviews
 (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id              BIGINT PRIMARY KEY AUTO_INCREMENT,
 
-    customer_id BIGINT NOT NULL,
-    photographer_id BIGINT NOT NULL,
-    booking_id BIGINT NOT NULL UNIQUE,
+    customer_id     BIGINT   NOT NULL,
+    photographer_id BIGINT   NOT NULL,
+    booking_id      BIGINT   NOT NULL UNIQUE,
 
-    rating INT,
-    skills INT,
-    attitude INT,
-    punctuality INT,
+    rating          INT,
+    skills          INT,
+    attitude        INT,
+    punctuality     INT,
     post_processing INT,
 
-    comment TEXT,
-    response TEXT,
+    comment         TEXT,
+    response        TEXT,
 
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME,
-    deleted_at DATETIME,
+    created_at      DATETIME NOT NULL,
+    updated_at      DATETIME,
+    deleted_at      DATETIME,
 
     CONSTRAINT fk_review_customer
         FOREIGN KEY (customer_id)
@@ -253,16 +255,16 @@ CREATE TABLE reviews
 -- =========================
 CREATE TABLE portfolio_images
 (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id              BIGINT PRIMARY KEY AUTO_INCREMENT,
 
-    photographer_id BIGINT NOT NULL,
+    photographer_id BIGINT       NOT NULL,
 
-    image_url VARCHAR(255) NOT NULL,
-    caption TEXT,
+    image_url       VARCHAR(255) NOT NULL,
+    caption         TEXT,
 
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME,
-    deleted_at DATETIME,
+    created_at      DATETIME     NOT NULL,
+    updated_at      DATETIME,
+    deleted_at      DATETIME,
 
     CONSTRAINT fk_portfolio_photographer
         FOREIGN KEY (photographer_id)
