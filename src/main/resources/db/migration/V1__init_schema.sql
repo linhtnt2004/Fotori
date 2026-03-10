@@ -220,10 +220,16 @@ CREATE TABLE reviews
 
     customer_id BIGINT NOT NULL,
     photographer_id BIGINT NOT NULL,
-    booking_id BIGINT,
+    booking_id BIGINT NOT NULL UNIQUE,
 
-    rating INT NOT NULL,
+    rating INT,
+    skills INT,
+    attitude INT,
+    punctuality INT,
+    post_processing INT,
+
     comment TEXT,
+    response TEXT,
 
     created_at DATETIME NOT NULL,
     updated_at DATETIME,

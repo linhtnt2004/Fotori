@@ -28,13 +28,22 @@ public class Review extends BaseEntity {
     @JoinColumn(name = "photographer_id", nullable = false)
     PhotographerProfile photographerProfile;
 
-    @ManyToOne
-    @JoinColumn(name = "booking_id")
+    @OneToOne
+    @JoinColumn(name = "booking_id", nullable = false)
     Booking booking;
 
-    @Column(nullable = false)
-    Integer rating; // 1 -> 5
+    Integer rating;
+
+    Integer skills;
+
+    Integer attitude;
+
+    Integer punctuality;
+
+    Integer postProcessing;
 
     @Column(columnDefinition = "TEXT")
     String comment;
+
+    String response;
 }
