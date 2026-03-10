@@ -4,6 +4,8 @@ import com.example.fotori.common.enums.BookingStatus;
 import com.example.fotori.model.Booking;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -58,4 +60,15 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     );
 
     Optional<Booking> findByIdAndUser(Long id, User user);
+
+    Page<Booking> findByUser(
+        User user,
+        Pageable pageable
+    );
+
+    Page<Booking> findByUserAndStatus(
+        User user,
+        BookingStatus status,
+        Pageable pageable
+    );
 }
