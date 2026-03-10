@@ -360,3 +360,74 @@ CREATE TABLE blogs
         FOREIGN KEY (category_id)
             REFERENCES blog_categories (id)
 );
+
+-- =========================
+-- FORUM CATEGORIES
+-- =========================
+CREATE TABLE forum_categories
+(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    name VARCHAR(255) NOT NULL UNIQUE,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    deleted_at DATETIME
+);
+
+-- =========================
+-- FORUM THREADS
+-- =========================
+CREATE TABLE forum_threads
+(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    title VARCHAR(255) NOT NULL,
+    content TEXT,
+
+    author_id BIGINT,
+    category_id BIGINT,
+
+    likes INT DEFAULT 0,
+
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    deleted_at DATETIME,
+
+    CONSTRAINT fk_thread_author
+        FOREIGN KEY (author_id)
+            REFERENCES users(id),
+
+    CONSTRAINT fk_thread_category
+        FOREIGN KEY (category_id)
+            REFERENCES forum_categories(id)
+);
+
+-- =========================
+-- FORUM REPLIES
+-- =========================
+CREATE TABLE forum_replies
+(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    thread_id BIGINT,
+    author_id BIGINT,
+
+    content TEXT,
+
+    likes INT DEFAULT 0,
+    accepted BOOLEAN DEFAULT FALSE,
+
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    deleted_at DATETIME,
+
+    CONSTRAINT fk_reply_thread
+        FOREIGN KEY (thread_id)
+            REFERENCES forum_threads(id),
+
+    CONSTRAINT fk_reply_author
+        FOREIGN KEY (author_id)
+            REFERENCES users(id)
+);
