@@ -11,6 +11,8 @@ public interface PhotoPackageService {
 
     List<PhotoPackageResponse> getAllActivePackage();
 
+    List<PhotoPackageResponse> getMyPackages(String email);
+
     PhotoPackageResponse updatePackage(
         String email,
         Long packageId,

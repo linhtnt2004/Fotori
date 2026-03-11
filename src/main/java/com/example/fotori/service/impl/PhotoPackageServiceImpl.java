@@ -72,6 +72,28 @@ public class PhotoPackageServiceImpl implements PhotoPackageService {
 
     @Override
     @Transactional
+    public List<PhotoPackageResponse> getMyPackages(String email) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new BusinessException("USER_NOT_FOUND"));
+
+        PhotographerProfile profile = photographerRepository.findByUser(user)
+            .orElseThrow(() -> new BusinessException("PROFILE_NOT_FOUND"));
+
+        return photoPackageRepository.findByPhotographerProfileAndActiveTrue(profile)
+            .stream()
+            .map(pkg -> new PhotoPackageResponse(
+                pkg.getId(),
+                pkg.getTitle(),
+                pkg.getDescription(),
+                pkg.getPrice(),
+                pkg.getDurationMinutes(),
+                user.getFullName()
+            ))
+            .toList();
+    }
+
+    @Override
+    @Transactional
     public PhotoPackageResponse updatePackage(
         String email,
         Long packageId,

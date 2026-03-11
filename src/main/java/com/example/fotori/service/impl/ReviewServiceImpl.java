@@ -49,7 +49,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review review = Review.builder()
             .customer(customer)
-            .photographerProfile(photographer)
+            .photographer(photographer)
             .booking(booking)
             .rating(request.getRating())
             .skills(request.getSkills())

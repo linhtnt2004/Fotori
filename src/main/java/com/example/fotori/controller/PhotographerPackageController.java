@@ -21,6 +21,19 @@ public class PhotographerPackageController {
 
     private final PhotoPackageService photoPackageService;
 
+    @GetMapping
+    public ResponseEntity<ApiResponse> getMyPackages(
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "My packages",
+                photoPackageService.getMyPackages(userDetails.getUsername())
+            )
+        );
+    }
+
     @PostMapping("/create")
     public ResponseEntity<ApiResponse> createPackage(
         @AuthenticationPrincipal UserDetails userDetails, @RequestBody

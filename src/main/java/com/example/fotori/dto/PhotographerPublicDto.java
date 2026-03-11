@@ -11,6 +11,8 @@ public class PhotographerPublicDto {
 
     String name;
 
+    String email;
+
     String avatar;
 
     String city;

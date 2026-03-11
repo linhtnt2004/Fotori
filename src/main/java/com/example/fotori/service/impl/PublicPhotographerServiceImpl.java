@@ -122,6 +122,7 @@ public class PublicPhotographerServiceImpl
             return PhotographerPublicDto.builder()
                 .id(p.getId())
                 .name(p.getUser().getFullName())
+                .email(p.getUser().getEmail())
                 .avatar(p.getUser().getAvatarUrl())
                 .city(p.getCity())
                 .bio(p.getBio())

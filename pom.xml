@@ -29,8 +29,6 @@
     </scm>
     <properties>
         <java.version>17</java.version>
-        <!-- FIX: Override phiên bản Jackson để khắc phục lỗ hổng CVE-2025-52999 -->
-        <jackson-bom.version>2.15.4</jackson-bom.version>
     </properties>
     <dependencies>
         <!-- Giữ nguyên tất cả dependencies như cũ -->
@@ -123,6 +121,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- FIREBASE ADMIN -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.2.0</version>
         </dependency>
 
     </dependencies>

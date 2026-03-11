@@ -21,7 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/photographer/portfolio")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('PHOTOGPAHER')")
+@PreAuthorize("hasRole('PHOTOGRAPHER')")
 public class PhotographerPortfolioController {
 
     private final PortfolioService portfolioService;

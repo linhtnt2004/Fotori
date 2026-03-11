@@ -15,7 +15,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendVerificationEmail(String email, String token) {
 
         String verifyUrl =
-            "http://localhost:3000/verify?token=" + token;
+            "http://localhost:8082/api/auth/verify-email?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -31,7 +31,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendResetPasswordEmail(String email, String token) {
 
         String resetUrl =
-            "http://localhost:3000/reset-password?token=" + token;
+            "http://localhost:3001/reset-password?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);

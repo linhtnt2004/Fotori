@@ -27,7 +27,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
-
+import java.util.Set;
+import java.util.stream.Collectors;
 @Tag(name = "Authentication", description = "Auth APIs for login/register/refresh/logout")
 @RestController
 @RequestMapping("/api/auth")
@@ -39,6 +40,7 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final EmailVerificationService emailService;
+    private final com.example.fotori.service.FirebaseService firebaseService;
 
     @Value("${app.jwt.refresh-expiration-ms}")
     private long refreshExpirationMs;
@@ -102,6 +104,8 @@ public class AuthController {
 
         String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
 
+        Set<String> roles = user.getRoles().stream().map(r -> r.getName()).collect(Collectors.toSet());
+
         RefreshToken refreshToken =
             refreshTokenService.create(((UserDetailsImpl) userDetails).getUser());
 
@@ -117,9 +121,89 @@ public class AuthController {
             new ApiResponse(
                 ErrorCode.SUCCESS.name(),
                 "Login successful",
-                new LoginResponse(accessToken)
+                new LoginResponse(accessToken, roles)
             )
         );
+    }
+
+    @Operation(summary = "Login/Register user with Firebase token")
+    @PostMapping("/firebase")
+    public ResponseEntity<ApiResponse> firebaseLogin(
+        @RequestBody Map<String, String> request,
+        HttpServletResponse response
+    ) {
+        try {
+            String idToken = request.get("idToken");
+            String email = request.get("email");
+            String fullName = request.get("fullName");
+            String avatarUrl = request.get("avatarUrl");
+            String userType = request.get("userType");
+
+            if (email == null || email.isEmpty()) {
+                 return ResponseEntity.badRequest().body(
+                     new ApiResponse(ErrorCode.BAD_REQUEST.name(), "Email is missing", null)
+                 );
+            }
+
+            // Find or create user in MySQL using data from Firebase Auth
+            User user = firebaseService.findOrCreateUser(email, fullName, avatarUrl, userType);
+
+            UserDetails userDetails = new UserDetailsImpl(user);
+            String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
+
+        Set<String> roles = user.getRoles().stream().map(r -> r.getName()).collect(Collectors.toSet());
+
+            RefreshToken refreshToken = refreshTokenService.create(user);
+
+            Cookie cookie = new Cookie("refresh_token", refreshToken.getToken());
+            cookie.setHttpOnly(true);
+            cookie.setSecure(true);
+            cookie.setPath("/api/auth");
+            cookie.setMaxAge((int) (refreshExpirationMs / 1000));
+
+            response.addCookie(cookie);
+
+            return ResponseEntity.ok(
+                new ApiResponse(
+                    ErrorCode.SUCCESS.name(),
+                    "Firebase login successful",
+                    new LoginResponse(accessToken, roles)
+                )
+            );
+
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(
+                new ApiResponse(
+                    ErrorCode.UNAUTHORIZED.name(),
+                    e.getMessage(),
+                    null
+                )
+            );
+        }
+    }
+
+    @Operation(summary = "Verify user email")
+    @GetMapping("/verify-email")
+    public ResponseEntity<String> verifyEmail(@RequestParam String token) {
+        try {
+            emailService.verify(token);
+
+            String html = "<html><body style='text-align:center; font-family:Arial; padding:50px;'>"
+                + "<h1 style='color:green;'>âœ… Email Ä‘Ã£ xÃ¡c thá»±c thÃ nh cÃ´ng!</h1>"
+                + "<p>Báº¡n cÃ³ thá»ƒ Ä‘Äƒng nháº­p ngay bÃ¢y giá».</p>"
+                + "<a href='http://localhost:3001'>â† Quay vá» trang Ä‘Äƒng nháº­p</a>"
+                + "</body></html>";
+
+            return ResponseEntity.ok().header("Content-Type", "text/html; charset=UTF-8").body(html);
+        } catch (Exception e) {
+            String html = "<html><body style='text-align:center; font-family:Arial; padding:50px;'>"
+                + "<h1 style='color:red;'>âŒ XÃ¡c thá»±c tháº¥t báº¡i</h1>"
+                + "<p>" + e.getMessage() + "</p>"
+                + "<a href='http://localhost:3001'>â† Quay vá» trang chá»§</a>"
+                + "</body></html>";
+
+            return ResponseEntity.badRequest().header("Content-Type", "text/html; charset=UTF-8").body(html);
+        }
     }
 
     @Operation(summary = "Refresh access token using refresh token cookie")
@@ -164,6 +248,8 @@ public class AuthController {
 
         User user = refreshToken.getUser();
 
+        Set<String> roles = user.getRoles().stream().map(r -> r.getName()).collect(Collectors.toSet());
+
         UserDetails userDetails = new UserDetailsImpl(user);
 
         String accessToken =
@@ -173,7 +259,7 @@ public class AuthController {
             new ApiResponse(
                 ErrorCode.SUCCESS.name(),
                 "Token refreshed",
-                new LoginResponse(accessToken)
+                new LoginResponse(accessToken, roles)
             )
         );
     }
@@ -217,25 +303,8 @@ public class AuthController {
         );
     }
 
-    @Operation(
-        summary = "Verify user email",
-        description = "Verifies the user's email address using the unique token sent to their inbox."
-    )
-    @GetMapping("/verify-email")
-    public ResponseEntity<ApiResponse> verifyEmail(
-        @RequestParam String token
-    ) {
 
-        emailService.verify(token);
 
-        return ResponseEntity.ok(
-            new ApiResponse(
-                "SUCCESS",
-                "Email verified successfully",
-                null
-            )
-        );
-    }
 
     @Operation(summary = "Request password reset")
     @PostMapping("/reset-password")
@@ -311,3 +380,5 @@ public class AuthController {
         );
     }
 }
+
+

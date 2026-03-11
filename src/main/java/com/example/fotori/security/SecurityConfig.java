@@ -43,7 +43,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:4200"));
+        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:3001", "http://localhost:4200"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setExposedHeaders(List.of("Authorization"));
@@ -77,6 +77,9 @@ public class SecurityConfig {
 
             // PUBLIC
             .antMatchers(HttpMethod.GET, "/api/packages").permitAll()
+            .antMatchers("/api/public/**").permitAll()
+            .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            .antMatchers("/error").permitAll()
 
             // BOOKING - CUSTOMER
             .antMatchers(HttpMethod.POST, "/api/bookings").hasRole("CUSTOMER")
