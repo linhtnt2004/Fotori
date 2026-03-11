@@ -3,6 +3,7 @@ package com.example.fotori.service.impl;
 import com.example.fotori.common.enums.PaymentStatus;
 import com.example.fotori.dto.CreatePaymentRequest;
 import com.example.fotori.dto.CreatePaymentResponse;
+import com.example.fotori.dto.PaymentStatusResponse;
 import com.example.fotori.model.Booking;
 import com.example.fotori.model.Payment;
 import com.example.fotori.repository.BookingRepository;
@@ -62,6 +63,21 @@ public class PaymentServiceImpl implements PaymentService {
         return CreatePaymentResponse.builder()
             .paymentUrl(paymentUrl)
             .transactionId(transactionId)
+            .build();
+    }
+
+    @Override
+    public PaymentStatusResponse getPaymentStatus(Long paymentId) {
+
+        Payment payment = paymentRepository
+            .findById(paymentId)
+            .orElseThrow(() ->
+                             new RuntimeException("PAYMENT_NOT_FOUND")
+            );
+
+        return PaymentStatusResponse.builder()
+            .status(payment.getStatus())
+            .amount(payment.getAmount())
             .build();
     }
 }
