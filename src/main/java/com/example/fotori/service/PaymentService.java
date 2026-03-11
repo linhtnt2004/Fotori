@@ -17,4 +17,6 @@ public interface PaymentService {
         int size,
         Long userId
     );
+
+    void confirmPayment(Long paymentId);
 }

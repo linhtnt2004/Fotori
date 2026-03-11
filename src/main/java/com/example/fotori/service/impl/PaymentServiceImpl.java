@@ -39,6 +39,25 @@ public class PaymentServiceImpl implements PaymentService {
                              new RuntimeException("BOOKING_NOT_FOUND")
             );
 
+        if (booking.getPaymentStatus() == PaymentStatus.PAID) {
+            throw new RuntimeException("BOOKING_ALREADY_PAID");
+        }
+
+        boolean hasPendingPayment =
+            paymentRepository.existsByBooking_IdAndStatus(
+                booking.getId(),
+                PaymentStatus.PENDING
+            );
+
+        if (hasPendingPayment) {
+            throw new RuntimeException("PAYMENT_ALREADY_PENDING");
+        }
+
+        Double amount =
+            booking.getFinalPrice() != null
+                ? booking.getFinalPrice()
+                : booking.getTotalPrice();
+
         String transactionId = UUID.randomUUID().toString();
 
         PaymentProcessor processor = processors.stream()
@@ -50,13 +69,13 @@ public class PaymentServiceImpl implements PaymentService {
 
         String paymentUrl = processor.createPayment(
             booking,
-            request.getAmount(),
+            amount,
             transactionId
         );
 
         Payment payment = Payment.builder()
             .booking(booking)
-            .amount(request.getAmount())
+            .amount(amount)
             .method(request.getMethod())
             .transactionId(transactionId)
             .status(PaymentStatus.PENDING)
@@ -106,5 +125,27 @@ public class PaymentServiceImpl implements PaymentService {
                                     .createdAt(payment.getCreatedAt())
                                     .build()
         );
+    }
+
+    @Override
+    @Transactional
+    public void confirmPayment(Long paymentId) {
+
+        Payment payment = paymentRepository
+            .findById(paymentId)
+            .orElseThrow(() ->
+                             new RuntimeException("PAYMENT_NOT_FOUND")
+            );
+
+        if (payment.getStatus() == PaymentStatus.PAID) {
+            throw new RuntimeException("PAYMENT_ALREADY_CONFIRMED");
+        }
+
+        payment.setStatus(PaymentStatus.PAID);
+
+        Booking booking = payment.getBooking();
+        booking.setPaymentStatus(PaymentStatus.PAID);
+
+        paymentRepository.save(payment);
     }
 }
