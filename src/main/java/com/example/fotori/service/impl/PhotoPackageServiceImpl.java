@@ -34,7 +34,12 @@ public class PhotoPackageServiceImpl implements PhotoPackageService {
 
         PhotographerProfile photographer =
             photographerRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Not a photographer"));
+                .orElseGet(() -> {
+                    PhotographerProfile p = new PhotographerProfile();
+                    p.setUser(user);
+                    p.setApprovalStatus(ApprovalStatus.APPROVED);
+                    return photographerRepository.save(p);
+                });
 
         if (photographer.getApprovalStatus() != ApprovalStatus.APPROVED) {
             throw new RuntimeException("Photographer not approved yet!");
@@ -77,7 +82,12 @@ public class PhotoPackageServiceImpl implements PhotoPackageService {
             .orElseThrow(() -> new BusinessException("USER_NOT_FOUND"));
 
         PhotographerProfile profile = photographerRepository.findByUser(user)
-            .orElseThrow(() -> new BusinessException("PROFILE_NOT_FOUND"));
+            .orElseGet(() -> {
+                PhotographerProfile p = new PhotographerProfile();
+                p.setUser(user);
+                p.setApprovalStatus(ApprovalStatus.APPROVED);
+                return photographerRepository.save(p);
+            });
 
         return photoPackageRepository.findByPhotographerProfileAndActiveTrue(profile)
             .stream()
@@ -105,9 +115,12 @@ public class PhotoPackageServiceImpl implements PhotoPackageService {
 
         PhotographerProfile profile =
             photographerRepository.findByUser(user)
-                .orElseThrow(() ->
-                                 new BusinessException("PROFILE_NOT_FOUND")
-                );
+                .orElseGet(() -> {
+                    PhotographerProfile p = new PhotographerProfile();
+                    p.setUser(user);
+                    p.setApprovalStatus(ApprovalStatus.APPROVED);
+                    return photographerRepository.save(p);
+                });
 
         PhotoPackage photoPackage =
             photoPackageRepository.findById(packageId)
@@ -149,9 +162,12 @@ public class PhotoPackageServiceImpl implements PhotoPackageService {
 
         PhotographerProfile profile =
             photographerRepository.findByUser(user)
-                .orElseThrow(() ->
-                                 new BusinessException("PROFILE_NOT_FOUND")
-                );
+                .orElseGet(() -> {
+                    PhotographerProfile p = new PhotographerProfile();
+                    p.setUser(user);
+                    p.setApprovalStatus(ApprovalStatus.APPROVED);
+                    return photographerRepository.save(p);
+                });
 
         PhotoPackage photoPackage =
             photoPackageRepository.findById(packageId)

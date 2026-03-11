@@ -31,4 +31,6 @@ public class BookingCreateRequest {
     private LocalDateTime endTime;
 
     private String note;
+
+    private String location;
 }

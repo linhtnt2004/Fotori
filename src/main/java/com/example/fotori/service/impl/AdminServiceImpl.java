@@ -3,6 +3,7 @@ package com.example.fotori.service.impl;
 import com.example.fotori.common.enums.ApprovalStatus;
 import com.example.fotori.exception.BusinessException;
 import com.example.fotori.common.enums.ErrorCode;
+import com.example.fotori.common.enums.PaymentStatus;
 import com.example.fotori.dto.admin.*;
 import com.example.fotori.model.Booking;
 import com.example.fotori.model.PhotographerProfile;
@@ -50,8 +51,8 @@ public class AdminServiceImpl implements AdminService {
         // For now we just sum all package prices of completed/accepted bookings
         // User asked to leave "transactions/payment" part alone, so we just sum what we can or return 0
         double totalRevenue = bookingRepository.findAll().stream()
-            .filter(b -> b.getStatus().name().equals("COMPLETED") || b.getStatus().name().equals("ACCEPTED"))
-            .mapToDouble(Booking::getFinalPrice)
+            .filter(b -> b.getPaymentStatus() == PaymentStatus.PAID)
+            .mapToDouble(b -> b.getFinalPrice() != null ? b.getFinalPrice() : 0.0)
             .sum();
 
         return AdminStatsDTO.builder()

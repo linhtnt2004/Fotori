@@ -40,26 +40,23 @@ public class PhotographerBookingQueryServiceImpl
 
         PhotographerProfile photographer =
             photographerRepository.findByUser(user)
-                .orElseThrow(() ->
-                                 new BusinessException("PROFILE_NOT_FOUND")
-                );
+                .orElseGet(() -> {
+                    PhotographerProfile p = new PhotographerProfile();
+                    p.setUser(user);
+                    p.setApprovalStatus(com.example.fotori.common.enums.ApprovalStatus.APPROVED);
+                    return photographerRepository.save(p);
+                });
 
         Pageable pageable = PageRequest.of(page, size);
 
         Page<Booking> bookings;
 
-        if (status != null) {
-            bookings = bookingRepository.findByPhotographerAndStatus(
-                photographer,
-                status,
-                pageable
-            );
-        } else {
-            bookings = bookingRepository.findByPhotographer(
-                photographer,
-                pageable
-            );
-        }
+        // Requirement: Only show bookings that have been paid to Admin
+        bookings = bookingRepository.findByPhotographerAndPaymentStatus(
+            photographer,
+            com.example.fotori.common.enums.PaymentStatus.PAID,
+            pageable
+        );
 
         return bookings.map(b ->
                                 BookingResponse.builder()
@@ -67,12 +64,19 @@ public class PhotographerBookingQueryServiceImpl
                                     .photographerName(
                                         b.getPhotographer().getUser().getFullName()
                                     )
+                                    .customerName(
+                                        b.getUser().getFullName()
+                                    )
                                     .packageTitle(
                                         b.getPhotoPackage().getTitle()
                                     )
                                     .startTime(b.getStartTime())
                                     .endTime(b.getEndTime())
                                     .status(b.getStatus())
+                                    .paymentStatus(b.getPaymentStatus())
+                                    .location(b.getLocation())
+                                    .price(b.getFinalPrice())
+                                    .details(b.getNote())
                                     .build()
         );
     }

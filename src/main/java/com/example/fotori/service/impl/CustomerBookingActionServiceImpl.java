@@ -45,11 +45,8 @@ public class CustomerBookingActionServiceImpl implements CustomerBookingActionSe
         Booking booking =
             getBookingForCustomer(customerEmail, bookingId);
 
-        if (newStatus == BookingActorStatus.DONE &&
-            booking.getPhotographerStatus() != BookingActorStatus.DONE) {
-
-            throw new BusinessException("PHOTOGRAPHER_NOT_DONE_YET");
-        }
+        // Remove the restriction that require photographer to be DONE first.
+        // Both can confirm independently now.
 
         booking.setCustomerStatus(newStatus);
         booking.refreshStatus();

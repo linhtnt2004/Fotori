@@ -9,6 +9,8 @@ public interface AuthService {
 
     User register(RegisterRequest request);
 
+    void resendVerificationEmail(String email);
+
     void resetPassword(String email);
 
     void resetPasswordWithToken(String token, String newPassword);
@@ -17,3 +19,4 @@ public interface AuthService {
 
     UserResponse updateProfile(String email, UpdateProfileRequest request);
 }
+

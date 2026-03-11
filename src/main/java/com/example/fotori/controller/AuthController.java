@@ -75,7 +75,29 @@ public class AuthController {
         }
     }
 
-    @Operation(summary = "Login user and return access token")
+    
+    @Operation(summary = "Resend verification email")
+    @PostMapping("/resend-verification")
+    public ResponseEntity<ApiResponse> resendVerificationEmail(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            if (email == null || email.isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                    new ApiResponse(ErrorCode.BAD_REQUEST.name(), "Email is missing", null)
+                );
+            }
+
+            authService.resendVerificationEmail(email);
+
+            return ResponseEntity.ok(
+                new ApiResponse(ErrorCode.SUCCESS.name(), "Verification email resent", null)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                new ApiResponse(ErrorCode.BAD_REQUEST.name(), e.getMessage(), null)
+            );
+        }
+    }@Operation(summary = "Login user and return access token")
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> login(
         @RequestBody LoginRequest request,
@@ -188,18 +210,18 @@ public class AuthController {
         try {
             emailService.verify(token);
 
-            String html = "<html><body style='text-align:center; font-family:Arial; padding:50px;'>"
-                + "<h1 style='color:green;'>âœ… Email Ä‘Ã£ xÃ¡c thá»±c thÃ nh cÃ´ng!</h1>"
-                + "<p>Báº¡n cÃ³ thá»ƒ Ä‘Äƒng nháº­p ngay bÃ¢y giá».</p>"
-                + "<a href='http://localhost:3001'>â† Quay vá» trang Ä‘Äƒng nháº­p</a>"
+            String html = "<html><head><meta charset='utf-8'></head><body style='text-align:center; font-family:Arial; padding:50px;'>"
+                + "<h1 style='color:green;'>✅ Email đã xác thực thành công!</h1>"
+                + "<p>Bạn có thể đăng nhập ngay bây giờ.</p>"
+                + "<a href='http://localhost:3001'>← Quay về trang đăng nhập</a>"
                 + "</body></html>";
 
             return ResponseEntity.ok().header("Content-Type", "text/html; charset=UTF-8").body(html);
         } catch (Exception e) {
-            String html = "<html><body style='text-align:center; font-family:Arial; padding:50px;'>"
-                + "<h1 style='color:red;'>âŒ XÃ¡c thá»±c tháº¥t báº¡i</h1>"
+            String html = "<html><head><meta charset='utf-8'></head><body style='text-align:center; font-family:Arial; padding:50px;'>"
+                + "<h1 style='color:red;'>❌ Xác thực thất bại</h1>"
                 + "<p>" + e.getMessage() + "</p>"
-                + "<a href='http://localhost:3001'>â† Quay vá» trang chá»§</a>"
+                + "<a href='http://localhost:3001'>← Quay về trang chủ</a>"
                 + "</body></html>";
 
             return ResponseEntity.badRequest().header("Content-Type", "text/html; charset=UTF-8").body(html);
@@ -380,5 +402,6 @@ public class AuthController {
         );
     }
 }
+
 
 

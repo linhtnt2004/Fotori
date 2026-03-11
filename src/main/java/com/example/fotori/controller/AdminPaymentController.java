@@ -15,6 +15,17 @@ public class AdminPaymentController {
 
     private final PaymentService paymentService;
 
+    @GetMapping
+    public ResponseEntity<ApiResponse> getAllPayments() {
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Payments fetched",
+                paymentService.getAllPayments()
+            )
+        );
+    }
+
     @PatchMapping("/{id}/confirm")
     public ResponseEntity<ApiResponse> confirmPayment(
         @PathVariable Long id

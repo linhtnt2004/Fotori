@@ -48,9 +48,11 @@ public class PhotographerAvailabilityServiceImpl
 
         PhotographerProfile profile =
             photographerProfileRepository.findByUser(user)
-                .orElseThrow(() ->
-                                 new BusinessException("PROFILE_NOT_FOUND")
-                );
+                .orElseGet(() -> {
+                    PhotographerProfile p = new PhotographerProfile();
+                    p.setUser(user);
+                    return photographerProfileRepository.save(p);
+                });
 
         boolean overlapped =
             availabilityRepository
@@ -84,9 +86,11 @@ public class PhotographerAvailabilityServiceImpl
 
         PhotographerProfile profile =
             photographerProfileRepository.findByUser(user)
-                .orElseThrow(() ->
-                                 new BusinessException("PROFILE_NOT_FOUND")
-                );
+                .orElseGet(() -> {
+                    PhotographerProfile p = new PhotographerProfile();
+                    p.setUser(user);
+                    return photographerProfileRepository.save(p);
+                });
 
         return availabilityRepository
             .findByPhotographerAndDeletedAtIsNull(profile)
@@ -110,9 +114,11 @@ public class PhotographerAvailabilityServiceImpl
 
         PhotographerProfile profile =
             photographerProfileRepository.findByUser(user)
-                .orElseThrow(() ->
-                                 new BusinessException("PROFILE_NOT_FOUND")
-                );
+                .orElseGet(() -> {
+                    PhotographerProfile p = new PhotographerProfile();
+                    p.setUser(user);
+                    return photographerProfileRepository.save(p);
+                });
 
         PhotographerAvailability availability =
             availabilityRepository.findById(availabilityId)

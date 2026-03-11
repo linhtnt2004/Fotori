@@ -30,11 +30,12 @@ public class PhotographerProfileServiceImpl
 
         PhotographerProfile profile =
             photographerProfileRepository.findByUser(user)
-                .orElseThrow(() ->
-                                 new BusinessException(
-                                     "PHOTOGRAPHER_PROFILE_NOT_FOUND"
-                                 )
-                );
+                .orElseGet(() -> {
+                    PhotographerProfile p = new PhotographerProfile();
+                    p.setUser(user);
+                    p.setApprovalStatus(ApprovalStatus.APPROVED);
+                    return photographerProfileRepository.save(p);
+                });
 
         return PhotographerProfileResponse.builder()
             .id(profile.getId())
@@ -61,11 +62,12 @@ public class PhotographerProfileServiceImpl
 
         PhotographerProfile profile =
             photographerProfileRepository.findByUser(user)
-                .orElseThrow(() ->
-                                 new BusinessException(
-                                     "PHOTOGRAPHER_PROFILE_NOT_FOUND"
-                                 )
-                );
+                .orElseGet(() -> {
+                    PhotographerProfile p = new PhotographerProfile();
+                    p.setUser(user);
+                    p.setApprovalStatus(ApprovalStatus.APPROVED);
+                    return photographerProfileRepository.save(p);
+                });
 
         if (profile.getApprovalStatus() == ApprovalStatus.APPROVED) {
             throw new BusinessException("PROFILE_ALREADY_APPROVED");

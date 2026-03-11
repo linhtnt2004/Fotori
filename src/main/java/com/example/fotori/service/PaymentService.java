@@ -19,4 +19,6 @@ public interface PaymentService {
     );
 
     void confirmPayment(Long paymentId);
+
+    java.util.List<com.example.fotori.dto.admin.AdminPaymentDTO> getAllPayments();
 }

@@ -24,12 +24,12 @@ public class BookingController {
         @AuthenticationPrincipal UserDetails userDetails,
         @RequestBody BookingCreateRequest request
     ) {
-        bookingService.createBooking(userDetails.getUsername(), request);
+        Long bookingId = bookingService.createBooking(userDetails.getUsername(), request);
         return ResponseEntity.ok(
             new ApiResponse(
                 ErrorCode.SUCCESS.name(),
                 "Booking created successfully",
-                null
+                bookingId
             )
         );
     }

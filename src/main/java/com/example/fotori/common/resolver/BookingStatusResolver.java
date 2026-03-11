@@ -8,9 +8,8 @@ import static com.example.fotori.common.enums.BookingActorStatus.*;
 public final class BookingStatusResolver {
 
     public static BookingStatus resolve(
-        BookingActorStatus customer,
-        BookingActorStatus photographer
-    ) {
+            BookingActorStatus customer,
+            BookingActorStatus photographer) {
 
         if (customer == CANCELLED || photographer == CANCELLED) {
             return BookingStatus.CANCELLED;
@@ -31,4 +30,3 @@ public final class BookingStatusResolver {
         return BookingStatus.PENDING;
     }
 }
-

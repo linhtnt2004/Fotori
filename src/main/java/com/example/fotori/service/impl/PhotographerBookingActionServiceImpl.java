@@ -24,14 +24,12 @@ public class PhotographerBookingActionServiceImpl implements PhotographerBooking
     private final PhotographerRepository photographerRepository;
     private final BookingRepository bookingRepository;
 
-
     @Override
     @Transactional
     public void updateStatus(
-        String photographerEmail,
-        Long bookingId,
-        UpdateBookingStatusRequest request
-    ) {
+            String photographerEmail,
+            Long bookingId,
+            UpdateBookingStatusRequest request) {
 
         if (request.getStatus() == null) {
             throw new BusinessException("STATUS_REQUIRED");
@@ -47,16 +45,18 @@ public class PhotographerBookingActionServiceImpl implements PhotographerBooking
             throw new BusinessException("PHOTOGRAPHER_CANNOT_CANCEL");
         }
 
-        Booking booking =
-            getPendingBookingForPhotographer(photographerEmail, bookingId);
+        Booking booking = getAccessibleBookingForPhotographer(photographerEmail, bookingId);
+
+        if (newStatus == BookingActorStatus.ACCEPTED && booking.getPhotographerStatus() == BookingActorStatus.ACCEPTED) {
+            // Already accepted, just return success
+            return;
+        }
 
         if (newStatus == BookingActorStatus.ACCEPTED) {
-            boolean conflict =
-                bookingRepository.existsAcceptedOverlapping(
+            boolean conflict = bookingRepository.existsAcceptedOverlapping(
                     booking.getPhotographer(),
                     booking.getStartTime(),
-                    booking.getEndTime()
-                );
+                    booking.getEndTime());
 
             if (conflict) {
                 throw new BusinessException("BOOKING_TIME_CONFLICT");
@@ -67,26 +67,20 @@ public class PhotographerBookingActionServiceImpl implements PhotographerBooking
         booking.refreshStatus();
     }
 
-
-    private Booking getPendingBookingForPhotographer(String email, Long bookingId) {
+    private Booking getAccessibleBookingForPhotographer(String email, Long bookingId) {
 
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        PhotographerProfile photographer =
-            photographerRepository.findByUser(user)
+        PhotographerProfile photographer = photographerRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Not a photographer"));
 
         Booking booking = bookingRepository
-            .findByIdAndPhotographer(bookingId, photographer)
-            .orElseThrow(() ->
-                             new RuntimeException("Booking not found or not yours")
-            );
+                .findByIdAndPhotographer(bookingId, photographer)
+                .orElseThrow(() -> new RuntimeException("Booking not found or not yours"));
 
-        if (booking.getPhotographerStatus() != BookingActorStatus.PENDING) {
-            throw new BusinessException("BOOKING_ALREADY_HANDLED");
-        }
-
+        // Allow actions if PENDING (Accept/Reject) or ACCEPTED (Done/Cancel?)
+        // The business logic for specific status transitions is handled in updateStatus
         return booking;
     }
 }

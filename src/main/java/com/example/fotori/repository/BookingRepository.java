@@ -67,6 +67,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         Pageable pageable
     );
 
+    Page<Booking> findByUserAndPaymentStatus(
+        User user,
+        com.example.fotori.common.enums.PaymentStatus paymentStatus,
+        Pageable pageable
+    );
+
     Page<Booking> findByUserAndStatus(
         User user,
         BookingStatus status,
@@ -81,6 +87,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Page<Booking> findByPhotographerAndStatus(
         PhotographerProfile photographer,
         BookingStatus status,
+        Pageable pageable
+    );
+
+    Page<Booking> findByPhotographerAndPaymentStatus(
+        PhotographerProfile photographer,
+        com.example.fotori.common.enums.PaymentStatus paymentStatus,
         Pageable pageable
     );
 

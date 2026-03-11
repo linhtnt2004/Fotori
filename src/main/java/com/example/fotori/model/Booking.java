@@ -69,6 +69,9 @@ public class Booking extends BaseEntity {
     @Column(name = "payment_status")
     PaymentStatus paymentStatus;
 
+    @Column(name = "location")
+    String location;
+
     public void refreshStatus() {
         this.status = BookingStatusResolver.resolve(
             this.customerStatus,

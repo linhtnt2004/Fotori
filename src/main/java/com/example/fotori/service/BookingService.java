@@ -1,14 +1,14 @@
 package com.example.fotori.service;
 
-import com.example.fotori.dto.BookingCalendarResponse;
 import com.example.fotori.dto.BookingCreateRequest;
+import com.example.fotori.dto.BookingResponse;
 
 import java.util.List;
 
 public interface BookingService {
-    void createBooking(String userEmail, BookingCreateRequest request);
+    Long createBooking(String userEmail, BookingCreateRequest request);
 
-    List<BookingCalendarResponse> getMyBookings(String email);
+    List<BookingResponse> getMyBookings(String email);
 
-    List<BookingCalendarResponse> getPhotographerBookings(String email);
+    List<BookingResponse> getPhotographerBookings(String email);
 }

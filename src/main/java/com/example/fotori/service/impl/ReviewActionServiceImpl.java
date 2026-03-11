@@ -30,9 +30,12 @@ public class ReviewActionServiceImpl implements ReviewActionService {
 
         PhotographerProfile photographer =
             photographerRepository.findByUser(user)
-                .orElseThrow(() ->
-                                 new RuntimeException("PHOTOGRAPHER_PROFILE_NOT_FOUND")
-                );
+                .orElseGet(() -> {
+                    PhotographerProfile p = new PhotographerProfile();
+                    p.setUser(user);
+                    p.setApprovalStatus(com.example.fotori.common.enums.ApprovalStatus.APPROVED);
+                    return photographerRepository.save(p);
+                });
 
         Review review = reviewRepository.findByIdAndPhotographerId(
                 reviewId,

@@ -21,6 +21,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+  flyway:
+    validate-on-migrate: false
     show-sql: true
     properties:
       hibernate:

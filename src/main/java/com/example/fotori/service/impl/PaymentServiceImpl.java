@@ -10,6 +10,7 @@ import com.example.fotori.model.Payment;
 import com.example.fotori.repository.BookingRepository;
 import com.example.fotori.repository.PaymentRepository;
 import com.example.fotori.service.PaymentService;
+import com.example.fotori.dto.admin.AdminPaymentDTO;
 import com.example.fotori.service.payment.processor.PaymentProcessor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -145,7 +146,25 @@ public class PaymentServiceImpl implements PaymentService {
 
         Booking booking = payment.getBooking();
         booking.setPaymentStatus(PaymentStatus.PAID);
+        booking.setCustomerStatus(com.example.fotori.common.enums.BookingActorStatus.ACCEPTED);
+        booking.refreshStatus();
 
         paymentRepository.save(payment);
+    }
+
+    @Override
+    public List<AdminPaymentDTO> getAllPayments() {
+        return paymentRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"))
+            .stream()
+            .map(p -> AdminPaymentDTO.builder()
+                .id(p.getId())
+                .bookingId(p.getBooking().getId())
+                .amount(p.getAmount())
+                .method(p.getMethod() != null ? p.getMethod().name() : "Thủ công")
+                .transactionId(p.getTransactionId())
+                .status(p.getStatus() != null ? p.getStatus().name() : "PENDING")
+                .createdAt(p.getCreatedAt())
+                .build()
+            ).collect(java.util.stream.Collectors.toList());
     }
 }
