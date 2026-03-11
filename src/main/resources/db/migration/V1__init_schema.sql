@@ -474,3 +474,31 @@ CREATE TABLE vouchers
     updated_at      DATETIME,
     deleted_at      DATETIME
 );
+
+-- =========================
+-- PAYMENTS
+-- =========================
+CREATE TABLE payments
+(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    booking_id BIGINT,
+
+    amount DOUBLE,
+
+    method VARCHAR(50),
+
+    transaction_id VARCHAR(255),
+
+    qr_content TEXT,
+
+    status VARCHAR(50),
+
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    deleted_at DATETIME,
+
+    CONSTRAINT fk_payment_booking
+        FOREIGN KEY (booking_id)
+            REFERENCES bookings (id)
+);

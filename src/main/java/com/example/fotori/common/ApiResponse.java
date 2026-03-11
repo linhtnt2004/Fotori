@@ -1,14 +1,17 @@
 package com.example.fotori.common;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ApiResponse {
-    private String code;
-    private String message;
-    private Object data;
+    String code;
+    String message;
+    Object data;
 }
