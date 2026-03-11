@@ -3,6 +3,7 @@ package com.example.fotori.service.impl;
 import com.example.fotori.common.enums.PaymentStatus;
 import com.example.fotori.dto.CreatePaymentRequest;
 import com.example.fotori.dto.CreatePaymentResponse;
+import com.example.fotori.dto.PaymentHistoryResponse;
 import com.example.fotori.dto.PaymentStatusResponse;
 import com.example.fotori.model.Booking;
 import com.example.fotori.model.Payment;
@@ -11,6 +12,9 @@ import com.example.fotori.repository.PaymentRepository;
 import com.example.fotori.service.PaymentService;
 import com.example.fotori.service.payment.processor.PaymentProcessor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -79,5 +83,28 @@ public class PaymentServiceImpl implements PaymentService {
             .status(payment.getStatus())
             .amount(payment.getAmount())
             .build();
+    }
+
+    @Override
+    public Page<PaymentHistoryResponse> getPaymentHistory(
+        int page,
+        int size,
+        Long userId
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Payment> payments =
+            paymentRepository.findByBooking_User_Id(userId, pageable);
+
+        return payments.map(payment ->
+                                PaymentHistoryResponse.builder()
+                                    .id(payment.getId())
+                                    .amount(payment.getAmount())
+                                    .status(payment.getStatus())
+                                    .method(payment.getMethod())
+                                    .createdAt(payment.getCreatedAt())
+                                    .build()
+        );
     }
 }
