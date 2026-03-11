@@ -1,0 +1,15 @@
+package com.example.fotori.dto;
+
+import lombok.Data;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Data
+public class MatchingRequestDto {
+    private List<Long> conceptIds;      // Concepts khách muốn
+    private String city;                 // Thành phố
+    private Integer budgetMin;           // Ngân sách tối thiểu
+    private Integer budgetMax;           // Ngân sách tối đa
+    private LocalDateTime bookingDate;   // Ngày muốn chụp (check availability)
+    private Integer limit;               // Số lượng kết quả (default 10)
+}
