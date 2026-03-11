@@ -144,5 +144,4 @@ public class BookingServiceImpl implements BookingService {
             throw new BusinessException("START_TIME_IN_PAST");
         }
     }
-
 }

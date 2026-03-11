@@ -122,4 +122,49 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         AND b.status = 'CONFIRMED'
         """)
     Long countUpcomingBookings(User user);
+
+    @Query("""
+            SELECT FUNCTION('DATE_FORMAT', b.createdAt, '%Y-%m'),
+                   SUM(b.finalPrice),
+                   COUNT(b)
+            FROM Booking b
+            WHERE b.paymentStatus = 'PAID'
+            AND b.createdAt BETWEEN :startDate AND :endDate
+            GROUP BY FUNCTION('DATE_FORMAT', b.createdAt, '%Y-%m')
+            ORDER BY FUNCTION('DATE_FORMAT', b.createdAt, '%Y-%m')
+        """)
+    List<Object[]> getRevenueByMonth(
+        LocalDateTime startDate,
+        LocalDateTime endDate
+    );
+
+    @Query("""
+        SELECT FUNCTION('DATE_FORMAT', b.createdAt, '%Y-%m-%d'),
+               SUM(b.finalPrice),
+               COUNT(b)
+        FROM Booking b
+        WHERE b.paymentStatus = 'PAID'
+        AND b.createdAt BETWEEN :startDate AND :endDate
+        GROUP BY FUNCTION('DATE_FORMAT', b.createdAt, '%Y-%m-%d')
+        ORDER BY 1
+        """)
+    List<Object[]> getRevenueByDay(
+        LocalDateTime startDate,
+        LocalDateTime endDate
+    );
+
+    @Query("""
+        SELECT FUNCTION('DATE_FORMAT', b.createdAt, '%Y'),
+               SUM(b.finalPrice),
+               COUNT(b)
+        FROM Booking b
+        WHERE b.paymentStatus = 'PAID'
+        AND b.createdAt BETWEEN :startDate AND :endDate
+        GROUP BY FUNCTION('DATE_FORMAT', b.createdAt, '%Y')
+        ORDER BY 1
+        """)
+    List<Object[]> getRevenueByYear(
+        LocalDateTime startDate,
+        LocalDateTime endDate
+    );
 }
