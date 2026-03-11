@@ -1,6 +1,7 @@
 package com.example.fotori.controller;
 
 import com.example.fotori.common.ApiResponse;
+import com.example.fotori.dto.ApiUserDetailResponse;
 import com.example.fotori.dto.UpdateUserStatusRequest;
 import com.example.fotori.service.AdminUserService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,23 @@ public class AdminUserController {
                 "SUCCESS",
                 "User status updated successfully",
                 null
+            )
+        );
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<ApiResponse> getUserDetail(
+        @PathVariable Long id
+    ) {
+
+        ApiUserDetailResponse user =
+            adminUserService.getUserDetail(id);
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "User detail fetched successfully",
+                user
             )
         );
     }
