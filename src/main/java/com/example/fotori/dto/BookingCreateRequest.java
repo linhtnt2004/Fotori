@@ -2,6 +2,7 @@ package com.example.fotori.dto;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Future;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,20 +18,22 @@ import java.time.LocalDateTime;
 public class BookingCreateRequest {
 
     @NotNull(message = "Photographer id is required")
-    private Long photographerId;
+    Long photographerId;
 
     @NotNull(message = "Photo package id is required")
-    private Long photoPackageId;
+    Long photoPackageId;
 
     @NotNull(message = "Start time is required")
     @Future(message = "Start time must be in the future")
-    private LocalDateTime startTime;
+    LocalDateTime startTime;
 
     @NotNull(message = "End time is required")
     @Future(message = "End time must be in the future")
-    private LocalDateTime endTime;
+    LocalDateTime endTime;
 
-    private String note;
+    String note;
 
-    private String location;
+    String location;
+
+    String voucherCode;
 }
