@@ -54,14 +54,10 @@ public class PaymentServiceImpl implements PaymentService {
             throw new RuntimeException("PAYMENT_ALREADY_PENDING");
         }
 
-        Double baseAmount =
+        Double amount =
             booking.getFinalPrice() != null
                 ? booking.getFinalPrice()
                 : booking.getTotalPrice();
-
-        Double serviceFee = 40000.0;
-
-        Double totalAmount = baseAmount + serviceFee;
 
         String transactionId = UUID.randomUUID().toString();
 
@@ -74,13 +70,13 @@ public class PaymentServiceImpl implements PaymentService {
 
         String paymentUrl = processor.createPayment(
             booking,
-            totalAmount,
+            amount,
             transactionId
         );
 
         Payment payment = Payment.builder()
             .booking(booking)
-            .amount(totalAmount)
+            .amount(amount)
             .method(request.getMethod())
             .transactionId(transactionId)
             .status(PaymentStatus.PENDING)
