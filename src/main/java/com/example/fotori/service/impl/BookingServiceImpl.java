@@ -10,14 +10,17 @@ import com.example.fotori.model.PhotoPackage;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.User;
 import com.example.fotori.repository.*;
+import com.example.fotori.service.BookingEmailService;
 import com.example.fotori.service.BookingService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
@@ -27,11 +30,11 @@ public class BookingServiceImpl implements BookingService {
     private final PhotographerRepository photographerRepository;
     private final PhotoPackageRepository photoPackageRepository;
     private final PhotographerAvailabilityRepository availabilityRepository;
+    private final BookingEmailService bookingEmailService; // ← THÊM MỚI
 
     @Override
     @Transactional
     public Long createBooking(String userEmail, BookingCreateRequest request) {
-
         validateTime(request.getStartTime(), request.getEndTime());
 
         User user = userRepository.findByEmail(userEmail)
@@ -75,7 +78,8 @@ public class BookingServiceImpl implements BookingService {
             throw new BusinessException("PHOTOGRAPHER_BUSY");
         }
 
-        Double packagePrice = photoPackage.getPrice() != null ? Double.valueOf(photoPackage.getPrice()) : 0.0;
+        Double packagePrice = photoPackage.getPrice() != null
+                ? Double.valueOf(photoPackage.getPrice()) : 0.0;
         Double finalPriceToPay = packagePrice + 40000.0;
 
         Booking booking = Booking.builder()
@@ -95,6 +99,16 @@ public class BookingServiceImpl implements BookingService {
         booking.refreshStatus();
         booking = bookingRepository.save(booking);
 
+        // ── Gửi email thông báo booking mới ──────────────────────
+        final Booking savedBooking = booking;
+        try {
+            bookingEmailService.sendBookingCreatedEmails(savedBooking);
+        } catch (Exception e) {
+            log.warn("Email notification failed for booking {}: {}",
+                savedBooking.getId(), e.getMessage());
+        }
+        // ─────────────────────────────────────────────────────────
+
         return booking.getId();
     }
 
@@ -103,7 +117,6 @@ public class BookingServiceImpl implements BookingService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException("USER_NOT_FOUND"));
 
-        // Only show PAID bookings to the customer
         return bookingRepository.findByUserAndPaymentStatus(
                 user,
                 com.example.fotori.common.enums.PaymentStatus.PAID,
@@ -144,15 +157,12 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateTime(LocalDateTime start, LocalDateTime end) {
-
         if (start == null || end == null) {
             throw new BusinessException("TIME_REQUIRED");
         }
-
         if (!end.isAfter(start)) {
             throw new BusinessException("END_TIME_MUST_AFTER_START");
         }
-
         if (start.isBefore(LocalDateTime.now())) {
             throw new BusinessException("START_TIME_IN_PAST");
         }
