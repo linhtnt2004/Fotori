@@ -3,6 +3,7 @@ package com.example.fotori.exception;
 import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.CustomException;
 import com.example.fotori.common.enums.ErrorCode;
+import com.example.fotori.exception.BusinessException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,17 @@ public class GlobalExceptionHandler {
             .body(new ApiResponse(
                 ErrorCode.BAD_REQUEST.name(),
                 message,
+                null
+            ));
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponse> handlerBusinessException(BusinessException e) {
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(new ApiResponse(
+                e.getCode(),
+                e.getMessage(),
                 null
             ));
     }

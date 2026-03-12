@@ -45,31 +45,30 @@ public class AuthServiceImpl implements AuthService {
         }
 
         Role userRole = roleRepository.findByName("ROLE_CUSTOMER")
-            .orElseThrow(() -> new RuntimeException("ROLE_CUSTOMER not found"));
+                .orElseThrow(() -> new RuntimeException("ROLE_CUSTOMER not found"));
 
         User user = User.builder()
-            .email(request.getEmail())
-            .password(passwordEncoder.encode(request.getPassword()))
-            .fullName(request.getFullName())
-            .phoneNumber(request.getPhone())
-            .status(UserStatus.PENDING)
-            .roles(Set.of(userRole))
-            .build();
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .fullName(request.getFullName())
+                .phoneNumber(request.getPhone())
+                .status(UserStatus.PENDING)
+                .roles(Set.of(userRole))
+                .build();
 
         user = userRepository.save(user);
 
-        RegisterType type =
-            request.getUserType() != null ? request.getUserType() : RegisterType.CUSTOMER;
+        RegisterType type = request.getUserType() != null ? request.getUserType() : RegisterType.CUSTOMER;
 
         if (type == RegisterType.PHOTOGRAPHER) {
 
             PhotographerProfile photographer = PhotographerProfile.builder()
-                .user(user)
-                .bio(request.getBio())
-                .city(request.getCity())
-                .experienceYears(request.getExperience())
-                .approvalStatus(ApprovalStatus.PENDING)
-                .build();
+                    .user(user)
+                    .bio(request.getBio())
+                    .city(request.getCity())
+                    .experienceYears(request.getExperience())
+                    .approvalStatus(ApprovalStatus.PENDING)
+                    .build();
 
             photographerRepository.save(photographer);
         }
@@ -91,8 +90,8 @@ public class AuthServiceImpl implements AuthService {
     public void resendVerificationEmail(String email) {
 
         User user = userRepository
-            .findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (user.getStatus() == UserStatus.ACTIVE) {
             throw new RuntimeException("Email already verified");
@@ -109,8 +108,8 @@ public class AuthServiceImpl implements AuthService {
     public void resetPassword(String email) {
 
         User user = userRepository
-            .findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         String token = emailVerificationService.createToken(user);
 
@@ -132,22 +131,21 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse getCurrentUser(String email) {
 
         User user = userRepository
-            .findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         return UserResponse.builder()
-            .id(user.getId())
-            .email(user.getEmail())
-            .fullName(user.getFullName())
-            .phone(user.getPhoneNumber())
-            .avatarUrl(user.getAvatarUrl())
-            .roles(
-                user.getRoles()
-                    .stream()
-                    .map(Role::getName)
-                    .collect(java.util.stream.Collectors.toSet())
-            )
-            .build();
+                .id(user.getId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .phone(user.getPhoneNumber())
+                .avatarUrl(user.getAvatarUrl())
+                .roles(
+                        user.getRoles()
+                                .stream()
+                                .map(Role::getName)
+                                .collect(java.util.stream.Collectors.toSet()))
+                .build();
     }
 
     @Override
@@ -155,7 +153,7 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse updateProfile(String email, UpdateProfileRequest request) {
 
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setFullName(request.getName());
         user.setPhoneNumber(request.getPhone());
@@ -167,17 +165,16 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         return UserResponse.builder()
-            .id(user.getId())
-            .email(user.getEmail())
-            .fullName(user.getFullName())
-            .phone(user.getPhoneNumber())
-            .avatarUrl(user.getAvatarUrl())
-            .roles(
-                user.getRoles()
-                    .stream()
-                    .map(Role::getName)
-                    .collect(java.util.stream.Collectors.toSet())
-            )
-            .build();
+                .id(user.getId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .phone(user.getPhoneNumber())
+                .avatarUrl(user.getAvatarUrl())
+                .roles(
+                        user.getRoles()
+                                .stream()
+                                .map(Role::getName)
+                                .collect(java.util.stream.Collectors.toSet()))
+                .build();
     }
 }

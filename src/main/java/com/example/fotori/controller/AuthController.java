@@ -10,6 +10,7 @@ import com.example.fotori.security.JwtTokenProvider;
 import com.example.fotori.security.UserDetailsImpl;
 import com.example.fotori.service.AuthService;
 import com.example.fotori.service.EmailVerificationService;
+import com.example.fotori.repository.PhotographerRepository;
 import com.example.fotori.service.RefreshTokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,6 +42,7 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
     private final EmailVerificationService emailService;
     private final com.example.fotori.service.FirebaseService firebaseService;
+    private final PhotographerRepository photographerRepository;
 
     @Value("${app.jwt.refresh-expiration-ms}")
     private long refreshExpirationMs;
@@ -118,10 +120,24 @@ public class AuthController {
             return ResponseEntity.status(403).body(
                 new ApiResponse(
                     ErrorCode.FORBIDDEN.name(),
-                    "Please verify your email before login",
+                    "Vui lòng xác thực email trước khi đăng nhập",
                     null
                 )
             );
+        }
+
+        // Check Photographer approval status
+        if (user.hasRole("ROLE_PHOTOGRAPHER")) {
+            var profile = photographerRepository.findByUser(user);
+            if (profile.isPresent() && profile.get().getApprovalStatus() != com.example.fotori.common.enums.ApprovalStatus.APPROVED) {
+                return ResponseEntity.status(403).body(
+                    new ApiResponse(
+                        ErrorCode.FORBIDDEN.name(),
+                        "Tài khoản Nhiếp ảnh gia của bạn đang chờ Admin phê duyệt.",
+                        null
+                    )
+                );
+            }
         }
 
         String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
@@ -184,6 +200,22 @@ public class AuthController {
             cookie.setMaxAge((int) (refreshExpirationMs / 1000));
 
             response.addCookie(cookie);
+
+            // Perform status checks for Firebase login too
+            if (user.getStatus() == UserStatus.PENDING) {
+                return ResponseEntity.status(403).body(
+                    new ApiResponse(ErrorCode.FORBIDDEN.name(), "Vui lòng xác thực email.", null)
+                );
+            }
+
+            if (user.hasRole("ROLE_PHOTOGRAPHER")) {
+                var profile = photographerRepository.findByUser(user);
+                if (profile.isPresent() && profile.get().getApprovalStatus() != com.example.fotori.common.enums.ApprovalStatus.APPROVED) {
+                    return ResponseEntity.status(403).body(
+                        new ApiResponse(ErrorCode.FORBIDDEN.name(), "Tài khoản đang chờ Admin duyệt.", null)
+                    );
+                }
+            }
 
             return ResponseEntity.ok(
                 new ApiResponse(
