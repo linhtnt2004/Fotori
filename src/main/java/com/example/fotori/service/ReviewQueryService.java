@@ -10,4 +10,5 @@ public interface ReviewQueryService {
         int size
     );
 
+    java.util.List<com.example.fotori.dto.ReviewResponse> getAllReviews();
 }

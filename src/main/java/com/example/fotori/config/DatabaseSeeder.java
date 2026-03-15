@@ -60,55 +60,53 @@ public class DatabaseSeeder implements CommandLineRunner {
             System.out.println("✅ Default admin user created: " + adminEmail);
         }
 
-        // Deep cleanup for user "tranhung20042210@gmail.com" (User's request)
-        deepCleanupByEmail("tranhung20042210@gmail.com");
     }
 
-    private void deepCleanupByEmail(String email) {
-        try {
-            Object result = em.createNativeQuery("SELECT id FROM users WHERE LOWER(email) = LOWER(:email)")
-                    .setParameter("email", email)
-                    .getResultList().stream().findFirst().orElse(null);
-
-            if (result != null) {
-                long uid = ((Number) result).longValue();
-                System.out.println("⚠️ Starting deep cleanup for user: " + email + " (ID: " + uid + ")");
-
-                String[] queries = {
-                    "DELETE FROM photo_package_concepts WHERE photo_package_id IN (SELECT id FROM photo_packages WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid))",
-                    "DELETE FROM photo_packages WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid)",
-                    "DELETE FROM photographer_availability WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid)",
-                    "DELETE FROM portfolio_images WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid)",
-                    "DELETE FROM wishlists WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid) OR user_id = :uid",
-                    "DELETE FROM reviews WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid) OR customer_id = :uid",
-                    "DELETE FROM payments WHERE booking_id IN (SELECT id FROM bookings WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid) OR user_id = :uid)",
-                    "DELETE FROM bookings WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid) OR user_id = :uid",
-                    "DELETE FROM forum_replies WHERE author_id = :uid",
-                    "DELETE FROM forum_threads WHERE author_id = :uid",
-                    "DELETE FROM notifications WHERE user_id = :uid",
-                    "DELETE FROM photographers WHERE user_id = :uid",
-                    "DELETE FROM email_verification_tokens WHERE user_id = :uid",
-                    "DELETE FROM refresh_tokens WHERE user_id = :uid",
-                    "DELETE FROM user_roles WHERE user_id = :uid"
-                };
-
-                for (String q : queries) {
-                    try {
-                        em.createNativeQuery(q).setParameter("uid", uid).executeUpdate();
-                    } catch (Exception e) {
-                        // Table might not exist or other non-fatal issues
-                    }
-                }
-                
-                em.flush();
-                userRepository.findById(uid).ifPresent(user -> {
-                    userRepository.delete(user);
-                    userRepository.flush();
-                });
-                System.out.println("✅ Successfully deleted user: " + email);
-            }
-        } catch (Exception e) {
-            System.out.println("❌ Failed to cleanup user " + email + ": " + e.getMessage());
-        }
-    }
+//    private void deepCleanupByEmail(String email) {
+//        try {
+//            Object result = em.createNativeQuery("SELECT id FROM users WHERE LOWER(email) = LOWER(:email)")
+//                    .setParameter("email", email)
+//                    .getResultList().stream().findFirst().orElse(null);
+//
+//            if (result != null) {
+//                long uid = ((Number) result).longValue();
+//                System.out.println("⚠️ Starting deep cleanup for user: " + email + " (ID: " + uid + ")");
+//
+//                String[] queries = {
+//                    "DELETE FROM photo_package_concepts WHERE photo_package_id IN (SELECT id FROM photo_packages WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid))",
+//                    "DELETE FROM photo_packages WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid)",
+//                    "DELETE FROM photographer_availability WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid)",
+//                    "DELETE FROM portfolio_images WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid)",
+//                    "DELETE FROM wishlists WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid) OR user_id = :uid",
+//                    "DELETE FROM reviews WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid) OR customer_id = :uid",
+//                    "DELETE FROM payments WHERE booking_id IN (SELECT id FROM bookings WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid) OR user_id = :uid)",
+//                    "DELETE FROM bookings WHERE photographer_id IN (SELECT id FROM photographers WHERE user_id = :uid) OR user_id = :uid",
+//                    "DELETE FROM forum_replies WHERE author_id = :uid",
+//                    "DELETE FROM forum_threads WHERE author_id = :uid",
+//                    "DELETE FROM notifications WHERE user_id = :uid",
+//                    "DELETE FROM photographers WHERE user_id = :uid",
+//                    "DELETE FROM email_verification_tokens WHERE user_id = :uid",
+//                    "DELETE FROM refresh_tokens WHERE user_id = :uid",
+//                    "DELETE FROM user_roles WHERE user_id = :uid"
+//                };
+//
+//                for (String q : queries) {
+//                    try {
+//                        em.createNativeQuery(q).setParameter("uid", uid).executeUpdate();
+//                    } catch (Exception e) {
+//                        // Table might not exist or other non-fatal issues
+//                    }
+//                }
+//
+//                em.flush();
+//                userRepository.findById(uid).ifPresent(user -> {
+//                    userRepository.delete(user);
+//                    userRepository.flush();
+//                });
+//                System.out.println("✅ Successfully deleted user: " + email);
+//            }
+//        } catch (Exception e) {
+//            System.out.println("❌ Failed to cleanup user " + email + ": " + e.getMessage());
+//        }
+//    }
 }

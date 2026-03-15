@@ -33,30 +33,44 @@ public class ReviewQueryServiceImpl implements ReviewQueryService {
                 photographerId,
                 pageable
             );
-
+        
         Double avg = reviewRepository.getAverageRating(photographerId);
 
         List<ReviewResponse> reviews = reviewPage
             .getContent()
             .stream()
-            .map(r -> ReviewResponse.builder()
-                .id(r.getId())
-                .customerName(r.getCustomer().getFullName())
-                .rating(r.getRating())
-                .skills(r.getSkills())
-                .attitude(r.getAttitude())
-                .punctuality(r.getPunctuality())
-                .postProcessing(r.getPostProcessing())
-                .comment(r.getComment())
-                .photographerResponse(r.getResponse())
-                .createdAt(r.getCreatedAt())
-                .build()
-            )
+            .map(this::mapToResponse)
             .toList();
 
         return Map.of(
             "data", reviews,
             "averageRating", avg == null ? 0 : avg
         );
+    }
+
+    @Override
+    public List<ReviewResponse> getAllReviews() {
+        return reviewRepository.findAll(
+            org.springframework.data.domain.Sort.by(
+                org.springframework.data.domain.Sort.Direction.DESC, "createdAt")
+        ).stream()
+        .map(this::mapToResponse)
+        .toList();
+    }
+
+    private ReviewResponse mapToResponse(Review r) {
+        return ReviewResponse.builder()
+            .id(r.getId())
+            .customerName(r.getCustomer().getFullName())
+            .photographerName(r.getPhotographer().getUser().getFullName())
+            .rating(r.getRating())
+            .skills(r.getSkills())
+            .attitude(r.getAttitude())
+            .punctuality(r.getPunctuality())
+            .postProcessing(r.getPostProcessing())
+            .comment(r.getComment())
+            .photographerResponse(r.getResponse())
+            .createdAt(r.getCreatedAt())
+            .build();
     }
 }

@@ -1,9 +1,9 @@
 package com.example.fotori.service;
 
 import com.example.fotori.dto.CreateReviewRequest;
-import com.example.fotori.model.Review;
+import com.example.fotori.dto.ReviewResponse;
 
 public interface ReviewService {
 
-    Review createReview(String email, CreateReviewRequest request);
+    ReviewResponse createReview(String email, CreateReviewRequest request);
 }

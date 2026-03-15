@@ -11,4 +11,5 @@ public interface AdminService {
     List<AdminBookingDTO> getAllBookings();
     List<AdminPhotographerDTO> getAllPhotographers();
     void updatePhotographerStatus(Long photographerId, ApprovalStatus status);
+    void deleteBooking(Long bookingId);
 }

@@ -16,6 +16,8 @@ public class ReviewResponse {
 
     String customerName;
 
+    String photographerName;
+
     Integer rating;
 
     Integer skills;

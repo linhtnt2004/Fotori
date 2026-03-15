@@ -19,4 +19,6 @@ public class AdminPaymentDTO {
     private String transactionId;
     private String status;
     private LocalDateTime createdAt;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 }

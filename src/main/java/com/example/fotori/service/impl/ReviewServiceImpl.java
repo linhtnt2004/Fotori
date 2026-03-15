@@ -1,12 +1,11 @@
 package com.example.fotori.service.impl;
 
 import com.example.fotori.dto.CreateReviewRequest;
+import com.example.fotori.dto.ReviewResponse;
 import com.example.fotori.model.Booking;
-import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.Review;
 import com.example.fotori.model.User;
 import com.example.fotori.repository.BookingRepository;
-import com.example.fotori.repository.PhotographerProfileRepository;
 import com.example.fotori.repository.ReviewRepository;
 import com.example.fotori.repository.UserRepository;
 import com.example.fotori.service.ReviewService;
@@ -18,12 +17,11 @@ import org.springframework.stereotype.Service;
 public class ReviewServiceImpl implements ReviewService {
 
     private final UserRepository userRepository;
-    private final PhotographerProfileRepository photographerRepository;
     private final BookingRepository bookingRepository;
     private final ReviewRepository reviewRepository;
 
     @Override
-    public Review createReview(String email, CreateReviewRequest request) {
+    public ReviewResponse createReview(String email, CreateReviewRequest request) {
 
         User customer = userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
@@ -35,7 +33,8 @@ public class ReviewServiceImpl implements ReviewService {
             throw new RuntimeException("NOT_YOUR_BOOKING");
         }
 
-        if (!booking.getStatus().name().equals("COMPLETED")) {
+        if (!booking.getStatus().name().equals("DONE")) {
+            System.out.println("DEBUG: Booking status is " + booking.getStatus() + ", expected DONE");
             throw new RuntimeException("BOOKING_NOT_COMPLETED");
         }
 
@@ -43,13 +42,9 @@ public class ReviewServiceImpl implements ReviewService {
             throw new RuntimeException("ALREADY_REVIEWED");
         }
 
-        PhotographerProfile photographer =
-            photographerRepository.findById(request.getPhotographerId())
-                .orElseThrow(() -> new RuntimeException("PHOTOGRAPHER_NOT_FOUND"));
-
         Review review = Review.builder()
             .customer(customer)
-            .photographer(photographer)
+            .photographer(booking.getPhotographer())
             .booking(booking)
             .rating(request.getRating())
             .skills(request.getSkills())
@@ -59,6 +54,19 @@ public class ReviewServiceImpl implements ReviewService {
             .comment(request.getComment())
             .build();
 
-        return reviewRepository.save(review);
+        Review savedReview = reviewRepository.save(review);
+        
+        return ReviewResponse.builder()
+            .id(savedReview.getId())
+            .customerName(savedReview.getCustomer().getFullName())
+            .photographerName(savedReview.getPhotographer().getUser().getFullName())
+            .rating(savedReview.getRating())
+            .skills(savedReview.getSkills())
+            .attitude(savedReview.getAttitude())
+            .punctuality(savedReview.getPunctuality())
+            .postProcessing(savedReview.getPostProcessing())
+            .comment(savedReview.getComment())
+            .createdAt(savedReview.getCreatedAt())
+            .build();
     }
 }

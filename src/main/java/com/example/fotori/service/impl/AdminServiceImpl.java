@@ -10,6 +10,7 @@ import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.Role;
 import com.example.fotori.model.User;
 import com.example.fotori.repository.BookingRepository;
+import com.example.fotori.repository.PaymentRepository;
 import com.example.fotori.repository.PhotographerProfileRepository;
 import com.example.fotori.repository.RoleRepository;
 import com.example.fotori.repository.UserRepository;
@@ -30,6 +31,8 @@ public class AdminServiceImpl implements AdminService {
     private final PhotographerProfileRepository photographerProfileRepository;
     private final BookingRepository bookingRepository;
     private final RoleRepository roleRepository;
+    private final PaymentRepository paymentRepository;
+    private final com.example.fotori.repository.ReviewRepository reviewRepository;
 
     @Override
     public AdminStatsDTO getDashboardStats() {
@@ -48,12 +51,20 @@ public class AdminServiceImpl implements AdminService {
         long totalBookings = bookingRepository.count();
 
         // Calculate total revenue (sum of all final prices for PAID bookings)
-        // For now we just sum all package prices of completed/accepted bookings
-        // User asked to leave "transactions/payment" part alone, so we just sum what we can or return 0
         double totalRevenue = bookingRepository.findAll().stream()
             .filter(b -> b.getPaymentStatus() == PaymentStatus.PAID)
             .mapToDouble(b -> b.getFinalPrice() != null ? b.getFinalPrice() : 0.0)
             .sum();
+
+        // Review stats
+        long totalReviews = reviewRepository.count();
+        double avgRating = 0.0;
+        if (totalReviews > 0) {
+            avgRating = reviewRepository.findAll().stream()
+                .mapToInt(com.example.fotori.model.Review::getRating)
+                .average()
+                .orElse(0.0);
+        }
 
         return AdminStatsDTO.builder()
             .totalUsers(totalUsers)
@@ -61,6 +72,8 @@ public class AdminServiceImpl implements AdminService {
             .totalCustomers(totalCustomers)
             .totalBookings(totalBookings)
             .totalRevenue(totalRevenue)
+            .totalReviews(totalReviews)
+            .averageRating(avgRating)
             .build();
     }
 
@@ -131,5 +144,18 @@ public class AdminServiceImpl implements AdminService {
         }
 
         photographerProfileRepository.save(profile);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBooking(Long bookingId) {
+        // Delete associated payments first
+        paymentRepository.deleteByBooking_Id(bookingId);
+        
+        // Delete associated reviews
+        reviewRepository.deleteByBooking_Id(bookingId);
+        
+        // Then delete the booking
+        bookingRepository.deleteById(bookingId);
     }
 }

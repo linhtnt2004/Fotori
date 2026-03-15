@@ -3,7 +3,7 @@ package com.example.fotori.controller;
 import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.enums.ErrorCode;
 import com.example.fotori.dto.CreateReviewRequest;
-import com.example.fotori.model.Review;
+import com.example.fotori.dto.ReviewResponse;
 import com.example.fotori.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,7 @@ public class ReviewController {
         @RequestBody CreateReviewRequest request
     ) {
 
-        Review review = reviewService.createReview(
+        ReviewResponse response = reviewService.createReview(
             userDetails.getUsername(),
             request
         );
@@ -38,7 +38,7 @@ public class ReviewController {
             new ApiResponse(
                 ErrorCode.SUCCESS.name(),
                 "Review created",
-                review
+                response
             )
         );
     }

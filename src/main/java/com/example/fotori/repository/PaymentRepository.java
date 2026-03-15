@@ -17,4 +17,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
         Long bookingId,
         PaymentStatus status
     );
+
+    void deleteByBooking_Id(Long bookingId);
 }

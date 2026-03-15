@@ -55,4 +55,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
         PhotographerProfile photographer,
         Pageable pageable
     );
-}
+
+    void deleteByBooking_Id(Long bookingId);
+}

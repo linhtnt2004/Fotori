@@ -30,6 +30,7 @@ public class BookingServiceImpl implements BookingService {
     private final PhotographerAvailabilityRepository availabilityRepository;
     private final VoucherRepository voucherRepository;
     private final BookingEmailService bookingEmailService;
+    private final ReviewRepository reviewRepository;
 
     @Override
     @Transactional
@@ -191,10 +192,13 @@ public class BookingServiceImpl implements BookingService {
             .startTime(booking.getStartTime())
             .endTime(booking.getEndTime())
             .status(booking.getStatus())
+            .customerStatus(booking.getCustomerStatus())
+            .photographerStatus(booking.getPhotographerStatus())
             .paymentStatus(booking.getPaymentStatus())
             .location(booking.getLocation())
             .price(booking.getFinalPrice())
             .details(booking.getNote())
+            .hasReview(reviewRepository.existsByBooking(booking))
             .build();
     }
 

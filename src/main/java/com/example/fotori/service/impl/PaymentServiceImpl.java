@@ -77,6 +77,7 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.save(payment);
 
         return CreatePaymentResponse.builder()
+            .id(payment.getId())
             .paymentUrl(paymentUrl)
             .transactionId(transactionId)
             .build();
@@ -154,6 +155,8 @@ public class PaymentServiceImpl implements PaymentService {
                 .transactionId(p.getTransactionId())
                 .status(p.getStatus() != null ? p.getStatus().name() : "PENDING")
                 .createdAt(p.getCreatedAt())
+                .startTime(p.getBooking().getStartTime())
+                .endTime(p.getBooking().getEndTime())
                 .build())
             .collect(Collectors.toList());
     }

@@ -1,5 +1,6 @@
 package com.example.fotori.dto;
 
+import com.example.fotori.common.enums.BookingActorStatus;
 import com.example.fotori.common.enums.BookingStatus;
 import com.example.fotori.common.enums.PaymentStatus;
 import lombok.Builder;
@@ -25,6 +26,10 @@ public class BookingResponse {
 
     BookingStatus status;
 
+    BookingActorStatus customerStatus;
+
+    BookingActorStatus photographerStatus;
+
     PaymentStatus paymentStatus;
 
     String location;
@@ -32,5 +37,7 @@ public class BookingResponse {
     Double price;
 
     String details;
+
+    Boolean hasReview;
 
 }

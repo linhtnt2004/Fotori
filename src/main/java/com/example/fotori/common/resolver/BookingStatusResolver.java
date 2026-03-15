@@ -27,6 +27,11 @@ public final class BookingStatusResolver {
             return BookingStatus.ACCEPTED;
         }
 
+        // Nếu 1 bên DONE và bên kia vẫn ACCEPTED -> Vẫn duy trì ACCEPTED (đang đợi bên kia Hoàn thành)
+        if ((customer == DONE && photographer == ACCEPTED) || (customer == ACCEPTED && photographer == DONE)) {
+            return BookingStatus.ACCEPTED;
+        }
+
         return BookingStatus.PENDING;
     }
 }

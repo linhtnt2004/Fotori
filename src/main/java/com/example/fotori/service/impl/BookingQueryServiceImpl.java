@@ -52,6 +52,9 @@ public class BookingQueryServiceImpl implements BookingQueryService {
             .photographerName(
                 booking.getPhotographer().getUser().getFullName()
             )
+            .photographerId(
+                booking.getPhotographer().getId()
+            )
             .packageTitle(
                 booking.getPhotoPackage().getTitle()
             )

@@ -16,6 +16,8 @@ public class BookingDetailResponse {
 
     String photographerName;
 
+    Long photographerId;
+
     String packageTitle;
 
     Integer price;

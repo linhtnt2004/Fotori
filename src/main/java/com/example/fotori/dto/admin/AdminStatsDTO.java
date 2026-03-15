@@ -15,4 +15,6 @@ public class AdminStatsDTO {
     private long totalCustomers;
     private long totalBookings;
     private double totalRevenue;
+    private long totalReviews;
+    private double averageRating;
 }

@@ -10,6 +10,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreatePaymentResponse {
 
+    Long id;
+
     String paymentUrl;
 
     String transactionId;

@@ -48,4 +48,12 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponse(ErrorCode.SUCCESS.name(), "Success", adminService.getAllPhotographers()));
     }
 
+    @Operation(summary = "Delete Booking")
+    @DeleteMapping("/bookings/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse> deleteBooking(@PathVariable Long id) {
+        adminService.deleteBooking(id);
+        return ResponseEntity.ok(new ApiResponse(ErrorCode.SUCCESS.name(), "Booking deleted successfully", null));
+    }
+
 }
