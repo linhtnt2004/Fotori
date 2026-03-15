@@ -8,14 +8,17 @@ import com.example.fotori.dto.BookingResponse;
 import com.example.fotori.exception.BusinessException;
 import com.example.fotori.model.*;
 import com.example.fotori.repository.*;
+import com.example.fotori.service.BookingEmailService;
 import com.example.fotori.service.BookingService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
@@ -26,11 +29,11 @@ public class BookingServiceImpl implements BookingService {
     private final PhotoPackageRepository photoPackageRepository;
     private final PhotographerAvailabilityRepository availabilityRepository;
     private final VoucherRepository voucherRepository;
+    private final BookingEmailService bookingEmailService;
 
     @Override
     @Transactional
     public Long createBooking(String userEmail, BookingCreateRequest request) {
-
         validateTime(request.getStartTime(), request.getEndTime());
 
         User user = userRepository.findByEmail(userEmail)
@@ -81,11 +84,9 @@ public class BookingServiceImpl implements BookingService {
             : 0.0;
 
         Double serviceFee = 40000.0;
-
         Double discount = 0.0;
 
         if (request.getVoucherCode() != null && !request.getVoucherCode().isBlank()) {
-
             Voucher voucher = voucherRepository
                 .findByCodeAndActiveTrue(request.getVoucherCode())
                 .orElseThrow(() -> new BusinessException("VOUCHER_NOT_FOUND"));
@@ -105,16 +106,12 @@ public class BookingServiceImpl implements BookingService {
             }
 
             if (voucher.getType() == VoucherType.PERCENTAGE) {
-
                 discount = packagePrice * voucher.getValue() / 100.0;
-
                 if (voucher.getMaxDiscount() != null &&
                     discount > voucher.getMaxDiscount()) {
                     discount = Double.valueOf(voucher.getMaxDiscount());
                 }
-
             } else if (voucher.getType() == VoucherType.FIXED) {
-
                 discount = Double.valueOf(voucher.getValue());
             }
 
@@ -122,7 +119,6 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Double finalPriceToPay = packagePrice + serviceFee - discount;
-
         if (finalPriceToPay < 0) {
             finalPriceToPay = 0.0;
         }
@@ -144,6 +140,16 @@ public class BookingServiceImpl implements BookingService {
         booking.refreshStatus();
         booking = bookingRepository.save(booking);
 
+        // ── Gửi email thông báo booking mới ──────────────────────
+        final Booking savedBooking = booking;
+        try {
+            bookingEmailService.sendBookingCreatedEmails(savedBooking);
+        } catch (Exception e) {
+            log.warn("Email notification failed for booking {}: {}",
+                savedBooking.getId(), e.getMessage());
+        }
+        // ─────────────────────────────────────────────────────────
+
         return booking.getId();
     }
 
@@ -152,7 +158,6 @@ public class BookingServiceImpl implements BookingService {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new BusinessException("USER_NOT_FOUND"));
 
-        // Only show PAID bookings to the customer
         return bookingRepository.findByUserAndPaymentStatus(
                 user,
                 com.example.fotori.common.enums.PaymentStatus.PAID,
@@ -194,15 +199,12 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateTime(LocalDateTime start, LocalDateTime end) {
-
         if (start == null || end == null) {
             throw new BusinessException("TIME_REQUIRED");
         }
-
         if (!end.isAfter(start)) {
             throw new BusinessException("END_TIME_MUST_AFTER_START");
         }
-
         if (start.isBefore(LocalDateTime.now())) {
             throw new BusinessException("START_TIME_IN_PAST");
         }
