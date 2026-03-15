@@ -483,6 +483,8 @@ CREATE TABLE payments
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
 
     booking_id BIGINT,
+    photographer_id BIGINT,
+    subscription_plan_id BIGINT,
 
     amount DOUBLE,
 
@@ -500,5 +502,41 @@ CREATE TABLE payments
 
     CONSTRAINT fk_payment_booking
         FOREIGN KEY (booking_id)
-            REFERENCES bookings (id)
+            REFERENCES bookings (id),
+
+    CONSTRAINT fk_payment_photographer
+        FOREIGN KEY (photographer_id)
+            REFERENCES photographers (id),
+
+    CONSTRAINT fk_payment_subscription
+        FOREIGN KEY (subscription_plan_id)
+            REFERENCES subscription_plans (id)
+);
+
+-- =========================
+-- PHOTOGRAPHER SUBSCRIPTIONS
+-- =========================
+CREATE TABLE photographer_subscriptions
+(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    photographer_id BIGINT NOT NULL,
+    plan_id BIGINT NOT NULL,
+
+    start_date DATETIME NOT NULL,
+    end_date DATETIME NOT NULL,
+
+    active BOOLEAN NOT NULL,
+
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    deleted_at DATETIME,
+
+    CONSTRAINT fk_photographer_subscription_photographer
+        FOREIGN KEY (photographer_id)
+            REFERENCES photographers (id),
+
+    CONSTRAINT fk_photographer_subscription_plan
+        FOREIGN KEY (plan_id)
+            REFERENCES subscription_plans (id)
 );

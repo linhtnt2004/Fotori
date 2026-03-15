@@ -26,6 +26,14 @@ public class Payment extends BaseEntity {
     @JoinColumn(name = "booking_id")
     Booking booking;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "photographer_id")
+    PhotographerProfile photographer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subscription_plan_id")
+    SubscriptionPlan subscriptionPlan;
+
     Double amount;
 
     @Enumerated(EnumType.STRING)
