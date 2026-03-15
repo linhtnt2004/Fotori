@@ -9,9 +9,12 @@ import com.example.fotori.dto.PaymentStatusResponse;
 import com.example.fotori.dto.admin.AdminPaymentDTO;
 import com.example.fotori.model.Booking;
 import com.example.fotori.model.Payment;
+import com.example.fotori.model.SubscriptionPlan;
 import com.example.fotori.repository.BookingRepository;
 import com.example.fotori.repository.PaymentRepository;
 import com.example.fotori.service.BookingEmailService;
+import com.example.fotori.repository.PhotographerProfileRepository;
+import com.example.fotori.repository.SubscriptionPlanRepository;
 import com.example.fotori.service.PaymentService;
 import com.example.fotori.service.payment.processor.PaymentProcessor;
 import lombok.RequiredArgsConstructor;
@@ -34,45 +37,99 @@ public class PaymentServiceImpl implements PaymentService {
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
     private final List<PaymentProcessor> processors;
-    private final BookingEmailService bookingEmailService; // ← THÊM MỚI
+    private final BookingEmailService bookingEmailService;
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
+    private final PhotographerProfileRepository photographerRepository;
 
     @Override
     @Transactional
     public CreatePaymentResponse createPayment(CreatePaymentRequest request) {
-        Booking booking = bookingRepository
-            .findById(request.getBookingId())
-            .orElseThrow(() -> new RuntimeException("BOOKING_NOT_FOUND"));
-
-        if (booking.getPaymentStatus() == PaymentStatus.PAID) {
-            throw new RuntimeException("BOOKING_ALREADY_PAID");
-        }
-
-        boolean hasPendingPayment = paymentRepository.existsByBooking_IdAndStatus(
-            booking.getId(), PaymentStatus.PENDING);
-        if (hasPendingPayment) {
-            throw new RuntimeException("PAYMENT_ALREADY_PENDING");
-        }
-
-        Double amount = booking.getFinalPrice() != null
-            ? booking.getFinalPrice()
-            : booking.getTotalPrice();
 
         String transactionId = UUID.randomUUID().toString();
 
         PaymentProcessor processor = processors.stream()
             .filter(p -> p.getMethod() == request.getMethod())
             .findFirst()
-            .orElseThrow(() -> new RuntimeException("PAYMENT_METHOD_NOT_SUPPORTED"));
+            .orElseThrow(() ->
+                             new RuntimeException("PAYMENT_METHOD_NOT_SUPPORTED")
+            );
 
-        String paymentUrl = processor.createPayment(booking, amount, transactionId);
+        Payment payment;
+        Double amount;
+        String paymentUrl;
 
-        Payment payment = Payment.builder()
-            .booking(booking)
-            .amount(amount)
-            .method(request.getMethod())
-            .transactionId(transactionId)
-            .status(PaymentStatus.PENDING)
-            .build();
+        if (request.getBookingId() != null) {
+
+            Booking booking = bookingRepository
+                .findById(request.getBookingId())
+                .orElseThrow(() ->
+                                 new RuntimeException("BOOKING_NOT_FOUND")
+                );
+
+            if (booking.getPaymentStatus() == PaymentStatus.PAID) {
+                throw new RuntimeException("BOOKING_ALREADY_PAID");
+            }
+
+            boolean hasPendingPayment =
+                paymentRepository.existsByBooking_IdAndStatus(
+                    booking.getId(),
+                    PaymentStatus.PENDING
+                );
+
+            if (hasPendingPayment) {
+                throw new RuntimeException("PAYMENT_ALREADY_PENDING");
+            }
+
+            amount =
+                booking.getFinalPrice() != null
+                    ? booking.getFinalPrice()
+                    : booking.getTotalPrice();
+
+            paymentUrl = processor.createPayment(
+                booking,
+                amount,
+                transactionId
+            );
+
+            payment = Payment.builder()
+                .booking(booking)
+                .amount(amount)
+                .method(request.getMethod())
+                .transactionId(transactionId)
+                .qrContent(paymentUrl)
+                .status(PaymentStatus.PENDING)
+                .build();
+        }
+
+        else if (request.getPlanId() != null) {
+
+            SubscriptionPlan plan = subscriptionPlanRepository
+                .findById(request.getPlanId())
+                .orElseThrow(() ->
+                                 new RuntimeException("PLAN_NOT_FOUND")
+                );
+
+            amount = plan.getPrice().doubleValue();
+
+            paymentUrl = processor.createPayment(
+                null,
+                amount,
+                transactionId
+            );
+
+            payment = Payment.builder()
+                .subscriptionPlan(plan)
+                .amount(amount)
+                .method(request.getMethod())
+                .transactionId(transactionId)
+                .qrContent(paymentUrl)
+                .status(PaymentStatus.PENDING)
+                .build();
+        }
+
+        else {
+            throw new RuntimeException("INVALID_PAYMENT_REQUEST");
+        }
 
         paymentRepository.save(payment);
 
