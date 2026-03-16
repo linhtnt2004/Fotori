@@ -10,7 +10,7 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.security: DEBUG
 server:
-  port: 8082
+  port: ${PORT:8080}
 
 app:
   jwt:

@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  # Flyway migration
+  flyway:
+    enabled: true
+    validate-on-migrate: false
+
+  # Gmail SMTP
+  mail:
+    default-encoding: UTF-8
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: ${PORT:8080}
+
+logging:
+  level:
+    org.springframework.security: INFO
+    org.hibernate.SQL: OFF
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    access-expiration-ms: 900000
+    refresh-expiration-ms: 2592000000
+
+vietqr:
+  account-no: 0944870316
+  account-name: FOTORI COMPANY
+  acq-id: 970422
