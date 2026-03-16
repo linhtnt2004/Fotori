@@ -19,4 +19,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     );
 
     void deleteByBooking_Id(Long bookingId);
+
+    Page<Payment> findByPhotographer_Id(
+        Long photographerId,
+        Pageable pageable
+    );
 }

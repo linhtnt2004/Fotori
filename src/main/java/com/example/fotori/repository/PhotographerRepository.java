@@ -15,4 +15,6 @@ public interface PhotographerRepository extends JpaRepository<PhotographerProfil
     List<PhotographerProfile> findByApprovalStatus(ApprovalStatus approvalStatus);
 
     Optional<PhotographerProfile> findByUser(User user);
+
+    Optional<PhotographerProfile> findByUserId(Long userId);
 }

@@ -19,22 +19,22 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     );
 
     @Query("""
-        SELECT r.photographer.id,
-               AVG(r.rating),
-               COUNT(r.id)
-        FROM Review r
-        GROUP BY r.photographer.id
-        ORDER BY AVG(r.rating) DESC, COUNT(r.id) DESC
-    """)
+            SELECT r.photographer.id,
+                   AVG(r.rating),
+                   COUNT(r.id)
+            FROM Review r
+            GROUP BY r.photographer.id
+            ORDER BY AVG(r.rating) DESC, COUNT(r.id) DESC
+        """)
     List<Object[]> findTrendingPhotographers(Pageable pageable);
 
     boolean existsByBooking(Booking booking);
 
     @Query("""
-        SELECT AVG(r.rating)
-        FROM Review r
-        WHERE r.photographer.id = :photographerId
-    """)
+            SELECT AVG(r.rating)
+            FROM Review r
+            WHERE r.photographer.id = :photographerId
+        """)
     Double getAverageRating(Long photographerId);
 
     Optional<Review> findByIdAndPhotographerId(
@@ -45,10 +45,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     long countByPhotographer(PhotographerProfile photographer);
 
     @Query("""
-        SELECT COALESCE(AVG(r.rating),0)
-        FROM Review r
-        WHERE r.photographer = :photographer
-    """)
+            SELECT COALESCE(AVG(r.rating),0)
+            FROM Review r
+            WHERE r.photographer = :photographer
+        """)
     Double getAverageRating(PhotographerProfile photographer);
 
     List<Review> findByPhotographerOrderByCreatedAtDesc(
@@ -57,4 +57,4 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     );
 
     void deleteByBooking_Id(Long bookingId);
-}
+}
