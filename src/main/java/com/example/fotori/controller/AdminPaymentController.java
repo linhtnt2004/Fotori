@@ -41,4 +41,33 @@ public class AdminPaymentController {
             )
         );
     }
+
+    @GetMapping("/subscriptions/payments")
+    public ResponseEntity<ApiResponse> getSubscriptionPayments() {
+        // For now, return same as regular payments
+        // In real implementation, filter by subscription payments only
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Subscription payments fetched",
+                paymentService.getAllPayments()
+            )
+        );
+    }
+
+    @PostMapping("/subscriptions/payments/{id}/confirm")
+    public ResponseEntity<ApiResponse> confirmSubscriptionPayment(
+        @PathVariable Long id
+    ) {
+
+        paymentService.confirmPayment(id);
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Subscription payment confirmed",
+                null
+            )
+        );
+    }
 }

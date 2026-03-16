@@ -1,13 +1,13 @@
 package com.example.fotori.security;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.*;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
@@ -19,48 +19,32 @@ public class JwtTokenProvider {
     @Value("${app.jwt.access-expiration-ms}")
     private long accessExpirationMs;
 
-    public SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    public Algorithm getAlgorithm() {
+        return Algorithm.HMAC256(jwtSecret);
     }
 
     public String generateAccessToken(UserDetails user) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + accessExpirationMs);
 
-        return Jwts.builder()
-            .setSubject(user.getUsername())
-            .setIssuedAt(now)
-            .setExpiration(expiry)
-            .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-            .compact();
+        return JWT.create()
+            .withSubject(user.getUsername())
+            .withIssuedAt(now)
+            .withExpiresAt(expiry)
+            .sign(getAlgorithm());
     }
 
     public String getEmailFromAccessToken(String token) {
-        return Jwts.parserBuilder()
-            .setSigningKey(getSigningKey())
-            .build()
-            .parseClaimsJws(token)
-            .getBody()
-            .getSubject();
+        DecodedJWT decoded = JWT.require(getAlgorithm()).build().verify(token);
+        return decoded.getSubject();
     }
 
     public boolean validateToken(String authToken) {
         try {
-            Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(authToken);
+            JWT.require(getAlgorithm()).build().verify(authToken);
             return true;
-        } catch (SecurityException ex) {
-            System.err.println("Invalid JWT signature");
-        } catch (MalformedJwtException ex) {
+        } catch (JWTVerificationException ex) {
             System.err.println("Invalid JWT token");
-        } catch (ExpiredJwtException ex) {
-            System.err.println("Expired JWT token");
-        } catch (UnsupportedJwtException ex) {
-            System.err.println("Unsupported JWT token");
-        } catch (IllegalArgumentException ex) {
-            System.err.println("JWT claims string is empty");
         }
         return false;
     }

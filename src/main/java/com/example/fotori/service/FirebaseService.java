@@ -30,6 +30,12 @@ public class FirebaseService {
             throw new RuntimeException("Email is required");
         }
 
+        final String roleName = (userType != null && userType.equalsIgnoreCase("PHOTOGRAPHER"))
+                ? "ROLE_PHOTOGRAPHER" : "ROLE_CUSTOMER";
+
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
+
         Optional<User> userOpt = userRepository.findByEmail(email);
 
         if (userOpt.isPresent()) {
@@ -37,14 +43,16 @@ public class FirebaseService {
             if (avatarUrl != null && !avatarUrl.isEmpty()) {
                 existingUser.setAvatarUrl(avatarUrl);
             }
+            // Ensure user has a role
+            if (existingUser.getRoles() == null || existingUser.getRoles().isEmpty()) {
+                existingUser.setRoles(new java.util.HashSet<>());
+            }
+            // Add role if not already present
+            if (existingUser.getRoles().stream().noneMatch(r -> r.getName().equals(roleName))) {
+                existingUser.getRoles().add(role);
+            }
             return userRepository.save(existingUser);
         } else {
-            final String roleName = (userType != null && userType.equalsIgnoreCase("PHOTOGRAPHER"))
-                    ? "ROLE_PHOTOGRAPHER" : "ROLE_CUSTOMER";
-
-            Role role = roleRepository.findByName(roleName)
-                    .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
-
             User newUser = User.builder()
                     .email(email)
                     .fullName(fullName != null ? fullName : "User")

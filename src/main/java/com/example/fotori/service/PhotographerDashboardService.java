@@ -3,6 +3,7 @@ package com.example.fotori.service;
 import com.example.fotori.dto.DashboardRecentBookingResponse;
 import com.example.fotori.dto.DashboardRecentReviewResponse;
 import com.example.fotori.dto.PhotographerDashboardStatsResponse;
+import com.example.fotori.dto.PhotographerDashboardResponse;
 
 import java.util.List;
 
@@ -13,4 +14,6 @@ public interface PhotographerDashboardService {
     List<DashboardRecentBookingResponse> getRecentBookings(String email);
 
     List<DashboardRecentReviewResponse> getRecentReviews(String email);
+
+    PhotographerDashboardResponse getPhotographerDashboard(String email);
 }

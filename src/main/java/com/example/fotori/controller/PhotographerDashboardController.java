@@ -4,7 +4,7 @@ import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.enums.ErrorCode;
 import com.example.fotori.dto.DashboardRecentBookingResponse;
 import com.example.fotori.dto.DashboardRecentReviewResponse;
-import com.example.fotori.dto.PhotographerDashboardStatsResponse;
+import com.example.fotori.dto.PhotographerDashboardResponse;
 import com.example.fotori.service.PhotographerDashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,60 +16,26 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/photographer/dashboard")
+@RequestMapping("/api/photographers")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('PHOTOGRAPHER')")
 public class PhotographerDashboardController {
 
     private final PhotographerDashboardService dashboardService;
 
-    @GetMapping("/stats")
-    public ResponseEntity<ApiResponse> getStats(
+    @GetMapping("/me/dashboard")
+    public ResponseEntity<ApiResponse> getMyDashboard(
         @AuthenticationPrincipal UserDetails userDetails
     ) {
 
-        PhotographerDashboardStatsResponse stats =
-            dashboardService.getStats(userDetails.getUsername());
+        PhotographerDashboardResponse dashboard =
+            dashboardService.getPhotographerDashboard(userDetails.getUsername());
 
         return ResponseEntity.ok(
             new ApiResponse(
                 ErrorCode.SUCCESS.name(),
-                "Dashboard stats fetched successfully",
-                stats
-            )
-        );
-    }
-
-    @GetMapping("/recent-bookings")
-    public ResponseEntity<ApiResponse> getRecentBookings(
-        @AuthenticationPrincipal UserDetails userDetails
-    ) {
-
-        List<DashboardRecentBookingResponse> bookings =
-            dashboardService.getRecentBookings(userDetails.getUsername());
-
-        return ResponseEntity.ok(
-            new ApiResponse(
-                ErrorCode.SUCCESS.name(),
-                "Recent bookings fetched successfully",
-                bookings
-            )
-        );
-    }
-
-    @GetMapping("/recent-reviews")
-    public ResponseEntity<ApiResponse> getRecentReviews(
-        @AuthenticationPrincipal UserDetails userDetails
-    ) {
-
-        List<DashboardRecentReviewResponse> reviews =
-            dashboardService.getRecentReviews(userDetails.getUsername());
-
-        return ResponseEntity.ok(
-            new ApiResponse(
-                ErrorCode.SUCCESS.name(),
-                "Recent reviews fetched successfully",
-                reviews
+                "Photographer dashboard fetched successfully",
+                dashboard
             )
         );
     }

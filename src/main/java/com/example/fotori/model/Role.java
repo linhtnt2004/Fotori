@@ -1,7 +1,10 @@
 package com.example.fotori.model;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
@@ -9,6 +12,9 @@ import java.util.Objects;
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "roles")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Role {

@@ -27,13 +27,29 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        // Ensure ROLE_ADMIN role exists (Flyway V2 should create it, but just in case)
+        // Initialize all required roles
+        Role customerRole = roleRepository.findByName("ROLE_CUSTOMER")
+                .orElseGet(() -> {
+                    Role role = new Role();
+                    role.setName("ROLE_CUSTOMER");
+                    return roleRepository.save(role);
+                });
+
+        Role photographerRole = roleRepository.findByName("ROLE_PHOTOGRAPHER")
+                .orElseGet(() -> {
+                    Role role = new Role();
+                    role.setName("ROLE_PHOTOGRAPHER");
+                    return roleRepository.save(role);
+                });
+
         Role adminRole = roleRepository.findByName("ROLE_ADMIN")
                 .orElseGet(() -> {
                     Role role = new Role();
                     role.setName("ROLE_ADMIN");
                     return roleRepository.save(role);
                 });
+
+        System.out.println("✅ All roles initialized");
 
         // Ensure default admin user exists and has correct role
         String adminEmail = "admin@fotori.com";

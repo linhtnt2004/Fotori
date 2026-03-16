@@ -3,6 +3,8 @@ package com.example.fotori.service.impl;
 import com.example.fotori.common.enums.BookingActorStatus;
 import com.example.fotori.dto.DashboardRecentBookingResponse;
 import com.example.fotori.dto.DashboardRecentReviewResponse;
+import com.example.fotori.dto.PhotographerDashboardResponse;
+import com.example.fotori.dto.AISuggestionResponse;
 import com.example.fotori.dto.PhotographerDashboardStatsResponse;
 import com.example.fotori.model.Booking;
 import com.example.fotori.model.PhotographerProfile;
@@ -122,5 +124,34 @@ public class PhotographerDashboardServiceImpl implements PhotographerDashboardSe
                 .createdAt(r.getCreatedAt())
                 .build())
             .toList();
+    }
+
+    @Override
+    public PhotographerDashboardResponse getPhotographerDashboard(String email) {
+        // Get stats
+        PhotographerDashboardStatsResponse stats = getStats(email);
+
+        // Get upcoming bookings
+        List<DashboardRecentBookingResponse> upcomingBookings = getRecentBookings(email);
+
+        // Mock AI suggestions (can be implemented later)
+        List<AISuggestionResponse> aiSuggestions = List.of(
+            AISuggestionResponse.builder()
+                .title("Tăng giá gói Premium")
+                .description("Giá hiện tại thấp hơn 15% so với thị trường")
+                .action("Cập nhật giá")
+                .build(),
+            AISuggestionResponse.builder()
+                .title("Thêm ảnh portfolio")
+                .description("Portfolio của bạn cần thêm 3 ảnh nữa để tăng tỷ lệ booking")
+                .action("Thêm ảnh")
+                .build()
+        );
+
+        return PhotographerDashboardResponse.builder()
+            .stats(stats)
+            .upcomingBookings(upcomingBookings)
+            .aiSuggestions(aiSuggestions)
+            .build();
     }
 }

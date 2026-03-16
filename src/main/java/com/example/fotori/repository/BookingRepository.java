@@ -135,46 +135,46 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         """)
     Long countUpcomingBookings(User user);
 
-    @Query("""
-            SELECT FUNCTION('DATE_FORMAT', b.createdAt, '%Y-%m'),
-                   SUM(b.finalPrice),
-                   COUNT(b)
-            FROM Booking b
-            WHERE b.paymentStatus = 'PAID'
-            AND b.createdAt BETWEEN :startDate AND :endDate
-            GROUP BY FUNCTION('DATE_FORMAT', b.createdAt, '%Y-%m')
-            ORDER BY FUNCTION('DATE_FORMAT', b.createdAt, '%Y-%m')
-        """)
+    @Query(value = """
+        SELECT DATE_FORMAT(b.created_at, '%Y-%m') as month,
+               SUM(b.final_price) as revenue,
+               COUNT(b.id) as count
+        FROM booking b
+        WHERE b.payment_status = 'PAID'
+        AND b.created_at BETWEEN :startDate AND :endDate
+        GROUP BY DATE_FORMAT(b.created_at, '%Y-%m')
+        ORDER BY DATE_FORMAT(b.created_at, '%Y-%m')
+        """, nativeQuery = true)
     List<Object[]> getRevenueByMonth(
         LocalDateTime startDate,
         LocalDateTime endDate
     );
 
-    @Query("""
-        SELECT FUNCTION('DATE_FORMAT', b.createdAt, '%Y-%m-%d'),
-               SUM(b.finalPrice),
-               COUNT(b)
-        FROM Booking b
-        WHERE b.paymentStatus = 'PAID'
-        AND b.createdAt BETWEEN :startDate AND :endDate
-        GROUP BY FUNCTION('DATE_FORMAT', b.createdAt, '%Y-%m-%d')
-        ORDER BY 1
-        """)
+    @Query(value = """
+        SELECT DATE_FORMAT(b.created_at, '%Y-%m-%d') as day,
+               SUM(b.final_price) as revenue,
+               COUNT(b.id) as count
+        FROM booking b
+        WHERE b.payment_status = 'PAID'
+        AND b.created_at BETWEEN :startDate AND :endDate
+        GROUP BY DATE_FORMAT(b.created_at, '%Y-%m-%d')
+        ORDER BY day
+        """, nativeQuery = true)
     List<Object[]> getRevenueByDay(
         LocalDateTime startDate,
         LocalDateTime endDate
     );
 
-    @Query("""
-        SELECT FUNCTION('DATE_FORMAT', b.createdAt, '%Y'),
-               SUM(b.finalPrice),
-               COUNT(b)
-        FROM Booking b
-        WHERE b.paymentStatus = 'PAID'
-        AND b.createdAt BETWEEN :startDate AND :endDate
-        GROUP BY FUNCTION('DATE_FORMAT', b.createdAt, '%Y')
-        ORDER BY 1
-        """)
+    @Query(value = """
+        SELECT DATE_FORMAT(b.created_at, '%Y') as year,
+               SUM(b.final_price) as revenue,
+               COUNT(b.id) as count
+        FROM booking b
+        WHERE b.payment_status = 'PAID'
+        AND b.created_at BETWEEN :startDate AND :endDate
+        GROUP BY DATE_FORMAT(b.created_at, '%Y')
+        ORDER BY year
+        """, nativeQuery = true)
     List<Object[]> getRevenueByYear(
         LocalDateTime startDate,
         LocalDateTime endDate
