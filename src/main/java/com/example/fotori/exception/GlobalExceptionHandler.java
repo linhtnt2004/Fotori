@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(new ApiResponse(
                 ErrorCode.INTERNAL_SERVER_ERROR.name(),
-                "Unexcepted error occurred!",
+                "Unexpected error occurred!",
                 null
             ));
     }

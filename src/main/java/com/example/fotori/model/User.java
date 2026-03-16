@@ -46,7 +46,7 @@ public class User extends BaseEntity {
     @Column(name = "address")
     String address;
 
-    @Column(name = "avatar_url")
+    @Column(name = "avatar_url", columnDefinition = "TEXT")
     String avatarUrl;
 
     @Enumerated(EnumType.STRING)

@@ -41,6 +41,7 @@ public class Payment extends BaseEntity {
 
     String transactionId;
 
+    @Column(columnDefinition = "LONGTEXT")
     String qrContent;
 
     @Enumerated(EnumType.STRING)

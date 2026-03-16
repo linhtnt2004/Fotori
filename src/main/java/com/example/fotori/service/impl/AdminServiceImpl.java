@@ -104,6 +104,7 @@ public class AdminServiceImpl implements AdminService {
                 .startTime(b.getStartTime())
                 .endTime(b.getEndTime())
                 .status(b.getStatus().name())
+                .paymentStatus(b.getPaymentStatus() != null ? b.getPaymentStatus().name() : "UNPAID")
                 .createdAt(b.getCreatedAt())
                 .build())
             .collect(Collectors.toList());

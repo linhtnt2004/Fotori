@@ -21,5 +21,6 @@ public class AdminBookingDTO {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String status;
+    private String paymentStatus;
     private LocalDateTime createdAt;
 }

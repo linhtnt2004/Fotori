@@ -24,7 +24,7 @@ public class PortfolioImage extends BaseEntity {
     @JoinColumn(name = "photographer_id", nullable = false)
     PhotographerProfile photographer;
 
-    @Column(name = "image_url", nullable = false)
+    @Column(name = "image_url", nullable = false, columnDefinition = "TEXT")
     String imageUrl;
 
     @Column(nullable = false)
