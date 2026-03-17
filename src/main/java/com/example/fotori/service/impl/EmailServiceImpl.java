@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,6 +27,7 @@ public class EmailServiceImpl implements EmailService {
     private String backendUrl;
 
     @Override
+    @Async
     public void sendVerificationEmail(String email, String token) {
 
         String verifyUrl =
@@ -50,6 +52,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendResetPasswordEmail(String email, String token) {
 
         String resetUrl =

@@ -57,4 +57,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     );
 
     void deleteByBooking_Id(Long bookingId);
+
+    void deleteByPhotographer(PhotographerProfile photographer);
 }

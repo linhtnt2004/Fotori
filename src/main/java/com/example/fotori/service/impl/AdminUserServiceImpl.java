@@ -5,11 +5,11 @@ import com.example.fotori.dto.ApiUserDetailResponse;
 import com.example.fotori.exception.BusinessException;
 import com.example.fotori.model.Role;
 import com.example.fotori.model.User;
-import com.example.fotori.repository.BookingRepository;
-import com.example.fotori.repository.UserRepository;
+import com.example.fotori.repository.*;
 import com.example.fotori.service.AdminUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +17,10 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
+    private final WishlistRepository wishlistRepository;
+    private final NotificationRepository notificationRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
 
     @Override
     public void updateUserStatus(Long userId, UserStatus status) {
@@ -79,5 +83,22 @@ public class AdminUserServiceImpl implements AdminUserService {
         user.getRoles().clear();
 
         userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUserHard(Long userId) {
+
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new BusinessException("USER_NOT_FOUND"));
+
+        // Delete associated data
+        bookingRepository.deleteByUser(user);
+        wishlistRepository.deleteByUser(user);
+        notificationRepository.deleteByUser(user);
+        refreshTokenRepository.deleteByUser(user);
+        emailVerificationTokenRepository.deleteByUser(user);
+
+        userRepository.delete(user);
     }
 }

@@ -1,5 +1,6 @@
 package com.example.fotori.repository;
 
+import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.PortfolioImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,4 +14,5 @@ public interface PortfolioImageRepository
         Pageable pageable
     );
 
+    void deleteByPhotographer(PhotographerProfile photographer);
 }

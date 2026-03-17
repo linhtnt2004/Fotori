@@ -7,9 +7,7 @@ import com.example.fotori.exception.BusinessException;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.Role;
 import com.example.fotori.model.User;
-import com.example.fotori.repository.PhotographerRepository;
-import com.example.fotori.repository.RoleRepository;
-import com.example.fotori.repository.UserRepository;
+import com.example.fotori.repository.*;
 import com.example.fotori.service.AdminPhotographerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +23,12 @@ public class AdminPhotographerServiceImpl implements AdminPhotographerService {
     private final PhotographerRepository photographerRepository;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final PhotoPackageRepository photoPackageRepository;
+    private final PortfolioImageRepository portfolioImageRepository;
+    private final PhotographerSubscriptionRepository photographerSubscriptionRepository;
+    private final PhotographerAvailabilityRepository photographerAvailabilityRepository;
+    private final BookingRepository bookingRepository;
+    private final ReviewRepository reviewRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -52,10 +56,6 @@ public class AdminPhotographerServiceImpl implements AdminPhotographerService {
             throw new BusinessException("STATUS_REQUIRED");
         }
 
-        if (request.getStatus() == ApprovalStatus.PENDING) {
-            throw new BusinessException("INVALID_STATUS");
-        }
-
         PhotographerProfile photographer = photographerRepository.findById(photographerId)
             .orElseThrow(() -> new BusinessException("PHOTOGRAPHER_NOT_FOUND"));
 
@@ -79,16 +79,25 @@ public class AdminPhotographerServiceImpl implements AdminPhotographerService {
             user.getRoles().removeIf(role ->
                                          role.getName().equals("ROLE_PHOTOGRAPHER")
             );
+        } else if (request.getStatus() == ApprovalStatus.PENDING) {
+
+            photographer.setApprovalStatus(ApprovalStatus.PENDING);
+            photographer.setApprovedAt(null);
+
+            user.getRoles().removeIf(role ->
+                                         role.getName().equals("ROLE_PHOTOGRAPHER")
+            );
         }
 
         photographerRepository.save(photographer);
         userRepository.save(user);
     }
 
+    @Override
     @Transactional
     public void deletePhotographer(Long id) {
         PhotographerProfile photographer = photographerRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Photographer not found"));
+            .orElseThrow(() -> new BusinessException("Photographer not found"));
 
         photographer.setDeletedAt(LocalDateTime.now());
 
@@ -99,5 +108,22 @@ public class AdminPhotographerServiceImpl implements AdminPhotographerService {
 
         photographerRepository.save(photographer);
         userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void deletePhotographerHard(Long id) {
+        PhotographerProfile photographer = photographerRepository.findById(id)
+            .orElseThrow(() -> new BusinessException("Photographer not found"));
+
+        // Delete associated data
+        photoPackageRepository.deleteByPhotographerProfile(photographer);
+        portfolioImageRepository.deleteByPhotographer(photographer);
+        photographerSubscriptionRepository.deleteByPhotographer(photographer);
+        photographerAvailabilityRepository.deleteByPhotographer(photographer);
+        bookingRepository.deleteByPhotographer(photographer);
+        reviewRepository.deleteByPhotographer(photographer);
+
+        photographerRepository.delete(photographer);
     }
 }

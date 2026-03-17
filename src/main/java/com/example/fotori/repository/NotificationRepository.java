@@ -18,7 +18,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     long countByUserAndIsReadFalse(User user);
 
-
     @Modifying
     @Transactional
     @Query("""
@@ -27,4 +26,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
         WHERE n.user = :user AND n.isRead = false
         """)
     void markAllAsRead(User user);
+
+    void deleteByUser(User user);
 }

@@ -13,7 +13,6 @@ import java.util.List;
 public interface PhotographerAvailabilityRepository
         extends JpaRepository<PhotographerAvailability, Long> {
 
-    // ── Giữ nguyên các method cũ ──────────────────────────────
     List<PhotographerAvailability> findByPhotographerAndDeletedAtIsNull(
             PhotographerProfile photographer);
 
@@ -29,9 +28,6 @@ public interface PhotographerAvailabilityRepository
 
     List<PhotographerAvailability> findByPhotographerIdAndDeletedAtIsNull(Long photographerId);
 
-    // ── Thêm mới cho AI Matching ───────────────────────────────
-
-    // Check photographer có available vào thời điểm bookingDate không
     @Query("SELECT COUNT(a) > 0 FROM PhotographerAvailability a " +
            "WHERE a.photographer.id = :photographerId " +
            "AND a.startTime <= :bookingDate " +
@@ -40,4 +36,6 @@ public interface PhotographerAvailabilityRepository
     boolean existsByPhotographerIdAndBookingDate(
             @Param("photographerId") Long photographerId,
             @Param("bookingDate") LocalDateTime bookingDate);
+
+    void deleteByPhotographer(PhotographerProfile photographer);
 }

@@ -64,4 +64,16 @@ public class AdminUserController {
             )
         );
     }
+
+    @DeleteMapping("/users/{id}/hard-delete")
+    public ResponseEntity<ApiResponse> deleteUserHard(@PathVariable Long id) {
+        adminUserService.deleteUserHard(id);
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "User deleted permanently",
+                null
+            )
+        );
+    }
 }

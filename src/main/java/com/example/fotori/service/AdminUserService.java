@@ -10,4 +10,6 @@ public interface AdminUserService {
     ApiUserDetailResponse getUserDetail(Long userId);
 
     void deleteUser(Long userId);
+
+    void deleteUserHard(Long userId);
 }

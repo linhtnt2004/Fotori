@@ -21,4 +21,6 @@ public interface PhotographerSubscriptionRepository
 
     List<PhotographerSubscription>
     findByPhotographer_IdOrderByStartDateDesc(Long photographerId);
+
+    void deleteByPhotographer(PhotographerProfile photographer);
 }

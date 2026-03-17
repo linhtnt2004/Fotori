@@ -179,4 +179,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         LocalDateTime startDate,
         LocalDateTime endDate
     );
+
+    void deleteByUser(User user);
+    
+    void deleteByPhotographer(PhotographerProfile photographer);
 }

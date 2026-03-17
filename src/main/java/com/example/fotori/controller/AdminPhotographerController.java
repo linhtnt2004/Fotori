@@ -56,4 +56,16 @@ public class AdminPhotographerController {
             )
         );
     }
+
+    @DeleteMapping("/{id}/hard-delete")
+    public ResponseEntity<ApiResponse> deletePhotographerHard(@PathVariable Long id) {
+        adminPhotographerService.deletePhotographerHard(id);
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Photographer deleted permanently",
+                null
+            )
+        );
+    }
 }
