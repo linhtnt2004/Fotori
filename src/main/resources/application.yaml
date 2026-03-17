@@ -16,6 +16,8 @@ app:
   jwt:
     access-expiration-ms: 900000
     refresh-expiration-ms: 2592000000
+  frontend-url: ${FRONTEND_URL:http://localhost:3001}
+  backend-url: ${BACKEND_URL:http://localhost:8082/api}
 vietqr:
   account-no: 0944870316
   account-name: FOTORI COMPANY

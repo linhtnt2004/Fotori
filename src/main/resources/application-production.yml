@@ -41,6 +41,8 @@ app:
     secret: ${JWT_SECRET}
     access-expiration-ms: 900000
     refresh-expiration-ms: 2592000000
+  frontend-url: ${FRONTEND_URL:https://fotori.vercel.app}
+  backend-url: ${BACKEND_URL:https://fotori-production.up.railway.app/api}
 
 vietqr:
   account-no: 0944870316

@@ -19,11 +19,17 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.username:}")
     private String fromAddress;
 
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
+    @Value("${app.backend-url}")
+    private String backendUrl;
+
     @Override
     public void sendVerificationEmail(String email, String token) {
 
         String verifyUrl =
-            "https://fotori-production.up.railway.app/api/auth/verify-email?token=" + token;
+            backendUrl + "/auth/verify-email?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -47,7 +53,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendResetPasswordEmail(String email, String token) {
 
         String resetUrl =
-            "http://localhost:3001/reset-password?token=" + token;
+            frontendUrl + "/reset-password?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
