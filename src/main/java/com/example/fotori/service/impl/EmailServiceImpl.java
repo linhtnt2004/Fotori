@@ -4,21 +4,25 @@ import com.example.fotori.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EmailServiceImpl implements EmailService {
 
-    private final JavaMailSender mailSender;
+    @Value("${spring.mail.username:fotori.official@gmail.com}")
+    private String fromEmail;
 
-    @Value("${spring.mail.username:}")
-    private String fromAddress;
+    @Value("${spring.mail.password:}")
+    private String apiKey;
 
     @Value("${app.frontend-url}")
     private String frontendUrl;
@@ -26,66 +30,53 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.backend-url}")
     private String backendUrl;
 
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
+
     @Override
     @Async
     public void sendVerificationEmail(String email, String token) {
-        log.info("[START] sendVerificationEmail to: {}", email);
-        try {
-            log.info("Step 1: Constructing URL. backendUrl={}", backendUrl);
-            String verifyUrl = backendUrl + "/auth/verify-email?token=" + token;
-            log.info("Step 2: URL constructed: {}", verifyUrl);
-
-            log.info("Step 3: Creating SimpleMailMessage");
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
-            
-            log.info("Step 4: Setting From address. fromAddress={}", fromAddress);
-            if (fromAddress != null && !fromAddress.isBlank()) {
-                message.setFrom(fromAddress);
-                log.info("Step 4a: SetFrom: {}", fromAddress);
-            } else {
-                log.warn("Step 4b: fromAddress is empty!");
-            }
-            
-            message.setSubject("Verify your email");
-            message.setText("Click to verify your account:\n" + verifyUrl);
-            log.info("Step 5: Message prepared. Attempting mailSender.send...");
-
-            mailSender.send(message);
-            log.info("[SUCCESS] Verification email sent to {}", email);
-        } catch (MailException e) {
-            log.error("[MAIL ERROR] Failed to send to {}: {}", email, e.getMessage(), e);
-        } catch (Exception e) {
-            log.error("[UNEXPECTED ERROR] Failed to send to {}: {}", email, e.getMessage(), e);
-        } finally {
-            log.info("[END] sendVerificationEmail thread finished for {}", email);
-        }
+        log.info("[START] sendVerificationEmail (API MODE) to: {}", email);
+        String verifyUrl = backendUrl + "/auth/verify-email?token=" + token;
+        
+        String content = "Click to verify your account:<br/><a href='" + verifyUrl + "'>" + verifyUrl + "</a>";
+        sendEmailViaApi(email, "Verify your email", content);
     }
 
     @Override
     @Async
     public void sendResetPasswordEmail(String email, String token) {
-        log.info("Preparing to send reset password email to {}", email);
-
+        log.info("[START] sendResetPasswordEmail (API MODE) to: {}", email);
         String resetUrl = frontendUrl + "/reset-password?token=" + token;
-        log.info("Reset URL: {}", resetUrl);
+        
+        String content = "Click the link below to reset your password:<br/><a href='" + resetUrl + "'>" + resetUrl + "</a>";
+        sendEmailViaApi(email, "Reset your password", content);
+    }
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
-        if (fromAddress != null && !fromAddress.isBlank()) {
-            message.setFrom(fromAddress);
-            log.info("Using fromAddress: {}", fromAddress);
-        }
-        message.setSubject("Reset your password");
-        message.setText(
-            "Click the link below to reset your password:\n" + resetUrl
-        );
-
+    private void sendEmailViaApi(String toEmail, String subject, String htmlContent) {
         try {
-            mailSender.send(message);
-            log.info("Reset password email sent successfully to {}", email);
-        } catch (MailException e) {
-            log.error("Failed to send reset password email to {}", email, e);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", apiKey);
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("sender", Map.of("email", fromEmail, "name", "Fotori"));
+            body.put("to", List.of(Map.of("email", toEmail)));
+            body.put("subject", subject);
+            body.put("htmlContent", "<html><body>" + htmlContent + "</body></html>");
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+            log.info("Sending request to Brevo API for {}", toEmail);
+            ResponseEntity<String> response = restTemplate.postForEntity(BREVO_API_URL, entity, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("[SUCCESS] Email sent via API to {}", toEmail);
+            } else {
+                log.error("[API ERROR] Brevo returned status {}: {}", response.getStatusCode(), response.getBody());
+            }
+        } catch (Exception e) {
+            log.error("[UNEXPECTED ERROR] Failed to send email via API to {}: {}", toEmail, e.getMessage(), e);
         }
     }
 }

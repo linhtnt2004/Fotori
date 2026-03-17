@@ -14,23 +14,10 @@ spring:
     validate-on-migrate: false
     baseline-on-migrate: true
 
-  # Brevo SMTP (Sendinblue)
+  # Email Configuration (API MODE - No SMTP)
   mail:
-    default-encoding: UTF-8
-    host: smtp-relay.brevo.com
-    port: 587
     username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    properties:
-      mail:
-        debug: true
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-          connectiontimeout: 30000
-          timeout: 30000
-          writetimeout: 30000
+    password: ${MAIL_PASSWORD} # This will be the Brevo API KEY
 
 server:
   port: ${PORT:8080}
