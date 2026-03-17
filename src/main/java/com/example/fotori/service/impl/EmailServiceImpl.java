@@ -29,29 +29,36 @@ public class EmailServiceImpl implements EmailService {
     @Override
     @Async
     public void sendVerificationEmail(String email, String token) {
-        log.info("Preparing to send verification email to {}", email);
-        
-        String verifyUrl = backendUrl + "/auth/verify-email?token=" + token;
-        log.info("Verification URL: {}", verifyUrl);
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
-        if (fromAddress != null && !fromAddress.isBlank()) {
-            message.setFrom(fromAddress);
-            log.info("Using fromAddress: {}", fromAddress);
-        } else {
-            log.warn("fromAddress is empty, using default mail configuration");
-        }
-        message.setSubject("Verify your email");
-        message.setText(
-            "Click to verify your account:\n" + verifyUrl
-        );
-
+        log.info("[START] sendVerificationEmail to: {}", email);
         try {
+            log.info("Step 1: Constructing URL. backendUrl={}", backendUrl);
+            String verifyUrl = backendUrl + "/auth/verify-email?token=" + token;
+            log.info("Step 2: URL constructed: {}", verifyUrl);
+
+            log.info("Step 3: Creating SimpleMailMessage");
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            
+            log.info("Step 4: Setting From address. fromAddress={}", fromAddress);
+            if (fromAddress != null && !fromAddress.isBlank()) {
+                message.setFrom(fromAddress);
+                log.info("Step 4a: SetFrom: {}", fromAddress);
+            } else {
+                log.warn("Step 4b: fromAddress is empty!");
+            }
+            
+            message.setSubject("Verify your email");
+            message.setText("Click to verify your account:\n" + verifyUrl);
+            log.info("Step 5: Message prepared. Attempting mailSender.send...");
+
             mailSender.send(message);
-            log.info("Verification email sent successfully to {}", email);
+            log.info("[SUCCESS] Verification email sent to {}", email);
         } catch (MailException e) {
-            log.error("Failed to send verification email to {}", email, e);
+            log.error("[MAIL ERROR] Failed to send to {}: {}", email, e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("[UNEXPECTED ERROR] Failed to send to {}: {}", email, e.getMessage(), e);
+        } finally {
+            log.info("[END] sendVerificationEmail thread finished for {}", email);
         }
     }
 
