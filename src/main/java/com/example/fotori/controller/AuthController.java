@@ -47,6 +47,9 @@ public class AuthController {
     @Value("${app.jwt.refresh-expiration-ms}")
     private long refreshExpirationMs;
 
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
     @Operation(summary = "Register new user")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
@@ -245,7 +248,7 @@ public class AuthController {
             String html = "<html><head><meta charset='utf-8'></head><body style='text-align:center; font-family:Arial; padding:50px;'>"
                 + "<h1 style='color:green;'>✅ Email đã xác thực thành công!</h1>"
                 + "<p>Bạn có thể đăng nhập ngay bây giờ.</p>"
-                + "<a href='http://localhost:3001'>← Quay về trang đăng nhập</a>"
+                + "<a href='" + frontendUrl + "'>← Quay về trang đăng nhập</a>"
                 + "</body></html>";
 
             return ResponseEntity.ok().header("Content-Type", "text/html; charset=UTF-8").body(html);
@@ -253,7 +256,7 @@ public class AuthController {
             String html = "<html><head><meta charset='utf-8'></head><body style='text-align:center; font-family:Arial; padding:50px;'>"
                 + "<h1 style='color:red;'>❌ Xác thực thất bại</h1>"
                 + "<p>" + e.getMessage() + "</p>"
-                + "<a href='http://localhost:3001'>← Quay về trang chủ</a>"
+                + "<a href='" + frontendUrl + "'>← Quay về trang chủ</a>"
                 + "</body></html>";
 
             return ResponseEntity.badRequest().header("Content-Type", "text/html; charset=UTF-8").body(html);
