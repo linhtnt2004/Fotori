@@ -4,10 +4,7 @@ import com.example.fotori.model.Booking;
 import com.example.fotori.service.BookingEmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import com.example.fotori.service.EmailService;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
@@ -17,10 +14,7 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class BookingEmailServiceImpl implements BookingEmailService {
 
-    private final JavaMailSender mailSender;
-
-    @Value("${spring.mail.username:}")
-    private String fromAddress;
+    private final EmailService emailService;
 
     private static final DateTimeFormatter FMT =
         DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -30,19 +24,8 @@ public class BookingEmailServiceImpl implements BookingEmailService {
     // ══════════════════════════════════════════════════════════════════════════
 
     private void send(String to, String subject, String body) {
-        try {
-            SimpleMailMessage msg = new SimpleMailMessage();
-            msg.setTo(to);
-            msg.setSubject(subject);
-            msg.setText(body);
-            if (fromAddress != null && !fromAddress.isBlank()) {
-                msg.setFrom(fromAddress);
-            }
-            mailSender.send(msg);
-            log.info("Email sent → {} | subject: {}", to, subject);
-        } catch (MailException e) {
-            log.error("Failed to send email to {}: {}", to, e.getMessage());
-        }
+        // Chuyển sang dùng EmailService (Brevo API)
+        emailService.sendHtmlEmail(to, subject, body.replace("\n", "<br/>"));
     }
 
     private String customerEmail(Booking b)      { return b.getUser().getEmail(); }

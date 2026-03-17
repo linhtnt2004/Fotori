@@ -40,7 +40,7 @@ public class EmailServiceImpl implements EmailService {
         String verifyUrl = backendUrl + "/auth/verify-email?token=" + token;
         
         String content = "Click to verify your account:<br/><a href='" + verifyUrl + "'>" + verifyUrl + "</a>";
-        sendEmailViaApi(email, "Verify your email", content);
+        sendHtmlEmail(email, "Verify your email", content);
     }
 
     @Override
@@ -50,10 +50,17 @@ public class EmailServiceImpl implements EmailService {
         String resetUrl = frontendUrl + "/reset-password?token=" + token;
         
         String content = "Click the link below to reset your password:<br/><a href='" + resetUrl + "'>" + resetUrl + "</a>";
-        sendEmailViaApi(email, "Reset your password", content);
+        sendHtmlEmail(email, "Reset your password", content);
     }
 
-    private void sendEmailViaApi(String toEmail, String subject, String htmlContent) {
+    @Override
+    @Async
+    public void sendHtmlEmail(String toEmail, String subject, String htmlContent) {
+        if (apiKey == null || apiKey.isBlank()) {
+            log.error("[API ERROR] Brevo API Key is missing! Check MAIL_PASSWORD in Environment Variables.");
+            return;
+        }
+
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
