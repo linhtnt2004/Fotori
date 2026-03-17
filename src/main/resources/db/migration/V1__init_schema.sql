@@ -540,3 +540,31 @@ CREATE TABLE photographer_subscriptions
         FOREIGN KEY (plan_id)
             REFERENCES subscription_plans (id)
 );
+
+-- =========================
+-- SUBSCRIPTION PLANS
+-- =========================
+CREATE TABLE subscription_plans
+(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    name VARCHAR(255) NOT NULL UNIQUE,
+
+    price INT NOT NULL,
+    duration_days INT NOT NULL,
+
+    commission_percent INT NOT NULL,
+    max_packages INT NOT NULL,
+
+    ai_suggest BOOLEAN NOT NULL,
+    priority_listing BOOLEAN NOT NULL,
+    unlimited_chat BOOLEAN NOT NULL,
+    analytics BOOLEAN NOT NULL,
+    marketing_tools BOOLEAN NOT NULL,
+
+    active BOOLEAN NOT NULL,
+
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    deleted_at DATETIME
+);
