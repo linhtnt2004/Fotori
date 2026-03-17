@@ -66,4 +66,18 @@ public class AdminUserServiceImpl implements AdminUserService {
             .totalSpent(totalSpent)
             .build();
     }
+
+    @Override
+    public void deleteUser(Long userId) {
+
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new BusinessException("USER_NOT_FOUND"));
+
+        user.setStatus(UserStatus.DELETED);
+        user.setDeletedAt(java.time.LocalDateTime.now());
+
+        user.getRoles().clear();
+
+        userRepository.save(user);
+    }
 }

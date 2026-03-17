@@ -8,4 +8,6 @@ public interface AdminUserService {
     void updateUserStatus(Long userId, UserStatus status);
 
     ApiUserDetailResponse getUserDetail(Long userId);
+
+    void deleteUser(Long userId);
 }
