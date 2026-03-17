@@ -66,6 +66,15 @@ public class EmailServiceImpl implements EmailService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("api-key", apiKey);
 
+            if (apiKey != null && apiKey.length() > 10) {
+                log.info("API Key diagnostic: Length={}, Starts with={}, Ends with={}", 
+                    apiKey.length(), 
+                    apiKey.substring(0, 8), 
+                    apiKey.substring(apiKey.length() - 4));
+            } else {
+                log.warn("API Key diagnostic: Key is too short or null! Length={}", (apiKey != null ? apiKey.length() : 0));
+            }
+
             Map<String, Object> body = new HashMap<>();
             body.put("sender", Map.of("email", fromEmail, "name", "Fotori"));
             body.put("to", List.of(Map.of("email", toEmail)));
