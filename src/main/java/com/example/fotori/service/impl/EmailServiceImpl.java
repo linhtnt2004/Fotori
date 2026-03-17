@@ -23,7 +23,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendVerificationEmail(String email, String token) {
 
         String verifyUrl =
-            "http://localhost:8082/api/auth/verify-email?token=" + token;
+            "https://fotori-production.up.railway.app/api/auth/verify-email?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
