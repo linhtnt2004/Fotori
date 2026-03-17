@@ -43,4 +43,17 @@ public class AdminPhotographerController {
             )
         );
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse> deletePhotographer(@PathVariable Long id) {
+        adminPhotographerService.deletePhotographer(id);
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Photographer deleted successfully",
+                null
+            )
+        );
+    }
 }

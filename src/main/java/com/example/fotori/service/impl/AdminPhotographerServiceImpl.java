@@ -59,10 +59,6 @@ public class AdminPhotographerServiceImpl implements AdminPhotographerService {
         PhotographerProfile photographer = photographerRepository.findById(photographerId)
             .orElseThrow(() -> new BusinessException("PHOTOGRAPHER_NOT_FOUND"));
 
-        if (photographer.getApprovalStatus() != ApprovalStatus.PENDING) {
-            throw new BusinessException("PHOTOGRAPHER_ALREADY_PROCESSED");
-        }
-
         User user = photographer.getUser();
 
         if (request.getStatus() == ApprovalStatus.APPROVED) {
@@ -84,6 +80,22 @@ public class AdminPhotographerServiceImpl implements AdminPhotographerService {
                                          role.getName().equals("ROLE_PHOTOGRAPHER")
             );
         }
+
+        photographerRepository.save(photographer);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deletePhotographer(Long id) {
+        PhotographerProfile photographer = photographerRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Photographer not found"));
+
+        photographer.setDeletedAt(LocalDateTime.now());
+
+        User user = photographer.getUser();
+        user.getRoles().removeIf(role ->
+                                     role.getName().equals("ROLE_PHOTOGRAPHER")
+        );
 
         photographerRepository.save(photographer);
         userRepository.save(user);

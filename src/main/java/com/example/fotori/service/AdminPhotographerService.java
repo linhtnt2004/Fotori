@@ -10,5 +10,5 @@ public interface AdminPhotographerService {
 
     void updatePhotographerStatus(Long photographerId, UpdateApprovalStatusRequest request);
 
-
+    void deletePhotographer(Long id);
 }
