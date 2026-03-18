@@ -14,6 +14,10 @@ import java.time.LocalDateTime;
 public class AdminPaymentDTO {
     private Long id;
     private Long bookingId;
+    private Long planId;
+    private String planName;
+    private Long photographerId;
+    private String payerName;
     private Double amount;
     private String method;
     private String transactionId;

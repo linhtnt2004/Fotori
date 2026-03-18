@@ -24,4 +24,5 @@ public class UserResponse {
 
     Set<String> roles;
 
+    String approvalStatus;
 }

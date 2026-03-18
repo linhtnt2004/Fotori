@@ -44,6 +44,8 @@ public class PhotographerProfileServiceImpl
             .fullName(user.getFullName())
             .avatarUrl(user.getAvatarUrl())
             .bio(profile.getBio())
+            .city(profile.getCity())
+            .equipment(profile.getEquipment())
             .experienceYears(profile.getExperienceYears())
             .approvalStatus(profile.getApprovalStatus())
             .approvedAt(profile.getApprovedAt())
@@ -69,16 +71,16 @@ public class PhotographerProfileServiceImpl
                     return photographerProfileRepository.save(p);
                 });
 
-        if (profile.getApprovalStatus() == ApprovalStatus.APPROVED) {
-            throw new BusinessException("PROFILE_ALREADY_APPROVED");
-        }
-
-        profile.setBio(request.getBio());
-        profile.setExperienceYears(request.getExperienceYears());
+        if (request.getBio() != null) profile.setBio(request.getBio());
+        if (request.getExperienceYears() != null) profile.setExperienceYears(request.getExperienceYears());
+        if (request.getCity() != null) profile.setCity(request.getCity());
+        if (request.getEquipment() != null) profile.setEquipment(request.getEquipment());
 
         if (request.getAvatarUrl() != null) {
             user.setAvatarUrl(request.getAvatarUrl());
         }
 
+        photographerProfileRepository.save(profile);
     }
+
 }

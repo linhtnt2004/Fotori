@@ -18,6 +18,8 @@ public class PhotographerProfileResponse {
     private String avatarUrl;
 
     private String bio;
+    private String city;
+    private String equipment;
     private Integer experienceYears;
     private ApprovalStatus approvalStatus;
     private LocalDateTime approvedAt;

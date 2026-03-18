@@ -21,6 +21,8 @@ public class CreateVoucherRequest {
 
     Integer maxDiscount;
 
+    LocalDateTime startsAt;
+
     LocalDateTime expiresAt;
 
     Integer usageLimit;

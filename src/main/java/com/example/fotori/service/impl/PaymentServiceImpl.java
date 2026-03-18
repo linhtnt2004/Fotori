@@ -40,6 +40,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final BookingEmailService bookingEmailService;
     private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final PhotographerProfileRepository photographerRepository;
+    private final com.example.fotori.repository.PhotographerSubscriptionRepository subscriptionRepository;
 
     @Override
     @Transactional
@@ -85,10 +86,13 @@ public class PaymentServiceImpl implements PaymentService {
                     ? booking.getFinalPrice()
                     : booking.getTotalPrice();
 
+            String customQrContent = "FOTORI BOOKING #" + booking.getId();
+
             paymentUrl = processor.createPayment(
                 booking,
                 amount,
-                transactionId
+                transactionId,
+                customQrContent
             );
 
             payment = Payment.builder()
@@ -96,7 +100,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .amount(amount)
                 .method(request.getMethod())
                 .transactionId(transactionId)
-                .qrContent(paymentUrl)
+                .qrContent(customQrContent)
                 .status(PaymentStatus.PENDING)
                 .build();
         }
@@ -109,20 +113,44 @@ public class PaymentServiceImpl implements PaymentService {
                                  new RuntimeException("PLAN_NOT_FOUND")
                 );
 
+            com.example.fotori.model.PhotographerProfile photographer = photographerRepository.findByUserId(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("PHOTOGRAPHER_NOT_FOUND"));
+
+            // Check for existing pending payment for any plan
+            boolean hasPendingPlanPayment = paymentRepository.findAllBySubscriptionPlanIsNotNull().stream()
+                .anyMatch(p -> p.getPhotographer() != null && p.getPhotographer().getId().equals(photographer.getId()) && p.getStatus() == PaymentStatus.PENDING);
+            
+            if (hasPendingPlanPayment) {
+                throw new RuntimeException("PAYMENT_ALREADY_PENDING");
+            }
+
+            // Check for existing active subscription
+            boolean hasActiveSubscription = subscriptionRepository.findFirstByPhotographer_IdOrderByEndDateDesc(photographer.getId())
+                .map(s -> s.getEndDate().isAfter(java.time.LocalDateTime.now()))
+                .orElse(false);
+
+            if (hasActiveSubscription) {
+                throw new RuntimeException("SUBSCRIPTION_ALREADY_ACTIVE");
+            }
+
             amount = plan.getPrice().doubleValue();
+
+            String customQrContent = "FOTORI " + plan.getName().toUpperCase();
 
             paymentUrl = processor.createPayment(
                 null,
                 amount,
-                transactionId
+                transactionId,
+                customQrContent
             );
 
             payment = Payment.builder()
                 .subscriptionPlan(plan)
+                .photographer(photographer)
                 .amount(amount)
                 .method(request.getMethod())
                 .transactionId(transactionId)
-                .qrContent(paymentUrl)
+                .qrContent(customQrContent)
                 .status(PaymentStatus.PENDING)
                 .build();
         }
@@ -201,20 +229,34 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public List<AdminPaymentDTO> getAllPayments() {
         return paymentRepository
-            .findAll(org.springframework.data.domain.Sort.by(
-                org.springframework.data.domain.Sort.Direction.DESC, "createdAt"))
+            .findAllByBookingIsNotNullOrderByCreatedAtDesc()
             .stream()
-            .map(p -> AdminPaymentDTO.builder()
-                .id(p.getId())
-                .bookingId(p.getBooking().getId())
-                .amount(p.getAmount())
-                .method(p.getMethod() != null ? p.getMethod().name() : "Thủ công")
-                .transactionId(p.getTransactionId())
-                .status(p.getStatus() != null ? p.getStatus().name() : "PENDING")
-                .createdAt(p.getCreatedAt())
-                .startTime(p.getBooking().getStartTime())
-                .endTime(p.getBooking().getEndTime())
-                .build())
+            .map(p -> {
+                AdminPaymentDTO.AdminPaymentDTOBuilder builder = AdminPaymentDTO.builder()
+                    .id(p.getId())
+                    .amount(p.getAmount())
+                    .method(p.getMethod() != null ? p.getMethod().name() : "Thủ công")
+                    .transactionId(p.getTransactionId())
+                    .status(p.getStatus() != null ? p.getStatus().name() : "PENDING")
+                    .createdAt(p.getCreatedAt());
+
+                if (p.getBooking() != null) {
+                    builder.bookingId(p.getBooking().getId())
+                        .startTime(p.getBooking().getStartTime())
+                        .endTime(p.getBooking().getEndTime())
+                        .payerName(p.getBooking().getUser() != null ? p.getBooking().getUser().getFullName() : "Khách hàng");
+                }
+
+                if (p.getSubscriptionPlan() != null) {
+                    builder.planId(p.getSubscriptionPlan().getId())
+                        .planName(p.getSubscriptionPlan().getName())
+                        .photographerId(p.getPhotographer() != null ? p.getPhotographer().getId() : null)
+                        .payerName(p.getPhotographer() != null && p.getPhotographer().getUser() != null 
+                                       ? p.getPhotographer().getUser().getFullName() : "Thợ ảnh");
+                }
+
+                return builder.build();
+            })
             .collect(Collectors.toList());
     }
 }

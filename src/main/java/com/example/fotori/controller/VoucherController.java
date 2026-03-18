@@ -38,6 +38,19 @@ public class VoucherController {
         );
     }
 
+    @Operation(summary = "Get featured voucher")
+    @GetMapping("/featured")
+    public ResponseEntity<ApiResponse> getFeaturedVoucher() {
+        VoucherResponse voucher = voucherService.getFeaturedVoucher();
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Featured voucher fetched successfully",
+                voucher
+            )
+        );
+    }
+
     @Operation(summary = "Validate voucher")
     @PostMapping("/validate")
     public ResponseEntity<ApiResponse> validateVoucher(

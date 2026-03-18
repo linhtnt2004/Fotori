@@ -22,6 +22,8 @@ public class VoucherResponse {
 
     Integer maxDiscount;
 
+    LocalDateTime startsAt;
+
     LocalDateTime expiresAt;
 
     Integer usageLimit;

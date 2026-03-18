@@ -4,15 +4,17 @@ import com.example.fotori.dto.MySubscriptionResponse;
 import com.example.fotori.dto.SubscriptionHistoryResponse;
 import com.example.fotori.dto.SubscriptionPaymentHistoryResponse;
 import com.example.fotori.dto.SubscriptionPlanResponse;
+import com.example.fotori.dto.admin.AdminPaymentDTO;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface SubscriptionService {
-
     List<SubscriptionPlanResponse> getPlans();
 
     MySubscriptionResponse getMySubscription(Long userId);
+
+    MySubscriptionResponse getSubscriptionByPhotographerId(Long photographerId);
 
     Page<SubscriptionPaymentHistoryResponse> getSubscriptionPayments(
         Long userId,
@@ -23,4 +25,10 @@ public interface SubscriptionService {
     List<SubscriptionHistoryResponse> getSubscriptionHistory(Long userId);
 
     void confirmSubscriptionPayment(Long paymentId);
+
+    List<AdminPaymentDTO> getAllSubscriptionPayments();
+
+    void deleteSubscriptionPayment(Long paymentId);
+
+    void deleteSubscription(Long id);
 }

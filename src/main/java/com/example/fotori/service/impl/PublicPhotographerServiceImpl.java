@@ -61,6 +61,8 @@ public class PublicPhotographerServiceImpl
             .fullName(profile.getUser().getFullName())
             .avatarUrl(profile.getUser().getAvatarUrl())
             .bio(profile.getBio())
+            .city(profile.getCity())
+            .equipment(profile.getEquipment())
             .experienceYears(profile.getExperienceYears())
             .build();
     }
@@ -271,6 +273,8 @@ public class PublicPhotographerServiceImpl
             .fullName(profile.getUser().getFullName())
             .avatarUrl(profile.getUser().getAvatarUrl())
             .bio(profile.getBio())
+            .city(profile.getCity())
+            .equipment(profile.getEquipment())
             .experienceYears(profile.getExperienceYears())
             .build();
     }

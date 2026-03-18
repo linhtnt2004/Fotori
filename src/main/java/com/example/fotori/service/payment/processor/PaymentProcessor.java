@@ -10,6 +10,7 @@ public interface PaymentProcessor {
     String createPayment(
         Booking booking,
         Double amount,
-        String transactionId
+        String transactionId,
+        String qrContent
     );
 }

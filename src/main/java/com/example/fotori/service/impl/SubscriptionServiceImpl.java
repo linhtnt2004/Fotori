@@ -5,6 +5,7 @@ import com.example.fotori.dto.MySubscriptionResponse;
 import com.example.fotori.dto.SubscriptionHistoryResponse;
 import com.example.fotori.dto.SubscriptionPaymentHistoryResponse;
 import com.example.fotori.dto.SubscriptionPlanResponse;
+import com.example.fotori.dto.admin.AdminPaymentDTO;
 import com.example.fotori.model.Payment;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.PhotographerSubscription;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -78,6 +80,32 @@ public class SubscriptionServiceImpl
             ).toDays();
 
         return MySubscriptionResponse.builder()
+            .id(subscription.getId())
+            .planName(subscription.getPlan().getName())
+            .startDate(subscription.getStartDate())
+            .endDate(subscription.getEndDate())
+            .daysRemaining(daysRemaining)
+            .active(subscription.getEndDate().isAfter(LocalDateTime.now()))
+            .build();
+    }
+
+    @Override
+    public MySubscriptionResponse getSubscriptionByPhotographerId(Long photographerId) {
+        PhotographerSubscription subscription =
+            subscriptionRepository
+                .findFirstByPhotographer_IdOrderByEndDateDesc(photographerId)
+                .orElse(null);
+
+        if (subscription == null) return null;
+
+        long daysRemaining =
+            java.time.Duration.between(
+                LocalDateTime.now(),
+                subscription.getEndDate()
+            ).toDays();
+
+        return MySubscriptionResponse.builder()
+            .id(subscription.getId())
             .planName(subscription.getPlan().getName())
             .startDate(subscription.getStartDate())
             .endDate(subscription.getEndDate())
@@ -108,13 +136,13 @@ public class SubscriptionServiceImpl
             );
 
         return payments.map(payment ->
-                                SubscriptionPaymentHistoryResponse.builder()
-                                    .planName(payment.getSubscriptionPlan().getName())
-                                    .amount(payment.getAmount())
-                                    .status(payment.getStatus().name())
-                                    .transactionId(payment.getTransactionId())
-                                    .createdAt(payment.getCreatedAt())
-                                    .build()
+                                 SubscriptionPaymentHistoryResponse.builder()
+                                     .planName(payment.getSubscriptionPlan() != null ? payment.getSubscriptionPlan().getName() : "Nâng cấp gói")
+                                     .amount(payment.getAmount())
+                                     .status(payment.getStatus().name())
+                                     .transactionId(payment.getTransactionId())
+                                     .createdAt(payment.getCreatedAt())
+                                     .build()
         );
     }
 
@@ -176,8 +204,48 @@ public class SubscriptionServiceImpl
                 .startDate(startDate)
                 .endDate(endDate)
                 .active(true)
+                .paymentId(paymentId)
                 .build();
 
         subscriptionRepository.save(subscription);
+    }
+
+    @Override
+    public List<AdminPaymentDTO> getAllSubscriptionPayments() {
+        return paymentRepository.findAllBySubscriptionPlanIsNotNullOrderByCreatedAtDesc()
+            .stream()
+            .map(p -> {
+                AdminPaymentDTO.AdminPaymentDTOBuilder builder = AdminPaymentDTO.builder()
+                    .id(p.getId())
+                    .amount(p.getAmount())
+                    .method(p.getMethod() != null ? p.getMethod().name() : "Thủ công")
+                    .transactionId(p.getTransactionId())
+                    .status(p.getStatus() != null ? p.getStatus().name() : "PENDING")
+                    .createdAt(p.getCreatedAt());
+
+                if (p.getSubscriptionPlan() != null) {
+                    builder.planId(p.getSubscriptionPlan().getId())
+                        .planName(p.getSubscriptionPlan().getName())
+                        .photographerId(p.getPhotographer() != null ? p.getPhotographer().getId() : null)
+                        .payerName(p.getPhotographer() != null && p.getPhotographer().getUser() != null
+                                        ? p.getPhotographer().getUser().getFullName() : "Thợ ảnh");
+                }
+
+                return builder.build();
+            })
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void deleteSubscriptionPayment(Long paymentId) {
+        subscriptionRepository.deleteByPaymentId(paymentId);
+        paymentRepository.deleteById(paymentId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteSubscription(Long id) {
+        subscriptionRepository.deleteById(id);
     }
 }

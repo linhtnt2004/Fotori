@@ -21,11 +21,9 @@ public class BankPaymentProcessor implements PaymentProcessor {
     public String createPayment(
         Booking booking,
         Double amount,
-        String transactionId
+        String transactionId,
+        String qrContent
     ) {
-
-        String qrContent = "FOTORI_BOOKING_" + booking.getId();
-
         return vietQrService.generateQr(amount, qrContent);
     }
 }

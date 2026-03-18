@@ -13,6 +13,12 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
         Pageable pageable
     );
 
+    java.util.List<Payment> findAllByBookingIsNotNullOrderByCreatedAtDesc();
+
+    java.util.List<Payment> findAllBySubscriptionPlanIsNotNullOrderByCreatedAtDesc();
+
+    java.util.List<Payment> findAllBySubscriptionPlanIsNotNull();
+
     boolean existsByBooking_IdAndStatus(
         Long bookingId,
         PaymentStatus status

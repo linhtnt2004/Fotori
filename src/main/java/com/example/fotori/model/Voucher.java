@@ -35,6 +35,9 @@ public class Voucher extends BaseEntity {
     @Column(name = "max_discount")
     Integer maxDiscount;
 
+    @Column(name = "starts_at")
+    LocalDateTime startsAt;
+
     @Column(name = "expires_at", nullable = false)
     LocalDateTime expiresAt;
 

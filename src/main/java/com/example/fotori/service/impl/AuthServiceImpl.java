@@ -145,6 +145,11 @@ public class AuthServiceImpl implements AuthService {
                                 .stream()
                                 .map(Role::getName)
                                 .collect(java.util.stream.Collectors.toSet()))
+                .approvalStatus(
+                        user.getRoles().stream().anyMatch(r -> r.getName().equals("ROLE_PHOTOGRAPHER"))
+                        ? photographerRepository.findByUser(user).map(p -> p.getApprovalStatus().name()).orElse(null)
+                        : null
+                )
                 .build();
     }
 
@@ -175,6 +180,11 @@ public class AuthServiceImpl implements AuthService {
                                 .stream()
                                 .map(Role::getName)
                                 .collect(java.util.stream.Collectors.toSet()))
+                .approvalStatus(
+                        user.getRoles().stream().anyMatch(r -> r.getName().equals("ROLE_PHOTOGRAPHER"))
+                        ? photographerRepository.findByUser(user).map(p -> p.getApprovalStatus().name()).orElse(null)
+                        : null
+                )
                 .build();
     }
 }

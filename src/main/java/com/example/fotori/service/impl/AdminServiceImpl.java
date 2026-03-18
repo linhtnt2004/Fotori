@@ -2,10 +2,8 @@ package com.example.fotori.service.impl;
 
 import com.example.fotori.common.enums.ApprovalStatus;
 import com.example.fotori.exception.BusinessException;
-import com.example.fotori.common.enums.ErrorCode;
 import com.example.fotori.common.enums.PaymentStatus;
 import com.example.fotori.dto.admin.*;
-import com.example.fotori.model.Booking;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.Role;
 import com.example.fotori.model.User;
@@ -54,6 +52,12 @@ public class AdminServiceImpl implements AdminService {
         double totalRevenue = bookingRepository.findAll().stream()
             .filter(b -> b.getPaymentStatus() == PaymentStatus.PAID)
             .mapToDouble(b -> b.getFinalPrice() != null ? b.getFinalPrice() : 0.0)
+            .sum();
+
+        // Add revenue from paid subscription plans
+        totalRevenue += paymentRepository.findAllBySubscriptionPlanIsNotNull().stream()
+            .filter(p -> p.getStatus() == PaymentStatus.PAID)
+            .mapToDouble(p -> p.getAmount() != null ? p.getAmount() : 0.0)
             .sum();
 
         // Review stats

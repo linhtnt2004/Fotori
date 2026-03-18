@@ -1,9 +1,13 @@
 package com.example.fotori.config;
 
 import com.example.fotori.common.enums.UserStatus;
+import com.example.fotori.model.ForumCategory;
 import com.example.fotori.model.Role;
+import com.example.fotori.model.SubscriptionPlan;
 import com.example.fotori.model.User;
+import com.example.fotori.repository.ForumCategoryRepository;
 import com.example.fotori.repository.RoleRepository;
+import com.example.fotori.repository.SubscriptionPlanRepository;
 import com.example.fotori.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -21,6 +25,8 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final ForumCategoryRepository forumCategoryRepository;
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityManager em;
 
@@ -60,6 +66,73 @@ public class DatabaseSeeder implements CommandLineRunner {
             System.out.println("✅ Default admin user created: " + adminEmail);
         }
 
+        // Seed Forum Categories
+        seedForumCategory("Hỏi đáp", "hoi-dap");
+        seedForumCategory("Kinh nghiệm", "kinh-nghiem");
+        seedForumCategory("Review thiết bị", "review-thiet-bi");
+        seedForumCategory("Khác", "khac");
+
+        // Seed Subscription Plans
+        seedSubscriptionPlans();
+    }
+
+    private void seedForumCategory(String name, String slug) {
+        if (forumCategoryRepository.findBySlug(slug).isEmpty()) {
+            ForumCategory category = ForumCategory.builder()
+                    .name(name)
+                    .slug(slug)
+                    .build();
+            forumCategoryRepository.save(category);
+            System.out.println("✅ Seeded forum category: " + name);
+        }
+    }
+
+    private void seedSubscriptionPlans() {
+        if (subscriptionPlanRepository.count() == 0) {
+            subscriptionPlanRepository.save(SubscriptionPlan.builder()
+                .name("Gói Basic")
+                .price(59000)
+                .durationDays(30)
+                .commissionPercent(5)
+                .maxPackages(10)
+                .aiSuggest(true)
+                .priorityListing(false)
+                .unlimitedChat(false)
+                .analytics(false)
+                .marketingTools(false)
+                .active(true)
+                .build());
+
+            subscriptionPlanRepository.save(SubscriptionPlan.builder()
+                .name("Gói Pro")
+                .price(99000)
+                .durationDays(30)
+                .commissionPercent(4)
+                .maxPackages(10)
+                .aiSuggest(true)
+                .priorityListing(true)
+                .unlimitedChat(true)
+                .analytics(false)
+                .marketingTools(false)
+                .active(true)
+                .build());
+
+            subscriptionPlanRepository.save(SubscriptionPlan.builder()
+                .name("Gói Elite")
+                .price(149000)
+                .durationDays(30)
+                .commissionPercent(3)
+                .maxPackages(100)
+                .aiSuggest(true)
+                .priorityListing(true)
+                .unlimitedChat(true)
+                .analytics(true)
+                .marketingTools(true)
+                .active(true)
+                .build());
+
+            System.out.println("✅ Seeded subscription plans");
+        }
     }
 
 //    private void deepCleanupByEmail(String email) {

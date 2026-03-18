@@ -31,16 +31,27 @@ public class VoucherServiceImpl implements VoucherService {
         return vouchers.stream()
             .map(v -> VoucherResponse.builder()
                 .code(v.getCode())
-                .type(v.getType().name().toLowerCase())
+                .type(v.getType() != null ? v.getType().name().toLowerCase() : "percentage")
                 .value(v.getValue())
                 .minOrderValue(v.getMinOrderValue())
                 .maxDiscount(v.getMaxDiscount())
+                .startsAt(v.getStartsAt())
                 .expiresAt(v.getExpiresAt())
                 .usageLimit(v.getUsageLimit())
                 .usedCount(v.getUsedCount())
                 .description(v.getDescription())
                 .build())
             .collect(Collectors.toList());
+    }
+    @Override
+    public VoucherResponse getFeaturedVoucher() {
+        List<VoucherResponse> active = getActiveVouchers();
+        if (active.isEmpty()) return null;
+        
+        return active.stream()
+            .sorted((v1, v2) -> v2.getValue().compareTo(v1.getValue()))
+            .findFirst()
+            .orElse(null);
     }
 
     @Override
@@ -73,6 +84,14 @@ public class VoucherServiceImpl implements VoucherService {
                 .valid(false)
                 .discount(0)
                 .message("Voucher expired")
+                .build();
+        }
+
+        if (voucher.getStartsAt() != null && voucher.getStartsAt().isAfter(LocalDateTime.now())) {
+            return ValidateVoucherResponse.builder()
+                .valid(false)
+                .discount(0)
+                .message("Voucher is not yet active (starts at " + voucher.getStartsAt() + ")")
                 .build();
         }
 
@@ -134,6 +153,7 @@ public class VoucherServiceImpl implements VoucherService {
             .value(request.getValue())
             .minOrderValue(request.getMinOrderValue())
             .maxDiscount(request.getMaxDiscount())
+            .startsAt(request.getStartsAt() != null ? request.getStartsAt() : LocalDateTime.now())
             .expiresAt(request.getExpiresAt())
             .usageLimit(request.getUsageLimit())
             .description(request.getDescription())
@@ -149,6 +169,7 @@ public class VoucherServiceImpl implements VoucherService {
             .value(voucher.getValue())
             .minOrderValue(voucher.getMinOrderValue())
             .maxDiscount(voucher.getMaxDiscount())
+            .startsAt(voucher.getStartsAt())
             .expiresAt(voucher.getExpiresAt())
             .usageLimit(voucher.getUsageLimit())
             .usedCount(voucher.getUsedCount())

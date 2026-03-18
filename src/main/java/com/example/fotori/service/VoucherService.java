@@ -10,7 +10,7 @@ import java.util.List;
 public interface VoucherService {
 
     List<VoucherResponse> getActiveVouchers();
-
+    VoucherResponse getFeaturedVoucher();
     ValidateVoucherResponse validateVoucher(ValidateVoucherRequest request);
 
     VoucherResponse createVoucher(CreateVoucherRequest request);

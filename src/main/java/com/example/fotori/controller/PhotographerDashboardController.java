@@ -16,12 +16,34 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/photographer/dashboard")
+@RequestMapping("/api/photographers/me/dashboard")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('PHOTOGRAPHER')")
 public class PhotographerDashboardController {
 
     private final PhotographerDashboardService dashboardService;
+
+    @GetMapping
+    public ResponseEntity<ApiResponse> getDashboard(
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        PhotographerDashboardStatsResponse stats =
+            dashboardService.getStats(userDetails.getUsername());
+        
+        // Return combined data to match frontend expectation
+        java.util.Map<String, Object> data = new java.util.HashMap<>();
+        data.put("stats", stats);
+        data.put("upcomingBookings", dashboardService.getRecentBookings(userDetails.getUsername()));
+        data.put("aiSuggestions", java.util.Collections.emptyList()); // Placeholder for AI
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Dashboard data fetched successfully",
+                data
+            )
+        );
+    }
 
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse> getStats(

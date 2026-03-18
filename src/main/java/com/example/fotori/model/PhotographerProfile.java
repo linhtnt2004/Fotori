@@ -32,6 +32,9 @@ public class PhotographerProfile extends BaseEntity {
     @Column(name = "city", columnDefinition = "TEXT")
     String city;
 
+    @Column(name = "equipment", columnDefinition = "TEXT")
+    String equipment;
+
     @Column(name = "experience_years")
     Integer experienceYears;
 

@@ -4,8 +4,8 @@ import com.example.fotori.common.ApiResponse;
 import com.example.fotori.dto.MySubscriptionResponse;
 import com.example.fotori.dto.SubscriptionHistoryResponse;
 import com.example.fotori.dto.SubscriptionPaymentHistoryResponse;
-import com.example.fotori.model.User;
 import com.example.fotori.service.SubscriptionService;
+import com.example.fotori.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -41,10 +41,10 @@ public class SubscriptionController {
         Authentication authentication
     ) {
 
-        User user = (User) authentication.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         MySubscriptionResponse response =
-            subscriptionService.getMySubscription(user.getId());
+            subscriptionService.getMySubscription(userDetails.getUser().getId());
 
         return ResponseEntity.ok(
             new ApiResponse(
@@ -62,11 +62,11 @@ public class SubscriptionController {
         Authentication authentication
     ) {
 
-        User user = (User) authentication.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         Page<SubscriptionPaymentHistoryResponse> response =
             subscriptionService.getSubscriptionPayments(
-                user.getId(),
+                userDetails.getUser().getId(),
                 page,
                 size
             );
@@ -85,10 +85,10 @@ public class SubscriptionController {
         Authentication authentication
     ) {
 
-        User user = (User) authentication.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         List<SubscriptionHistoryResponse> data =
-            subscriptionService.getSubscriptionHistory(user.getId());
+            subscriptionService.getSubscriptionHistory(userDetails.getUser().getId());
 
         return ResponseEntity.ok(
             new ApiResponse(

@@ -22,12 +22,17 @@ public class BlogAdminServiceImpl implements BlogAdminService {
     @Override
     public BlogPost createBlog(CreateBlogRequest request) {
 
-        BlogCategory category = categoryRepository
-            .findAll()
-            .stream()
-            .filter(c -> c.getName().equalsIgnoreCase(request.getCategory()))
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("CATEGORY_NOT_FOUND"));
+        String categoryName = request.getCategory() == null || request.getCategory().trim().isEmpty() 
+            ? "Chung" : request.getCategory().trim();
+
+        BlogCategory category = categoryRepository.findByNameIgnoreCase(categoryName)
+            .orElseGet(() -> {
+                BlogCategory newCat = BlogCategory.builder()
+                    .name(categoryName)
+                    .slug(generateSlug(categoryName))
+                    .build();
+                return categoryRepository.save(newCat);
+            });
 
         BlogPost blog = BlogPost.builder()
             .title(request.getTitle())
@@ -50,12 +55,17 @@ public class BlogAdminServiceImpl implements BlogAdminService {
         BlogPost blog = blogRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("BLOG_NOT_FOUND"));
 
-        BlogCategory category = categoryRepository
-            .findAll()
-            .stream()
-            .filter(c -> c.getName().equalsIgnoreCase(request.getCategory()))
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("CATEGORY_NOT_FOUND"));
+        String categoryName = request.getCategory() == null || request.getCategory().trim().isEmpty() 
+            ? "Chung" : request.getCategory().trim();
+
+        BlogCategory category = categoryRepository.findByNameIgnoreCase(categoryName)
+            .orElseGet(() -> {
+                BlogCategory newCat = BlogCategory.builder()
+                    .name(categoryName)
+                    .slug(generateSlug(categoryName))
+                    .build();
+                return categoryRepository.save(newCat);
+            });
 
         blog.setTitle(request.getTitle());
         blog.setContent(request.getContent());

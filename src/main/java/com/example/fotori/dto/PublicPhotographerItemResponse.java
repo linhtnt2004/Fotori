@@ -14,5 +14,7 @@ public class PublicPhotographerItemResponse {
     String fullName;
     String avatarUrl;
     String bio;
+    String city;
+    String equipment;
     Integer experienceYears;
 }

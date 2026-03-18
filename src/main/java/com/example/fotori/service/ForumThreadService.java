@@ -30,5 +30,7 @@ public interface ForumThreadService {
 
     void acceptReply(String email, Long replyId);
 
+    void deleteThread(Long id);
+
     List<ForumCategory> getCategories();
 }

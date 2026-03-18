@@ -37,4 +37,7 @@ public class PhotographerSubscription extends BaseEntity {
 
     @Column(nullable = false)
     Boolean active;
+
+    @Column(name = "payment_id")
+    Long paymentId;
 }

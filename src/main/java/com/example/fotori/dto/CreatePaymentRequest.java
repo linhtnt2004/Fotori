@@ -12,6 +12,8 @@ public class CreatePaymentRequest {
     Long bookingId;
 
     Long planId;
+    
+    Long userId;
 
     PaymentMethod method;
 }

@@ -5,9 +5,9 @@ import com.example.fotori.dto.CreatePaymentRequest;
 import com.example.fotori.dto.CreatePaymentResponse;
 import com.example.fotori.dto.PaymentHistoryResponse;
 import com.example.fotori.dto.PaymentStatusResponse;
-import com.example.fotori.model.User;
 import com.example.fotori.service.PaymentService;
 import lombok.RequiredArgsConstructor;
+import com.example.fotori.security.UserDetailsImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -22,8 +22,13 @@ public class PaymentController {
 
     @PostMapping("/create")
     public ResponseEntity<ApiResponse> createPayment(
-        @RequestBody CreatePaymentRequest request
+        @RequestBody CreatePaymentRequest request,
+        Authentication authentication
     ) {
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            request.setUserId(userDetails.getUser().getId());
+        }
 
         CreatePaymentResponse response =
             paymentService.createPayment(request);
@@ -61,10 +66,10 @@ public class PaymentController {
         Authentication authentication
     ) {
 
-        User user = (User) authentication.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         Page<PaymentHistoryResponse> response =
-            paymentService.getPaymentHistory(page, size, user.getId());
+            paymentService.getPaymentHistory(page, size, userDetails.getUser().getId());
 
         return ResponseEntity.ok(
             new ApiResponse(

@@ -169,6 +169,15 @@ public class ForumThreadServiceImpl implements ForumThreadService {
     }
 
     @Override
+    public void deleteThread(Long id) {
+
+        ForumThread thread = forumThreadRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("THREAD_NOT_FOUND"));
+
+        forumThreadRepository.delete(thread);
+    }
+
+    @Override
     public List<ForumCategory> getCategories() {
 
         return forumCategoryRepository.findAll();
