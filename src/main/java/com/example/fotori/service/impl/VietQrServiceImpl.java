@@ -24,7 +24,7 @@ public class VietQrServiceImpl implements VietQrService {
         body.put("accountNo", config.getAccountNo());
         body.put("accountName", config.getAccountName());
         body.put("acqId", config.getAcqId());
-        body.put("amount", amount);
+        body.put("amount", amount.longValue());
         body.put("addInfo", content);
         body.put("format", "text");
         body.put("template", "compact");
