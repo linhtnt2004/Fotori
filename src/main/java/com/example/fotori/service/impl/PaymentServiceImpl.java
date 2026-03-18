@@ -134,7 +134,7 @@ public class PaymentServiceImpl implements PaymentService {
                 throw new RuntimeException("SUBSCRIPTION_ALREADY_ACTIVE");
             }
 
-            amount = plan.getPrice().doubleValue();
+            amount = plan.getPrice().doubleValue() * 1.10; // Include 10% VAT
 
             String customQrContent = "FOTORI " + plan.getName().toUpperCase();
 
