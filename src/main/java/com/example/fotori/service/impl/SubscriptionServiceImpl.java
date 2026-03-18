@@ -60,18 +60,18 @@ public class SubscriptionServiceImpl
 
         PhotographerProfile photographer =
             photographerRepository.findByUserId(userId)
-                .orElseThrow(() ->
-                                 new RuntimeException("PHOTOGRAPHER_NOT_FOUND")
-                );
+                .orElse(null);
+
+        if (photographer == null) return null;
 
         PhotographerSubscription subscription =
             subscriptionRepository
                 .findFirstByPhotographer_IdOrderByEndDateDesc(
                     photographer.getId()
                 )
-                .orElseThrow(() ->
-                                 new RuntimeException("NO_SUBSCRIPTION")
-                );
+                .orElse(null);
+
+        if (subscription == null) return null;
 
         long daysRemaining =
             java.time.Duration.between(
