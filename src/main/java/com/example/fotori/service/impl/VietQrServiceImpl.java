@@ -37,15 +37,23 @@ public class VietQrServiceImpl implements VietQrService {
                     Map.class
                 );
 
-            if (response.getBody() == null || response.getBody().get("data") == null) {
-                throw new RuntimeException("VIETQR_API_ERROR: Missing response data");
+            Map<String, Object> respBody = response.getBody();
+            if (respBody == null) {
+                throw new RuntimeException("VIETQR_API_ERROR: Empty response body");
             }
 
-            Map data = (Map) response.getBody().get("data");
-            String qrUrl = (String) data.get("qrDataURL");
+            if (!"00".equals(respBody.get("code"))) {
+                throw new RuntimeException("VIETQR_API_ERROR: " + respBody.get("code") + " - " + respBody.get("desc"));
+            }
 
+            Map data = (Map) respBody.get("data");
+            if (data == null) {
+                throw new RuntimeException("VIETQR_API_ERROR: Missing data field despite success code");
+            }
+
+            String qrUrl = (String) data.get("qrDataURL");
             if (qrUrl == null) {
-                throw new RuntimeException("VIETQR_API_ERROR: Missing QR URL");
+                throw new RuntimeException("VIETQR_API_ERROR: Missing qrDataURL");
             }
 
             return qrUrl;
