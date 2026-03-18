@@ -22,7 +22,9 @@ public class FirebaseService {
 
     /**
      * Find or create user by email (used for Firebase/Google login sync).
-     * Frontend handles Firebase Auth verification; backend just syncs user data.
+     * For existing users: Updates avatar if needed and returns the user.
+     * For new users: Creates them with PENDING status (requires email verification via email verification link).
+     * The frontend must handle the registration form completion (info collection) before this is called.
      */
     @Transactional
     public User findOrCreateUser(String email, String fullName, String avatarUrl, String userType) {
@@ -33,12 +35,19 @@ public class FirebaseService {
         Optional<User> userOpt = userRepository.findByEmail(email);
 
         if (userOpt.isPresent()) {
+            // User already exists: update avatar if provided and return
             User existingUser = userOpt.get();
             if (avatarUrl != null && !avatarUrl.isEmpty()) {
                 existingUser.setAvatarUrl(avatarUrl);
             }
             return userRepository.save(existingUser);
         } else {
+            // NEW USER - This endpoint should ONLY be called for existing users
+            // New OAuth users must go through the registration form first (via frontend)
+            // to collect required information and get PENDING status + email verification
+            // If we reach here for a new user, set them to PENDING as a safety measure
+            log.warn("New user from OAuth trying to sync without completing registration: {}", email);
+            
             final String roleName = (userType != null && userType.equalsIgnoreCase("PHOTOGRAPHER"))
                     ? "ROLE_PHOTOGRAPHER" : "ROLE_CUSTOMER";
 
@@ -50,7 +59,8 @@ public class FirebaseService {
                     .fullName(fullName != null ? fullName : "User")
                     .avatarUrl(avatarUrl)
                     .password("")
-                    .status(UserStatus.ACTIVE)
+                    .status(userType != null && userType.equalsIgnoreCase("PHOTOGRAPHER") 
+                            ? UserStatus.PENDING : UserStatus.ACTIVE)  // Photographer needs approval, customer is active immediately
                     .phoneNumber("")
                     .roles(new java.util.HashSet<>())
                     .build();
