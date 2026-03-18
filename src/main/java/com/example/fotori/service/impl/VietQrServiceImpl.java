@@ -29,15 +29,28 @@ public class VietQrServiceImpl implements VietQrService {
         body.put("format", "text");
         body.put("template", "compact");
 
-        ResponseEntity<Map> response =
-            restTemplate.postForEntity(
-                "https://api.vietqr.io/v2/generate",
-                body,
-                Map.class
-            );
+        try {
+            ResponseEntity<Map> response =
+                restTemplate.postForEntity(
+                    "https://api.vietqr.io/v2/generate",
+                    body,
+                    Map.class
+                );
 
-        Map data = (Map) response.getBody().get("data");
+            if (response.getBody() == null || response.getBody().get("data") == null) {
+                throw new RuntimeException("VIETQR_API_ERROR: Missing response data");
+            }
 
-        return (String) data.get("qrDataURL");
+            Map data = (Map) response.getBody().get("data");
+            String qrUrl = (String) data.get("qrDataURL");
+
+            if (qrUrl == null) {
+                throw new RuntimeException("VIETQR_API_ERROR: Missing QR URL");
+            }
+
+            return qrUrl;
+        } catch (Exception e) {
+            throw new RuntimeException("QR_GENERATION_FAILED: " + e.getMessage());
+        }
     }
 }

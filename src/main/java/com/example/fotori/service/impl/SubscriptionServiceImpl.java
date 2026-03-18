@@ -186,11 +186,13 @@ public class SubscriptionServiceImpl
         }
 
         SubscriptionPlan plan = payment.getSubscriptionPlan();
-
         PhotographerProfile photographer = payment.getPhotographer();
 
-        if (plan == null || photographer == null) {
-            throw new RuntimeException("INVALID_SUBSCRIPTION_PAYMENT");
+        if (plan == null) {
+            throw new RuntimeException("INVALID_SUBSCRIPTION_PAYMENT: Missing Subscription Plan for payment #" + paymentId);
+        }
+        if (photographer == null) {
+            throw new RuntimeException("INVALID_SUBSCRIPTION_PAYMENT: Missing Photographer Profile for payment #" + paymentId);
         }
 
         payment.setStatus(PaymentStatus.PAID);

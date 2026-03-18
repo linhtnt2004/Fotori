@@ -61,7 +61,18 @@ public class GlobalExceptionHandler {
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(new ApiResponse(
                 ErrorCode.INTERNAL_SERVER_ERROR.name(),
-                "Unexpected error occurred!",
+                "Database error occurred!",
+                null
+            ));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse> handlerGenericException(Exception e) {
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(new ApiResponse(
+                ErrorCode.INTERNAL_SERVER_ERROR.name(),
+                e.getMessage() != null ? e.getMessage() : "An unexpected error occurred",
                 null
             ));
     }
