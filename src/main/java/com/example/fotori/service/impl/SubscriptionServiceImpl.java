@@ -123,9 +123,11 @@ public class SubscriptionServiceImpl
 
         PhotographerProfile photographer =
             photographerRepository.findByUserId(userId)
-                .orElseThrow(() ->
-                                 new RuntimeException("PHOTOGRAPHER_NOT_FOUND")
-                );
+                .orElse(null);
+
+        if (photographer == null) {
+            return Page.empty();
+        }
 
         Pageable pageable = PageRequest.of(page, size);
 
