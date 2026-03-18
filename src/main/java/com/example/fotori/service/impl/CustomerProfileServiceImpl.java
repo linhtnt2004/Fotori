@@ -31,6 +31,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
             .gender(user.getGender())
             .birthDate(user.getBirthDate())
             .avatarUrl(user.getAvatarUrl())
+            .coverUrl(user.getCoverUrl())
             .createdAt(user.getCreatedAt())
             .build();
     }
@@ -49,6 +50,9 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
         user.setPhoneNumber(request.getPhoneNumber());
         user.setGender(request.getGender());
         user.setAvatarUrl(request.getAvatarUrl());
+        user.setCoverUrl(request.getCoverUrl());
+        
+        userRepository.save(user);
 
     }
 }

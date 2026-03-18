@@ -16,6 +16,7 @@ public class PhotographerProfileResponse {
     private String email;
     private String fullName;
     private String avatarUrl;
+    private String coverUrl;
 
     private String bio;
     private String city;

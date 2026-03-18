@@ -37,6 +37,10 @@ public class Booking extends BaseEntity {
     @JoinColumn(name = "photo_package_id", nullable = false)
     PhotoPackage photoPackage;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "voucher_id")
+    Voucher voucher;
+
     @Column(name = "start_time", nullable = false)
     LocalDateTime startTime;
 

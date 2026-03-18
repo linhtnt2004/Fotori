@@ -19,5 +19,6 @@ public class CustomerProfileResponse {
     String gender;
     LocalDate birthDate;
     String avatarUrl;
+    String coverUrl;
     LocalDateTime createdAt;
 }

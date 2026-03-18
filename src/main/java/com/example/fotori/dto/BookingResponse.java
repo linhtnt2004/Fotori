@@ -15,29 +15,23 @@ public class BookingResponse {
     Long id;
 
     String photographerName;
+    String photographerEmail;
+    String photographerAvatar;
 
     String customerName;
+    String customerEmail;
+    String customerAvatar;
 
     String packageTitle;
-
     LocalDateTime startTime;
-
     LocalDateTime endTime;
-
     BookingStatus status;
-
     BookingActorStatus customerStatus;
-
     BookingActorStatus photographerStatus;
-
     PaymentStatus paymentStatus;
-
     String location;
-
     Double price;
-
     String details;
-
     Boolean hasReview;
 
 }

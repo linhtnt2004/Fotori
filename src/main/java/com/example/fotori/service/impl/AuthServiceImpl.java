@@ -140,6 +140,7 @@ public class AuthServiceImpl implements AuthService {
                 .fullName(user.getFullName())
                 .phone(user.getPhoneNumber())
                 .avatarUrl(user.getAvatarUrl())
+                .coverUrl(user.getCoverUrl())
                 .roles(
                         user.getRoles()
                                 .stream()
@@ -175,6 +176,7 @@ public class AuthServiceImpl implements AuthService {
                 .fullName(user.getFullName())
                 .phone(user.getPhoneNumber())
                 .avatarUrl(user.getAvatarUrl())
+                .coverUrl(user.getCoverUrl())
                 .roles(
                         user.getRoles()
                                 .stream()

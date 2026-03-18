@@ -101,6 +101,10 @@ public class BookingServiceImpl implements BookingService {
                 throw new BusinessException("VOUCHER_USAGE_LIMIT");
             }
 
+            if (bookingRepository.existsByUserAndVoucher(user, voucher)) {
+                throw new BusinessException("VOUCHER_ALREADY_USED_BY_USER");
+            }
+
             if (voucher.getMinOrderValue() != null &&
                 packagePrice < voucher.getMinOrderValue()) {
                 throw new BusinessException("VOUCHER_MIN_ORDER_NOT_MET");
@@ -136,6 +140,7 @@ public class BookingServiceImpl implements BookingService {
             .totalPrice(packagePrice)
             .finalPrice(finalPriceToPay)
             .location(request.getLocation())
+            .voucher(request.getVoucherCode() != null && !request.getVoucherCode().isBlank() ? voucherRepository.findByCodeAndActiveTrue(request.getVoucherCode()).orElse(null) : null)
             .build();
 
         booking.refreshStatus();
@@ -187,7 +192,11 @@ public class BookingServiceImpl implements BookingService {
         return BookingResponse.builder()
             .id(booking.getId())
             .photographerName(booking.getPhotographer().getUser().getFullName())
+            .photographerEmail(booking.getPhotographer().getUser().getEmail())
+            .photographerAvatar(booking.getPhotographer().getUser().getAvatarUrl())
             .customerName(booking.getUser().getFullName())
+            .customerEmail(booking.getUser().getEmail())
+            .customerAvatar(booking.getUser().getAvatarUrl())
             .packageTitle(booking.getPhotoPackage().getTitle())
             .startTime(booking.getStartTime())
             .endTime(booking.getEndTime())

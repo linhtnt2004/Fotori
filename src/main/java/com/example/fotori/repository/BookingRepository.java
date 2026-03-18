@@ -62,6 +62,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     Optional<Booking> findByIdAndUser(Long id, User user);
 
+    boolean existsByUserAndVoucher(User user, com.example.fotori.model.Voucher voucher);
+
     Page<Booking> findByUser(
         User user,
         Pageable pageable

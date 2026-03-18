@@ -37,8 +37,11 @@ public class FirebaseService {
         if (userOpt.isPresent()) {
             // User already exists: update avatar if provided and return
             User existingUser = userOpt.get();
-            if (avatarUrl != null && !avatarUrl.isEmpty()) {
-                existingUser.setAvatarUrl(avatarUrl);
+            // Only update avatar from Firebase if the user doesn't have one in our DB yet
+            if (existingUser.getAvatarUrl() == null || existingUser.getAvatarUrl().isEmpty()) {
+                if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                    existingUser.setAvatarUrl(avatarUrl);
+                }
             }
             return userRepository.save(existingUser);
         } else {

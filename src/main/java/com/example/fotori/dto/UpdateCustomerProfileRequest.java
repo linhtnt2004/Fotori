@@ -13,4 +13,5 @@ public class UpdateCustomerProfileRequest {
     private String phoneNumber;
     private String gender;
     private String avatarUrl;
+    private String coverUrl;
 }

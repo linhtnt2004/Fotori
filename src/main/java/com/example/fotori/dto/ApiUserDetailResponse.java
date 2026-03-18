@@ -22,6 +22,7 @@ public class ApiUserDetailResponse {
     String phone;
 
     String avatarUrl;
+    String coverUrl;
 
     UserStatus status;
 

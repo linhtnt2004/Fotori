@@ -43,6 +43,7 @@ public class PhotographerProfileServiceImpl
             .email(user.getEmail())
             .fullName(user.getFullName())
             .avatarUrl(user.getAvatarUrl())
+            .coverUrl(user.getCoverUrl())
             .bio(profile.getBio())
             .city(profile.getCity())
             .equipment(profile.getEquipment())
@@ -79,7 +80,11 @@ public class PhotographerProfileServiceImpl
         if (request.getAvatarUrl() != null) {
             user.setAvatarUrl(request.getAvatarUrl());
         }
+        if (request.getCoverUrl() != null) {
+            user.setCoverUrl(request.getCoverUrl());
+        }
 
+        userRepository.save(user);
         photographerProfileRepository.save(profile);
     }
 

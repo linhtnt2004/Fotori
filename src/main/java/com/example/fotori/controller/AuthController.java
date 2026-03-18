@@ -162,7 +162,7 @@ public class AuthController {
             new ApiResponse(
                 ErrorCode.SUCCESS.name(),
                 "Login successful",
-                new LoginResponse(accessToken, roles)
+                new LoginResponse(accessToken, roles, authService.getCurrentUser(user.getEmail()))
             )
         );
     }
@@ -224,7 +224,7 @@ public class AuthController {
                 new ApiResponse(
                     ErrorCode.SUCCESS.name(),
                     "Firebase login successful",
-                    new LoginResponse(accessToken, roles)
+                    new LoginResponse(accessToken, roles, authService.getCurrentUser(user.getEmail()))
                 )
             );
 

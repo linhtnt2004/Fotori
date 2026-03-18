@@ -71,15 +71,16 @@ public class PaymentServiceImpl implements PaymentService {
                 throw new RuntimeException("BOOKING_ALREADY_PAID");
             }
 
-            boolean hasPendingPayment =
-                paymentRepository.existsByBooking_IdAndStatus(
-                    booking.getId(),
-                    PaymentStatus.PENDING
-                );
-
-            if (hasPendingPayment) {
-                throw new RuntimeException("PAYMENT_ALREADY_PENDING");
-            }
+            // Allow creating multiple pending payments if user retries
+            // boolean hasPendingPayment =
+            //     paymentRepository.existsByBooking_IdAndStatus(
+            //         booking.getId(),
+            //         PaymentStatus.PENDING
+            //     );
+            //
+            // if (hasPendingPayment) {
+            //     throw new RuntimeException("PAYMENT_ALREADY_PENDING");
+            // }
 
             amount =
                 booking.getFinalPrice() != null
@@ -116,13 +117,13 @@ public class PaymentServiceImpl implements PaymentService {
             com.example.fotori.model.PhotographerProfile photographer = photographerRepository.findByUserId(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("PHOTOGRAPHER_NOT_FOUND"));
 
-            // Check for existing pending payment for any plan
-            boolean hasPendingPlanPayment = paymentRepository.findAllBySubscriptionPlanIsNotNull().stream()
-                .anyMatch(p -> p.getPhotographer() != null && p.getPhotographer().getId().equals(photographer.getId()) && p.getStatus() == PaymentStatus.PENDING);
-            
-            if (hasPendingPlanPayment) {
-                throw new RuntimeException("PAYMENT_ALREADY_PENDING");
-            }
+            // Allow creating multiple pending payments if user retries
+            // boolean hasPendingPlanPayment = paymentRepository.findAllBySubscriptionPlanIsNotNull().stream()
+            //     .anyMatch(p -> p.getPhotographer() != null && p.getPhotographer().getId().equals(photographer.getId()) && p.getStatus() == PaymentStatus.PENDING);
+            // 
+            // if (hasPendingPlanPayment) {
+            //     throw new RuntimeException("PAYMENT_ALREADY_PENDING");
+            // }
 
             // Check for existing active subscription
             boolean hasActiveSubscription = subscriptionRepository.findFirstByPhotographer_IdOrderByEndDateDesc(photographer.getId())

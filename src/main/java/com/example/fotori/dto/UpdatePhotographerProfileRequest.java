@@ -1,12 +1,20 @@
 package com.example.fotori.dto;
 
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 
-@Getter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdatePhotographerProfileRequest {
-    private String bio;
-    private String city;
-    private String equipment;
-    private Integer experienceYears;
-    private String avatarUrl;
+    String bio;
+    String city;
+    String equipment;
+    Integer experienceYears;
+    String avatarUrl;
+    String coverUrl;
 }

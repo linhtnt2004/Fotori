@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,8 +56,23 @@ public class VoucherController {
     @Operation(summary = "Validate voucher")
     @PostMapping("/validate")
     public ResponseEntity<ApiResponse> validateVoucher(
+        @AuthenticationPrincipal UserDetails userDetails,
         @RequestBody ValidateVoucherRequest request
     ) {
+
+        if (userDetails != null && userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_PHOTOGRAPHER"))) {
+            return ResponseEntity.ok(
+                new ApiResponse(
+                    ErrorCode.SUCCESS.name(),
+                    "Voucher validation result",
+                    ValidateVoucherResponse.builder()
+                        .valid(false)
+                        .message("Voucher chỉ áp dụng cho Khách hàng")
+                        .discount(0)
+                        .build()
+                )
+            );
+        }
 
         ValidateVoucherResponse result =
             voucherService.validateVoucher(request);

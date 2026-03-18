@@ -46,8 +46,11 @@ public class User extends BaseEntity {
     @Column(name = "address")
     String address;
 
-    @Column(name = "avatar_url", columnDefinition = "TEXT")
+    @Column(name = "avatar_url", columnDefinition = "MEDIUMTEXT")
     String avatarUrl;
+
+    @Column(name = "cover_url", columnDefinition = "MEDIUMTEXT")
+    String coverUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

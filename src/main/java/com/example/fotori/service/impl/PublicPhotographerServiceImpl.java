@@ -56,6 +56,14 @@ public class PublicPhotographerServiceImpl
                                  )
                 );
 
+        Integer startingPrice =
+            photoPackageRepository
+                .findByPhotographerProfileIdAndActiveTrue(profile.getId())
+                .stream()
+                .map(PhotoPackage::getPrice)
+                .min(Comparator.naturalOrder())
+                .orElse(null);
+
         return PublicPhotographerDetailResponse.builder()
             .id(profile.getId())
             .fullName(profile.getUser().getFullName())
@@ -64,6 +72,7 @@ public class PublicPhotographerServiceImpl
             .city(profile.getCity())
             .equipment(profile.getEquipment())
             .experienceYears(profile.getExperienceYears())
+            .startingPrice(startingPrice)
             .build();
     }
 

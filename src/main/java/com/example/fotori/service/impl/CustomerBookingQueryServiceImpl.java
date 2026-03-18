@@ -54,6 +54,21 @@ public class CustomerBookingQueryServiceImpl implements CustomerBookingQueryServ
                                     .photographerName(
                                         b.getPhotographer().getUser().getFullName()
                                     )
+                                    .photographerEmail(
+                                        b.getPhotographer().getUser().getEmail()
+                                    )
+                                    .photographerAvatar(
+                                        b.getPhotographer().getUser().getAvatarUrl()
+                                    )
+                                    .customerName(
+                                        b.getUser().getFullName()
+                                    )
+                                    .customerEmail(
+                                        b.getUser().getEmail()
+                                    )
+                                    .customerAvatar(
+                                        b.getUser().getAvatarUrl()
+                                    )
                                     .packageTitle(
                                         b.getPhotoPackage().getTitle()
                                     )
