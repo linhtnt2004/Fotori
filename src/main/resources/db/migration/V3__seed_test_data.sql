@@ -1,9 +1,9 @@
 -- Tạo user photographer
 INSERT INTO users (email, password_hash, full_name, phone_number, gender, avatar_url, email_verified, status, created_at)
 VALUES 
-('photographer1@test.com', '$2a$10$test', 'Nguyễn Văn An', '0901234567', 'MALE', 'https://i.pravatar.cc/150?img=1', true, 'ACTIVE', NOW()),
-('photographer2@test.com', '$2a$10$test', 'Trần Thị Bình', '0902345678', 'FEMALE', 'https://i.pravatar.cc/150?img=2', true, 'ACTIVE', NOW()),
-('photographer3@test.com', '$2a$10$test', 'Lê Hoàng Nam', '0903456789', 'MALE', 'https://i.pravatar.cc/150?img=3', true, 'ACTIVE', NOW());
+('photographer1@test.com', '$2a$10$zV/379cngDXttGME.AkBb.uljlBF9klEIagMmVA2W8fPJVkCa9CRm', 'Nguyễn Văn An', '0901234567', 'MALE', 'https://i.pravatar.cc/150?img=1', true, 'ACTIVE', NOW()),
+('photographer2@test.com', '$2a$10$zV/379cngDXttGME.AkBb.uljlBF9klEIagMmVA2W8fPJVkCa9CRm', 'Trần Thị Bình', '0902345678', 'FEMALE', 'https://i.pravatar.cc/150?img=2', true, 'ACTIVE', NOW()),
+('photographer3@test.com', '$2a$10$zV/379cngDXttGME.AkBb.uljlBF9klEIagMmVA2W8fPJVkCa9CRm', 'Lê Hoàng Nam', '0903456789', 'MALE', 'https://i.pravatar.cc/150?img=3', true, 'ACTIVE', NOW());
 
 -- Gán role PHOTOGRAPHER
 INSERT INTO user_roles (user_id, role_id)
