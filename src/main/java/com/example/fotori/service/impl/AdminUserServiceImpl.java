@@ -7,6 +7,7 @@ import com.example.fotori.model.Role;
 import com.example.fotori.model.User;
 import com.example.fotori.repository.*;
 import com.example.fotori.service.AdminUserService;
+import com.example.fotori.service.FirebaseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final NotificationRepository notificationRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
+    private final FirebaseService firebaseService;
 
     @Override
     public void updateUserStatus(Long userId, UserStatus status) {
@@ -77,6 +79,9 @@ public class AdminUserServiceImpl implements AdminUserService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessException("USER_NOT_FOUND"));
 
+        // Delete Firebase account first
+        firebaseService.deleteFirebaseUser(user.getEmail());
+        
         user.setStatus(UserStatus.DELETED);
         user.setDeletedAt(java.time.LocalDateTime.now());
 
@@ -92,6 +97,9 @@ public class AdminUserServiceImpl implements AdminUserService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessException("USER_NOT_FOUND"));
 
+        // Delete Firebase account first
+        firebaseService.deleteFirebaseUser(user.getEmail());
+        
         // Delete associated data
         bookingRepository.deleteByUser(user);
         wishlistRepository.deleteByUser(user);

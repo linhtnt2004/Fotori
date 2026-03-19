@@ -25,6 +25,7 @@ public class PhotoPackageServiceImpl implements PhotoPackageService {
     private final PhotoPackageRepository photoPackageRepository;
     private final PhotographerRepository photographerRepository;
     private final UserRepository userRepository;
+    private final com.example.fotori.repository.PhotographerSubscriptionRepository photographerSubscriptionRepository;
 
     @Override
     @Transactional
@@ -44,6 +45,18 @@ public class PhotoPackageServiceImpl implements PhotoPackageService {
         if (photographer.getApprovalStatus() != ApprovalStatus.APPROVED) {
             throw new RuntimeException("Photographer not approved yet!");
         }
+
+        // Enforce subscription maxPackages limit if photographer has an active subscription
+        photographerSubscriptionRepository.findFirstByPhotographerAndActiveTrue(photographer)
+            .ifPresent(sub -> {
+                Integer max = sub.getPlan() != null ? sub.getPlan().getMaxPackages() : null;
+                if (max != null) {
+                    int current = photoPackageRepository.findByPhotographerProfileAndActiveTrue(photographer).size();
+                    if (current >= max) {
+                        throw new BusinessException("PACKAGE_LIMIT_REACHED");
+                    }
+                }
+            });
 
         PhotoPackage photoPackage = PhotoPackage.builder()
             .photographerProfile(photographer)

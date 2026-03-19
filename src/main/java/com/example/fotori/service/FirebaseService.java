@@ -5,24 +5,37 @@ import com.example.fotori.model.Role;
 import com.example.fotori.model.User;
 import com.example.fotori.repository.RoleRepository;
 import com.example.fotori.repository.UserRepository;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class FirebaseService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    @Nullable
+    private final FirebaseAuth firebaseAuth;
+
+    @Autowired
+    public FirebaseService(UserRepository userRepository, RoleRepository roleRepository, @Nullable FirebaseAuth firebaseAuth) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.firebaseAuth = firebaseAuth;
+    }
 
     /**
      * Find or create user by email (used for Firebase/Google login sync).
-     * For existing users: Updates avatar if needed and returns the user.
+     * Check if user is deleted first - throw exception to force re-registration
+     * For existing active users: Updates avatar if needed and returns the user.
      * For new users: Creates them with PENDING status (requires email verification via email verification link).
      * The frontend must handle the registration form completion (info collection) before this is called.
      */
@@ -35,8 +48,15 @@ public class FirebaseService {
         Optional<User> userOpt = userRepository.findByEmail(email);
 
         if (userOpt.isPresent()) {
-            // User already exists: update avatar if provided and return
             User existingUser = userOpt.get();
+            
+            // Check if user is deleted - force re-registration flow
+            if (existingUser.getStatus() == UserStatus.DELETED) {
+                log.warn("Deleted user trying to login with Google: {}", email);
+                throw new RuntimeException("USER_DELETED_MUST_REGISTER");
+            }
+            
+            // User already exists: update avatar if provided and return
             // Only update avatar from Firebase if the user doesn't have one in our DB yet
             if (existingUser.getAvatarUrl() == null || existingUser.getAvatarUrl().isEmpty()) {
                 if (avatarUrl != null && !avatarUrl.isEmpty()) {
@@ -45,32 +65,29 @@ public class FirebaseService {
             }
             return userRepository.save(existingUser);
         } else {
-            // NEW USER - This endpoint should ONLY be called for existing users
-            // New OAuth users must go through the registration form first (via frontend)
-            // to collect required information and get PENDING status + email verification
-            // If we reach here for a new user, set them to PENDING as a safety measure
+            // NEW USER - login should not auto-create accounts.
+            // New OAuth users must go through the registration form first.
             log.warn("New user from OAuth trying to sync without completing registration: {}", email);
-            
-            final String roleName = (userType != null && userType.equalsIgnoreCase("PHOTOGRAPHER"))
-                    ? "ROLE_PHOTOGRAPHER" : "ROLE_CUSTOMER";
+            throw new RuntimeException("USER_MUST_REGISTER");
+        }
+    }
 
-            Role role = roleRepository.findByName(roleName)
-                    .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
-
-            User newUser = User.builder()
-                    .email(email)
-                    .fullName(fullName != null ? fullName : "User")
-                    .avatarUrl(avatarUrl)
-                    .password("")
-                    .status(userType != null && userType.equalsIgnoreCase("PHOTOGRAPHER") 
-                            ? UserStatus.PENDING : UserStatus.ACTIVE)  // Photographer needs approval, customer is active immediately
-                    .phoneNumber("")
-                    .roles(new java.util.HashSet<>())
-                    .build();
-
-            newUser.getRoles().add(role);
-
-            return userRepository.save(newUser);
+    /**
+     * Delete Firebase user account by email
+     * Called when admin deletes a user to ensure Firebase account is also removed
+     */
+    public void deleteFirebaseUser(String email) {
+        if (firebaseAuth == null) {
+            log.warn("Firebase not configured, skipping Firebase user deletion for: {}", email);
+            return;
+        }
+        try {
+            var userRecord = firebaseAuth.getUserByEmail(email);
+            firebaseAuth.deleteUser(userRecord.getUid());
+            log.info("Firebase user deleted successfully: {}", email);
+        } catch (Exception e) {
+            // User might not exist in Firebase or already deleted - this is acceptable
+            log.warn("Could not delete Firebase user (may not exist): {} - {}", email, e.getMessage());
         }
     }
 }
