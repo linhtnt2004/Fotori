@@ -64,6 +64,9 @@ public class PublicPhotographerServiceImpl
                 .min(Comparator.naturalOrder())
                 .orElse(null);
 
+        Double avgRating = reviewRepository.getAverageRating(profile);
+        Long totalReviews = reviewRepository.countByPhotographer(profile);
+
         return PublicPhotographerDetailResponse.builder()
             .id(profile.getId())
             .fullName(profile.getUser().getFullName())
@@ -73,6 +76,8 @@ public class PublicPhotographerServiceImpl
             .equipment(profile.getEquipment())
             .experienceYears(profile.getExperienceYears())
             .startingPrice(startingPrice)
+            .avgRating(avgRating)
+            .totalReviews(totalReviews)
             .build();
     }
 
@@ -130,6 +135,9 @@ public class PublicPhotographerServiceImpl
                     .min(Comparator.naturalOrder())
                     .orElse(null);
 
+            Double avgRating = reviewRepository.getAverageRating(p);
+            Long totalReviews = reviewRepository.countByPhotographer(p);
+
             return PhotographerPublicDto.builder()
                 .id(p.getId())
                 .name(p.getUser().getFullName())
@@ -139,6 +147,8 @@ public class PublicPhotographerServiceImpl
                 .bio(p.getBio())
                 .experienceYears(p.getExperienceYears())
                 .startingPrice(startingPrice)
+                .avgRating(avgRating)
+                .totalReviews(totalReviews)
                 .build();
         });
     }

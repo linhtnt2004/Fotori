@@ -23,4 +23,8 @@ public class PhotographerPublicDto {
 
     Integer startingPrice;
 
+    Double avgRating;
+
+    Long totalReviews;
+
 }

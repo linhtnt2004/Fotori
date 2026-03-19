@@ -18,4 +18,6 @@ public class PublicPhotographerDetailResponse {
     String equipment;
     Integer experienceYears;
     Integer startingPrice;
+    Double avgRating;
+    Long totalReviews;
 }
