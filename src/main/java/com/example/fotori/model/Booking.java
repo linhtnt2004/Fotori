@@ -4,6 +4,7 @@ import com.example.fotori.common.entity.BaseEntity;
 import com.example.fotori.common.enums.BookingActorStatus;
 import com.example.fotori.common.enums.BookingStatus;
 import com.example.fotori.common.enums.PaymentStatus;
+import com.example.fotori.common.enums.PayoutStatus;
 import com.example.fotori.common.resolver.BookingStatusResolver;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -75,6 +76,10 @@ public class Booking extends BaseEntity {
 
     @Column(name = "location")
     String location;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payout_status")
+    PayoutStatus payoutStatus;
 
     public void refreshStatus() {
         this.status = BookingStatusResolver.resolve(
