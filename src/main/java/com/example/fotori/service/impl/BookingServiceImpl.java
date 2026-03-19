@@ -2,6 +2,7 @@ package com.example.fotori.service.impl;
 
 import com.example.fotori.common.enums.ApprovalStatus;
 import com.example.fotori.common.enums.BookingActorStatus;
+import com.example.fotori.common.enums.PayoutStatus;
 import com.example.fotori.common.enums.VoucherType;
 import com.example.fotori.dto.BookingCreateRequest;
 import com.example.fotori.dto.BookingResponse;
@@ -140,6 +141,7 @@ public class BookingServiceImpl implements BookingService {
             .totalPrice(packagePrice)
             .finalPrice(finalPriceToPay)
             .location(request.getLocation())
+            .payoutStatus(PayoutStatus.PENDING)
             .voucher(request.getVoucherCode() != null && !request.getVoucherCode().isBlank() ? voucherRepository.findByCodeAndActiveTrue(request.getVoucherCode()).orElse(null) : null)
             .build();
 

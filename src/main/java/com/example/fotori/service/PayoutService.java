@@ -1,8 +1,13 @@
 package com.example.fotori.service;
 
+import com.example.fotori.dto.AdminPayoutItemResponse;
 import com.example.fotori.dto.PhotographerPayoutResponse;
+
+import java.util.List;
 
 public interface PayoutService {
 
     PhotographerPayoutResponse calculatePayout(Long bookingId);
+
+    List<AdminPayoutItemResponse> getPendingPayouts();
 }

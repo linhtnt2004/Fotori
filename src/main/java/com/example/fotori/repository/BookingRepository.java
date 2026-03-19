@@ -2,6 +2,8 @@ package com.example.fotori.repository;
 
 import com.example.fotori.common.enums.BookingActorStatus;
 import com.example.fotori.common.enums.BookingStatus;
+import com.example.fotori.common.enums.PaymentStatus;
+import com.example.fotori.common.enums.PayoutStatus;
 import com.example.fotori.model.Booking;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.User;
@@ -185,4 +187,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     void deleteByUser(User user);
     
     void deleteByPhotographer(PhotographerProfile photographer);
+
+    List<Booking> findByPaymentStatusAndStatusAndPayoutStatus(
+        PaymentStatus paymentStatus,
+        BookingStatus status,
+        PayoutStatus payoutStatus
+    );
 }
