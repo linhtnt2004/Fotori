@@ -25,4 +25,9 @@ public interface PhotographerSubscriptionRepository
     void deleteByPhotographer(PhotographerProfile photographer);
 
     void deleteByPaymentId(Long paymentId);
+
+    Optional<PhotographerSubscription>
+    findFirstByPhotographerAndActiveTrueOrderByEndDateDesc(
+        PhotographerProfile photographer
+    );
 }
