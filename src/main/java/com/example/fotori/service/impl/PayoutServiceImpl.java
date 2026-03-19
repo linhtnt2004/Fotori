@@ -10,18 +10,23 @@ import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.PhotographerSubscription;
 import com.example.fotori.repository.BookingRepository;
 import com.example.fotori.repository.PhotographerSubscriptionRepository;
+import com.example.fotori.service.PayoutEmailService;
 import com.example.fotori.service.PayoutService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PayoutServiceImpl implements PayoutService {
 
     private final BookingRepository bookingRepository;
     private final PhotographerSubscriptionRepository subscriptionRepository;
+    private final PayoutEmailService payoutEmailService;
 
     @Override
     public PhotographerPayoutResponse calculatePayout(Long bookingId) {
@@ -103,5 +108,37 @@ public class PayoutServiceImpl implements PayoutService {
                 .build();
 
         }).toList();
+    }
+
+    @Override
+    @Transactional
+    public void confirmPayout(Long bookingId) {
+
+        Booking booking = bookingRepository
+            .findById(bookingId)
+            .orElseThrow(() -> new RuntimeException("BOOKING_NOT_FOUND"));
+
+        if (booking.getPaymentStatus() != PaymentStatus.PAID) {
+            throw new RuntimeException("BOOKING_NOT_PAID");
+        }
+
+        if (booking.getStatus() != BookingStatus.DONE) {
+            throw new RuntimeException("BOOKING_NOT_DONE");
+        }
+
+        if (booking.getPayoutStatus() == PayoutStatus.PAID) {
+            throw new RuntimeException("PAYOUT_ALREADY_DONE");
+        }
+
+        booking.setPayoutStatus(PayoutStatus.PAID);
+
+        bookingRepository.save(booking);
+
+        try {
+            payoutEmailService.sendPayoutCompletedEmail(booking);
+        } catch (Exception e) {
+            log.warn("Payout email failed for booking {}: {}",
+                     booking.getId(), e.getMessage());
+        }
     }
 }

@@ -10,4 +10,6 @@ public interface PayoutService {
     PhotographerPayoutResponse calculatePayout(Long bookingId);
 
     List<AdminPayoutItemResponse> getPendingPayouts();
+
+    void confirmPayout(Long bookingId);
 }

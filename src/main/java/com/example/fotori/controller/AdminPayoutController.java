@@ -7,10 +7,7 @@ import com.example.fotori.dto.PhotographerPayoutResponse;
 import com.example.fotori.service.PayoutService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -49,6 +46,22 @@ public class AdminPayoutController {
                 ErrorCode.SUCCESS.name(),
                 "Pending payouts",
                 data
+            )
+        );
+    }
+
+    @PostMapping("/{bookingId}/confirm")
+    public ResponseEntity<ApiResponse> confirmPayout(
+        @PathVariable Long bookingId
+    ) {
+
+        payoutService.confirmPayout(bookingId);
+
+        return ResponseEntity.ok(
+            new ApiResponse(
+                "SUCCESS",
+                "Payout confirmed",
+                null
             )
         );
     }
