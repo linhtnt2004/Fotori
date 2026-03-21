@@ -19,6 +19,6 @@ app:
   frontend-url: ${FRONTEND_URL:http://localhost:3001}
   backend-url: ${BACKEND_URL:http://localhost:8082/api}
 vietqr:
-  account-no: 0944870316
+  account-no: 1024111040
   account-name: FOTORI COMPANY
-  acq-id: 970422
+  acq-id: 970436
