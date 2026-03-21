@@ -40,9 +40,14 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public User register(RegisterRequest request) {
 
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        // Check if email exists AND is not deleted (allow re-registration with deleted email)
+        var existingUser = userRepository.findByEmail(request.getEmail());
+        if (existingUser.isPresent() && existingUser.get().getStatus() != UserStatus.DELETED) {
             throw new RuntimeException("Email already exists");
         }
+        
+        // If user was deleted before, we can reuse the email by creating a new user
+        // Or we could update the deleted user, but creating new is cleaner
 
         Role userRole = roleRepository.findByName("ROLE_CUSTOMER")
                 .orElseThrow(() -> new RuntimeException("ROLE_CUSTOMER not found"));

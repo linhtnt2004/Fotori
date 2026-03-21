@@ -3,7 +3,6 @@ package com.example.fotori.exception;
 import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.CustomException;
 import com.example.fotori.common.enums.ErrorCode;
-import com.example.fotori.exception.BusinessException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,11 +45,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse> handlerBusinessException(BusinessException e) {
+        // Return FORBIDDEN with business code in the message field so the frontend can act on it
         return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
+            .status(HttpStatus.FORBIDDEN)
             .body(new ApiResponse(
+                ErrorCode.FORBIDDEN.name(),
                 e.getCode(),
-                e.getMessage(),
                 null
             ));
     }

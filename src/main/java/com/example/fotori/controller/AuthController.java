@@ -38,6 +38,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final AuthService authService;
+    private final com.example.fotori.repository.UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final EmailVerificationService emailService;
@@ -186,7 +187,31 @@ public class AuthController {
                  );
             }
 
-            // Find or create user in MySQL using data from Firebase Auth
+            // If user does not exist in MySQL, force frontend to go through registration flow
+            var optUser = userRepository.findByEmail(email);
+            if (optUser.isEmpty()) {
+                return ResponseEntity.status(403).body(
+                    new ApiResponse(
+                        ErrorCode.FORBIDDEN.name(),
+                        "ACCOUNT_MUST_REGISTER",
+                        null
+                    )
+                );
+            }
+
+            // If user exists but marked DELETED, instruct frontend to re-register
+            User userFromDb = optUser.get();
+            if (userFromDb.getStatus() == UserStatus.DELETED) {
+                return ResponseEntity.status(403).body(
+                    new ApiResponse(
+                        ErrorCode.FORBIDDEN.name(),
+                        "ACCOUNT_DELETED_MUST_REGISTER",
+                        null
+                    )
+                );
+            }
+
+            // Otherwise synchronize/update and return the user
             User user = firebaseService.findOrCreateUser(email, fullName, avatarUrl, userType);
 
             UserDetails userDetails = new UserDetailsImpl(user);
@@ -229,6 +254,27 @@ public class AuthController {
             );
 
         } catch (Exception e) {
+            // Handle special cases where user must re-register
+            if (e.getMessage() != null && e.getMessage().contains("USER_DELETED_MUST_REGISTER")) {
+                return ResponseEntity.status(403).body(
+                    new ApiResponse(
+                        ErrorCode.FORBIDDEN.name(),
+                        "ACCOUNT_DELETED_MUST_REGISTER",  // Frontend uses this to redirect to register
+                        null
+                    )
+                );
+            }
+
+            if (e.getMessage() != null && e.getMessage().contains("USER_MUST_REGISTER")) {
+                return ResponseEntity.status(403).body(
+                    new ApiResponse(
+                        ErrorCode.FORBIDDEN.name(),
+                        "ACCOUNT_MUST_REGISTER", // Frontend uses this to redirect to register
+                        null
+                    )
+                );
+            }
+
             return ResponseEntity.status(401).body(
                 new ApiResponse(
                     ErrorCode.UNAUTHORIZED.name(),
