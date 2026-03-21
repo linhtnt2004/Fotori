@@ -24,5 +24,11 @@ public class AdminPayoutItemResponse {
 
     String planName;
 
+    String bankName;
+    String bankAccountNumber;
+    String bankAccountName;
+
+    String payoutStatus;
+
     LocalDateTime completedAt;
 }

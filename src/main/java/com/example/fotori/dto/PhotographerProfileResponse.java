@@ -24,4 +24,8 @@ public class PhotographerProfileResponse {
     private Integer experienceYears;
     private ApprovalStatus approvalStatus;
     private LocalDateTime approvedAt;
+
+    private String bankName;
+    private String bankAccountNumber;
+    private String bankAccountName;
 }

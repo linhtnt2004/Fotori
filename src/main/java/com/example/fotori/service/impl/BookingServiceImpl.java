@@ -209,6 +209,7 @@ public class BookingServiceImpl implements BookingService {
             .location(booking.getLocation())
             .price(booking.getFinalPrice())
             .details(booking.getNote())
+            .payoutStatus(booking.getPayoutStatus())
             .hasReview(reviewRepository.existsByBooking(booking))
             .build();
     }

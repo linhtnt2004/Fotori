@@ -15,8 +15,7 @@ import com.example.fotori.service.PayoutService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Slf4j
@@ -56,7 +55,7 @@ public class PayoutServiceImpl implements PayoutService {
             commission = sub.getPlan().getCommissionPercent();
         }
 
-        double platformFee = totalAmount * commission / 100.0;
+        double platformFee = (totalAmount * commission / 100.0) + 40000;
         double payoutAmount = totalAmount - platformFee;
 
         return PhotographerPayoutResponse.builder()
@@ -93,7 +92,7 @@ public class PayoutServiceImpl implements PayoutService {
                 : 10;
 
             double total = booking.getFinalPrice();
-            double fee = total * commission / 100.0;
+            double fee = (total * commission / 100.0) + 40000;
             double payout = total - fee;
 
             return AdminPayoutItemResponse.builder()
@@ -104,6 +103,10 @@ public class PayoutServiceImpl implements PayoutService {
                 .payoutAmount(payout)
                 .commissionPercent(commission)
                 .planName(sub != null ? sub.getPlan().getName() : "DEFAULT")
+                .bankName(photographer.getBankName())
+                .bankAccountNumber(photographer.getBankAccountNumber())
+                .bankAccountName(photographer.getBankAccountName())
+                .payoutStatus(booking.getPayoutStatus().name())
                 .completedAt(booking.getUpdatedAt())
                 .build();
 
@@ -112,26 +115,37 @@ public class PayoutServiceImpl implements PayoutService {
 
     @Override
     @Transactional
-    public void confirmPayout(Long bookingId) {
-
+    public void markAsTransferred(Long bookingId) {
         Booking booking = bookingRepository
             .findById(bookingId)
             .orElseThrow(() -> new RuntimeException("BOOKING_NOT_FOUND"));
 
-        if (booking.getPaymentStatus() != PaymentStatus.PAID) {
-            throw new RuntimeException("BOOKING_NOT_PAID");
+        if (booking.getPaymentStatus() != PaymentStatus.PAID || 
+            booking.getStatus() != BookingStatus.DONE) {
+            throw new RuntimeException("BOOKING_NOT_READY_FOR_PAYOUT");
         }
 
-        if (booking.getStatus() != BookingStatus.DONE) {
-            throw new RuntimeException("BOOKING_NOT_DONE");
+        if (booking.getPayoutStatus() != PayoutStatus.PENDING) {
+            throw new RuntimeException("PAYOUT_STATUS_NOT_PENDING");
         }
 
-        if (booking.getPayoutStatus() == PayoutStatus.PAID) {
-            throw new RuntimeException("PAYOUT_ALREADY_DONE");
+        booking.setPayoutStatus(PayoutStatus.TRANSFERRED);
+        bookingRepository.save(booking);
+        // Optionally notify photographer that money is on the way
+    }
+
+    @Override
+    @Transactional
+    public void confirmReceipt(Long bookingId) {
+        Booking booking = bookingRepository
+            .findById(bookingId)
+            .orElseThrow(() -> new RuntimeException("BOOKING_NOT_FOUND"));
+
+        if (booking.getPayoutStatus() != PayoutStatus.TRANSFERRED) {
+            throw new RuntimeException("PAYOUT_NOT_TRANSFERRED_YET");
         }
 
         booking.setPayoutStatus(PayoutStatus.PAID);
-
         bookingRepository.save(booking);
 
         try {

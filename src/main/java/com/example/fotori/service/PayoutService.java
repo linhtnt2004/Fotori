@@ -11,5 +11,7 @@ public interface PayoutService {
 
     List<AdminPayoutItemResponse> getPendingPayouts();
 
-    void confirmPayout(Long bookingId);
+    void markAsTransferred(Long bookingId);
+    
+    void confirmReceipt(Long bookingId);
 }

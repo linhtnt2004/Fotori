@@ -50,17 +50,13 @@ public class AdminPayoutController {
         );
     }
 
-    @PostMapping("/{bookingId}/confirm")
-    public ResponseEntity<ApiResponse> confirmPayout(
-        @PathVariable Long bookingId
-    ) {
-
-        payoutService.confirmPayout(bookingId);
-
+    @PostMapping("/{bookingId}/mark-transferred")
+    public ResponseEntity<ApiResponse> markAsTransferred(@PathVariable Long bookingId) {
+        payoutService.markAsTransferred(bookingId);
         return ResponseEntity.ok(
             new ApiResponse(
-                "SUCCESS",
-                "Payout confirmed",
+                ErrorCode.SUCCESS.name(),
+                "Payout marked as transferred successfully",
                 null
             )
         );

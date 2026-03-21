@@ -8,6 +8,7 @@ import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.User;
 import com.example.fotori.repository.BookingRepository;
 import com.example.fotori.repository.PhotographerProfileRepository;
+import com.example.fotori.repository.ReviewRepository;
 import com.example.fotori.repository.UserRepository;
 import com.example.fotori.service.PhotographerBookingQueryService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class PhotographerBookingQueryServiceImpl
     private final UserRepository userRepository;
     private final PhotographerProfileRepository photographerRepository;
     private final BookingRepository bookingRepository;
+    private final ReviewRepository reviewRepository;
 
     @Override
     public Page<BookingResponse> getPhotographerBookings(
@@ -86,9 +88,11 @@ public class PhotographerBookingQueryServiceImpl
                                     .endTime(b.getEndTime())
                                     .status(b.getStatus())
                                     .paymentStatus(b.getPaymentStatus())
+                                    .payoutStatus(b.getPayoutStatus())
                                     .location(b.getLocation())
                                     .price(b.getFinalPrice())
                                     .details(b.getNote())
+                                    .hasReview(reviewRepository.existsByBooking(b))
                                     .build()
         );
     }

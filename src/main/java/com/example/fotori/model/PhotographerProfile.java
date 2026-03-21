@@ -50,4 +50,13 @@ public class PhotographerProfile extends BaseEntity {
 
     @Column(name = "deleted_at")
     LocalDateTime deletedAt;
+
+    @Column(name = "bank_name")
+    String bankName;
+
+    @Column(name = "bank_account_number")
+    String bankAccountNumber;
+
+    @Column(name = "bank_account_name")
+    String bankAccountName;
 }

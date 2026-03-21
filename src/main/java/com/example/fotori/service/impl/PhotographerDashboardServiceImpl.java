@@ -90,6 +90,7 @@ public class PhotographerDashboardServiceImpl implements PhotographerDashboardSe
                 .packageName(b.getPhotoPackage().getTitle())
                 .startTime(b.getStartTime())
                 .status(b.getStatus())
+                .payoutStatus(b.getPayoutStatus())
                 .finalPrice(b.getFinalPrice())
                 .build())
             .toList();

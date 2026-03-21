@@ -95,7 +95,6 @@ public class PaymentServiceImpl implements PaymentService {
                 transactionId,
                 customQrContent
             );
-
             payment = Payment.builder()
                 .booking(booking)
                 .amount(amount)
@@ -104,6 +103,8 @@ public class PaymentServiceImpl implements PaymentService {
                 .qrContent(customQrContent)
                 .status(PaymentStatus.PENDING)
                 .build();
+
+            payment.setPlatformRevenue(calculatePlatformRevenue(payment));
         }
 
         else if (request.getPlanId() != null) {
@@ -144,7 +145,6 @@ public class PaymentServiceImpl implements PaymentService {
                 transactionId,
                 customQrContent
             );
-
             payment = Payment.builder()
                 .subscriptionPlan(plan)
                 .photographer(photographer)
@@ -154,6 +154,8 @@ public class PaymentServiceImpl implements PaymentService {
                 .qrContent(customQrContent)
                 .status(PaymentStatus.PENDING)
                 .build();
+            
+            payment.setPlatformRevenue(calculatePlatformRevenue(payment));
         }
 
         else {
@@ -208,6 +210,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         // ── Cập nhật trạng thái ───────────────────────────────
         payment.setStatus(PaymentStatus.PAID);
+        payment.setPlatformRevenue(calculatePlatformRevenue(payment));
 
         Booking booking = payment.getBooking();
         booking.setPaymentStatus(PaymentStatus.PAID);
@@ -259,5 +262,27 @@ public class PaymentServiceImpl implements PaymentService {
                 return builder.build();
             })
             .collect(Collectors.toList());
+    }
+
+    private Double calculatePlatformRevenue(Payment payment) {
+        if (payment.getSubscriptionPlan() != null) {
+            // Subscription income is 100% platform revenue
+            return payment.getAmount();
+        }
+
+        if (payment.getBooking() != null) {
+            Booking booking = payment.getBooking();
+            com.example.fotori.model.PhotographerProfile photographer = booking.getPhotographer();
+
+            // Find active plan commission
+            int commissionPercent = subscriptionRepository.findFirstByPhotographerAndActiveTrue(photographer)
+                .map(s -> s.getPlan().getCommissionPercent())
+                .orElse(10); // Default 10%
+
+            double totalAmount = payment.getAmount() != null ? payment.getAmount() : 0.0;
+            return 40000.0 + (totalAmount * commissionPercent / 100.0);
+        }
+
+        return 0.0;
     }
 }

@@ -56,4 +56,12 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponse(ErrorCode.SUCCESS.name(), "Booking deleted successfully", null));
     }
 
+    @Operation(summary = "Migrate Revenue Data")
+    @PostMapping("/system/migrate-revenue")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse> migrateRevenue() {
+        int count = adminService.migrateRevenueData();
+        return ResponseEntity.ok(new ApiResponse(ErrorCode.SUCCESS.name(), 
+            "Migrated " + count + " payment records successfully", null));
+    }
 }

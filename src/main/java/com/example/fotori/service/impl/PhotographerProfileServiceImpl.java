@@ -50,6 +50,9 @@ public class PhotographerProfileServiceImpl
             .experienceYears(profile.getExperienceYears())
             .approvalStatus(profile.getApprovalStatus())
             .approvedAt(profile.getApprovedAt())
+            .bankName(profile.getBankName())
+            .bankAccountNumber(profile.getBankAccountNumber())
+            .bankAccountName(profile.getBankAccountName())
             .build();
     }
 
@@ -76,6 +79,9 @@ public class PhotographerProfileServiceImpl
         if (request.getExperienceYears() != null) profile.setExperienceYears(request.getExperienceYears());
         if (request.getCity() != null) profile.setCity(request.getCity());
         if (request.getEquipment() != null) profile.setEquipment(request.getEquipment());
+        if (request.getBankName() != null) profile.setBankName(request.getBankName());
+        if (request.getBankAccountNumber() != null) profile.setBankAccountNumber(request.getBankAccountNumber());
+        if (request.getBankAccountName() != null) profile.setBankAccountName(request.getBankAccountName());
 
         if (request.getAvatarUrl() != null) {
             user.setAvatarUrl(request.getAvatarUrl());

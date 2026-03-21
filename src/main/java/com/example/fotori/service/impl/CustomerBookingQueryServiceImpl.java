@@ -5,6 +5,7 @@ import com.example.fotori.dto.BookingResponse;
 import com.example.fotori.model.Booking;
 import com.example.fotori.model.User;
 import com.example.fotori.repository.BookingRepository;
+import com.example.fotori.repository.ReviewRepository;
 import com.example.fotori.repository.UserRepository;
 import com.example.fotori.service.CustomerBookingQueryService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class CustomerBookingQueryServiceImpl implements CustomerBookingQueryServ
 
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
+    private final ReviewRepository reviewRepository;
 
     @Override
     public Page<BookingResponse> getMyBookings(
@@ -75,6 +77,12 @@ public class CustomerBookingQueryServiceImpl implements CustomerBookingQueryServ
                                     .startTime(b.getStartTime())
                                     .endTime(b.getEndTime())
                                     .status(b.getStatus())
+                                    .paymentStatus(b.getPaymentStatus())
+                                    .payoutStatus(b.getPayoutStatus())
+                                    .location(b.getLocation())
+                                    .price(b.getFinalPrice())
+                                    .details(b.getNote())
+                                    .hasReview(reviewRepository.existsByBooking(b))
                                     .build()
         );
     }

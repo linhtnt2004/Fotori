@@ -2,7 +2,6 @@ package com.example.fotori.service.impl;
 
 import com.example.fotori.common.enums.RevenueGroupBy;
 import com.example.fotori.dto.RevenueStatsResponse;
-import com.example.fotori.repository.BookingRepository;
 import com.example.fotori.service.AdminRevenueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminRevenueServiceImpl implements AdminRevenueService {
 
-    private final BookingRepository bookingRepository;
+    private final com.example.fotori.repository.PaymentRepository paymentRepository;
 
     @Override
     public List<RevenueStatsResponse> getRevenue(
@@ -32,15 +31,15 @@ public class AdminRevenueServiceImpl implements AdminRevenueService {
         switch (groupBy) {
 
             case DAY:
-                results = bookingRepository.getRevenueByDay(start, end);
+                results = paymentRepository.getRevenueByDay(start, end);
                 break;
 
             case YEAR:
-                results = bookingRepository.getRevenueByYear(start, end);
+                results = paymentRepository.getRevenueByYear(start, end);
                 break;
 
             default:
-                results = bookingRepository.getRevenueByMonth(start, end);
+                results = paymentRepository.getRevenueByMonth(start, end);
         }
 
         return results.stream()

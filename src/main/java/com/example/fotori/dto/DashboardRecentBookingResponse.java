@@ -1,6 +1,7 @@
 package com.example.fotori.dto;
 
 import com.example.fotori.common.enums.BookingStatus;
+import com.example.fotori.common.enums.PayoutStatus;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +23,8 @@ public class DashboardRecentBookingResponse {
     LocalDateTime startTime;
 
     BookingStatus status;
+
+    PayoutStatus payoutStatus;
 
     Double finalPrice;
 

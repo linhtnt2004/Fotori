@@ -46,4 +46,6 @@ public class Payment extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     PaymentStatus status;
+
+    Double platformRevenue;
 }

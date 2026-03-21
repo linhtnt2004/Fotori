@@ -17,4 +17,7 @@ public class UpdatePhotographerProfileRequest {
     Integer experienceYears;
     String avatarUrl;
     String coverUrl;
+    String bankName;
+    String bankAccountNumber;
+    String bankAccountName;
 }

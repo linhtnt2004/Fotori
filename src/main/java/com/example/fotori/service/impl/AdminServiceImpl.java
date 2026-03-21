@@ -31,6 +31,7 @@ public class AdminServiceImpl implements AdminService {
     private final RoleRepository roleRepository;
     private final PaymentRepository paymentRepository;
     private final com.example.fotori.repository.ReviewRepository reviewRepository;
+    private final com.example.fotori.repository.PhotographerSubscriptionRepository photographerSubscriptionRepository;
 
     @Override
     public AdminStatsDTO getDashboardStats() {
@@ -48,16 +49,10 @@ public class AdminServiceImpl implements AdminService {
 
         long totalBookings = bookingRepository.count();
 
-        // Calculate total revenue (sum of all final prices for PAID bookings)
-        double totalRevenue = bookingRepository.findAll().stream()
-            .filter(b -> b.getPaymentStatus() == PaymentStatus.PAID)
-            .mapToDouble(b -> b.getFinalPrice() != null ? b.getFinalPrice() : 0.0)
-            .sum();
-
-        // Add revenue from paid subscription plans
-        totalRevenue += paymentRepository.findAllBySubscriptionPlanIsNotNull().stream()
+        // Calculate total revenue (sum of all platform cut for PAID payments)
+        double totalRevenue = paymentRepository.findAll().stream()
             .filter(p -> p.getStatus() == PaymentStatus.PAID)
-            .mapToDouble(p -> p.getAmount() != null ? p.getAmount() : 0.0)
+            .mapToDouble(p -> p.getPlatformRevenue() != null ? p.getPlatformRevenue() : 0.0)
             .sum();
 
         // Review stats
@@ -162,5 +157,42 @@ public class AdminServiceImpl implements AdminService {
         
         // Then delete the booking
         bookingRepository.deleteById(bookingId);
+    }
+
+    @Override
+    @Transactional
+    public int migrateRevenueData() {
+        List<com.example.fotori.model.Payment> payments = paymentRepository.findAll();
+        int count = 0;
+        for (com.example.fotori.model.Payment p : payments) {
+            if (p.getStatus() == com.example.fotori.common.enums.PaymentStatus.PAID && p.getPlatformRevenue() == null) {
+                p.setPlatformRevenue(calculatePlatformRevenue(p));
+                paymentRepository.save(p);
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private Double calculatePlatformRevenue(com.example.fotori.model.Payment payment) {
+        if (payment.getSubscriptionPlan() != null) {
+            // Subscription income is 100% platform revenue
+            return payment.getAmount();
+        }
+
+        if (payment.getBooking() != null) {
+            com.example.fotori.model.Booking booking = payment.getBooking();
+            PhotographerProfile photographer = booking.getPhotographer();
+
+            // Find active plan commission
+            int commissionPercent = photographerSubscriptionRepository.findFirstByPhotographerAndActiveTrue(photographer)
+                .map(s -> s.getPlan().getCommissionPercent())
+                .orElse(10); // Default 10%
+
+            double totalAmount = payment.getAmount() != null ? payment.getAmount() : 0.0;
+            return 40000.0 + (totalAmount * commissionPercent / 100.0);
+        }
+
+        return 0.0;
     }
 }
