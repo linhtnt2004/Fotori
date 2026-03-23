@@ -48,6 +48,7 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(
             "https://fotori.vercel.app",
+            "https://fotori-production-87a3.up.railway.app",
             "https://fotori-production.up.railway.app",
             frontendUrl,
             "http://localhost:3000",
