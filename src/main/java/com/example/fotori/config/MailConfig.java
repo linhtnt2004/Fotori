@@ -17,11 +17,14 @@ public class MailConfig {
     @Value("${MAIL_PORT:587}")
     private int port;
 
-    @Value("${MAIL_USERNAME}")
+    @Value("${MAIL_USERNAME:fotori.official@gmail.com}")
     private String username;
 
     @Value("${MAIL_PASSWORD}")
     private String password;
+
+    @Value("${MAIL_FROM:fotori.official@gmail.com}")
+    private String fromEmail;
 
     @Bean
     public JavaMailSender javaMailSender() {

@@ -2,18 +2,29 @@ package com.example.fotori.controller;
 
 import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.enums.ErrorCode;
+<<<<<<< Updated upstream
 import com.example.fotori.common.enums.UserStatus;
 import com.example.fotori.dto.*;
 import com.example.fotori.model.RefreshToken;
+=======
+import com.example.fotori.dto.LoginRequest;
+import com.example.fotori.dto.LoginResponse;
+import com.example.fotori.dto.RegisterRequest;
+import com.example.fotori.dto.FirebaseLoginRequest;
+>>>>>>> Stashed changes
 import com.example.fotori.model.User;
 import com.example.fotori.security.JwtTokenProvider;
 import com.example.fotori.security.UserDetailsImpl;
 import com.example.fotori.service.AuthService;
+<<<<<<< Updated upstream
 import com.example.fotori.service.EmailVerificationService;
 import com.example.fotori.repository.PhotographerRepository;
 import com.example.fotori.service.RefreshTokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+=======
+import com.example.fotori.service.FirebaseService;
+>>>>>>> Stashed changes
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,10 +53,36 @@ public class AuthController {
     private final AuthService authService;
     private final com.example.fotori.repository.UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+<<<<<<< Updated upstream
     private final RefreshTokenService refreshTokenService;
     private final EmailVerificationService emailService;
     private final com.example.fotori.service.FirebaseService firebaseService;
     private final PhotographerRepository photographerRepository;
+=======
+    private final FirebaseService firebaseService;
+
+    @PostMapping("/firebase")
+    public ResponseEntity<ApiResponse> loginWithFirebase(@RequestBody FirebaseLoginRequest request) {
+        try {
+            LoginResponse response = firebaseService.authenticateWithFirebase(request);
+            return ResponseEntity.ok(
+                new ApiResponse(
+                    ErrorCode.SUCCESS.name(),
+                    "Firebase Login successful",
+                    response
+                )
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                new ApiResponse(
+                    ErrorCode.UNAUTHORIZED.name(),
+                    e.getMessage(),
+                    null
+                )
+            );
+        }
+    }
+>>>>>>> Stashed changes
 
     @Value("${app.jwt.refresh-expiration-ms}")
     private long refreshExpirationMs;

@@ -6,6 +6,7 @@ import com.example.fotori.dto.PhotographerPublicDto;
 import com.example.fotori.dto.PortfolioImageResponse;
 import com.example.fotori.dto.PublicReviewResponse;
 import com.example.fotori.service.PublicPhotographerService;
+import com.example.fotori.service.PublicAvailabilityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.util.Map;
 public class PublicPhotographerController {
 
     private final PublicPhotographerService service;
+    private final PublicAvailabilityService availabilityService;
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse> getAll() {
@@ -44,6 +46,7 @@ public class PublicPhotographerController {
         );
     }
 
+<<<<<<< Updated upstream
     @GetMapping
     public ApiResponse getPhotographers(
         @RequestParam(defaultValue = "0") int page,
@@ -52,6 +55,21 @@ public class PublicPhotographerController {
         @RequestParam(required = false) Integer minPrice,
         @RequestParam(required = false) Integer maxPrice
     ) {
+=======
+    @GetMapping("/{id}/availability")
+    public ResponseEntity<ApiResponse> getAvailableSlots(
+        @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Photographer availability",
+                availabilityService.getAvailableSlots(id)
+            )
+        );
+    }
+
+>>>>>>> Stashed changes
 
         Page<PhotographerPublicDto> result =
             service.getPhotographers(

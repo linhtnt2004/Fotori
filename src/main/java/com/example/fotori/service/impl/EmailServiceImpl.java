@@ -20,7 +20,7 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${MAIL_USERNAME:fotori.official@gmail.com}")
+    @Value("${MAIL_FROM:fotori.official@gmail.com}")
     private String fromEmail;
 
     @Value("${app.frontend-url:https://fotori.vercel.app}")

@@ -123,6 +123,7 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+<<<<<<< Updated upstream
         <!-- FIREBASE ADMIN -->
         <dependency>
             <groupId>com.google.firebase</groupId>
@@ -131,6 +132,23 @@
         </dependency>
 
     </dependencies>
+=======
+        		<!-- Swagger UI -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>1.6.15</version>
+		</dependency>
+
+		<!-- Firebase Admin SDK -->
+		<dependency>
+			<groupId>com.google.firebase</groupId>
+			<artifactId>firebase-admin</artifactId>
+			<version>9.2.0</version>
+		</dependency>
+
+	</dependencies>
+>>>>>>> Stashed changes
 
     <build>
         <plugins>
