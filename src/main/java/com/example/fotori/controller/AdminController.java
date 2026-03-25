@@ -41,12 +41,6 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponse(ErrorCode.SUCCESS.name(), "Success", adminService.getAllBookings()));
     }
 
-    @Operation(summary = "Get All Photographers")
-    @GetMapping("/photographers/all")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> getAllPhotographers() {
-        return ResponseEntity.ok(new ApiResponse(ErrorCode.SUCCESS.name(), "Success", adminService.getAllPhotographers()));
-    }
 
     @Operation(summary = "Delete Booking")
     @DeleteMapping("/bookings/{id}")
