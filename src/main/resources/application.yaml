@@ -16,8 +16,8 @@ app:
   jwt:
     access-expiration-ms: 900000
     refresh-expiration-ms: 2592000000
-  frontend-url: ${FRONTEND_URL:http://localhost:3001}
-  backend-url: ${BACKEND_URL:http://localhost:8082/api}
+  frontend-url: ${FRONTEND_URL:https://fotori.vercel.app}
+  backend-url: ${BACKEND_URL:https://fotori-production-87a3.up.railway.app/api}
 vietqr:
   account-no: 1024111040
   account-name: FOTORI COMPANY
