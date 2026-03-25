@@ -13,4 +13,6 @@ public interface AdminPhotographerService {
     void deletePhotographer(Long id);
 
     void deletePhotographerHard(Long id);
+
+    void updateCoverImage(Long photographerId, String coverUrl);
 }

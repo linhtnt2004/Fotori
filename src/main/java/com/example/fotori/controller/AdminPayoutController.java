@@ -50,6 +50,18 @@ public class AdminPayoutController {
         );
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse> getAllPayouts() {
+        List<AdminPayoutItemResponse> data = payoutService.getAllPayouts();
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "All payouts fetched successfully",
+                data
+            )
+        );
+    }
+
     @PostMapping("/{bookingId}/mark-transferred")
     public ResponseEntity<ApiResponse> markAsTransferred(@PathVariable Long bookingId) {
         payoutService.markAsTransferred(bookingId);

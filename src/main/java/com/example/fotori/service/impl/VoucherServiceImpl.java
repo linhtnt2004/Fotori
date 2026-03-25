@@ -165,7 +165,7 @@ public class VoucherServiceImpl implements VoucherService {
 
         return VoucherResponse.builder()
             .code(voucher.getCode())
-            .type(voucher.getType().name().toLowerCase())
+            .type(voucher.getType() != null ? voucher.getType().name().toLowerCase() : null)
             .value(voucher.getValue())
             .minOrderValue(voucher.getMinOrderValue())
             .maxDiscount(voucher.getMaxDiscount())

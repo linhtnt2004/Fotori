@@ -122,6 +122,7 @@ public class AdminServiceImpl implements AdminService {
                 .bio(p.getBio())
                 .experienceYears(p.getExperienceYears())
                 .city(p.getCity())
+                .coverUrl(p.getUser().getCoverUrl())
                 .createdAt(p.getCreatedAt())
                 .approvedAt(p.getApprovedAt())
                 .build())

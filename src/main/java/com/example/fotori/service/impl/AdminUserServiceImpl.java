@@ -23,6 +23,13 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
     private final FirebaseService firebaseService;
+    private final PhotographerProfileRepository photographerRepository;
+    private final PortfolioImageRepository portfolioImageRepository;
+    private final PhotographerAvailabilityRepository photographerAvailabilityRepository;
+    private final PhotographerSubscriptionRepository photographerSubscriptionRepository;
+    private final PhotoPackageRepository photoPackageRepository;
+    private final PaymentRepository paymentRepository;
+    private final ReviewRepository reviewRepository;
 
     @Override
     public void updateUserStatus(Long userId, UserStatus status) {
@@ -93,20 +100,52 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     @Transactional
     public void deleteUserHard(Long userId) {
-
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessException("USER_NOT_FOUND"));
 
         // Delete Firebase account first
         firebaseService.deleteFirebaseUser(user.getEmail());
-        
-        // Delete associated data
-        bookingRepository.deleteByUser(user);
+
+        // 1. Delete Photographer related data if exists
+        photographerRepository.findByUser(user).ifPresent(photographer -> {
+            // Delete bookings where user is the photographer
+            bookingRepository.findByPhotographer(photographer).forEach(booking -> {
+                paymentRepository.deleteByBooking_Id(booking.getId());
+                reviewRepository.deleteByBooking_Id(booking.getId());
+                bookingRepository.delete(booking);
+            });
+
+            // Delete photographer specifics
+            portfolioImageRepository.deleteByPhotographer(photographer);
+            photographerAvailabilityRepository.deleteByPhotographer(photographer);
+            photographerSubscriptionRepository.deleteByPhotographer(photographer);
+            photoPackageRepository.deleteByPhotographerProfile(photographer);
+            reviewRepository.deleteByPhotographer(photographer);
+            
+            // Delete wishlist entries where this photographer is saved
+            wishlistRepository.deleteByPhotographer(photographer);
+            
+            // Delete payments associated with photographer (e.g. subscription payments)
+            paymentRepository.deleteByPhotographer_Id(photographer.getId());
+            
+            // Finally delete profile
+            photographerRepository.delete(photographer);
+        });
+
+        // 2. Delete Customer related data
+        // Delete bookings where user is the customer
+        bookingRepository.findByUser(user).forEach(booking -> {
+            paymentRepository.deleteByBooking_Id(booking.getId());
+            reviewRepository.deleteByBooking_Id(booking.getId());
+            bookingRepository.delete(booking);
+        });
+
         wishlistRepository.deleteByUser(user);
         notificationRepository.deleteByUser(user);
         refreshTokenRepository.deleteByUser(user);
         emailVerificationTokenRepository.deleteByUser(user);
 
+        // 3. Delete user
         userRepository.delete(user);
     }
 }

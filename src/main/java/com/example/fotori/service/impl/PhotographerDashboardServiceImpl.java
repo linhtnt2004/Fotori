@@ -3,18 +3,18 @@ package com.example.fotori.service.impl;
 import com.example.fotori.common.enums.BookingActorStatus;
 import com.example.fotori.dto.DashboardRecentBookingResponse;
 import com.example.fotori.dto.DashboardRecentReviewResponse;
+import com.example.fotori.dto.DashboardTransactionResponse;
 import com.example.fotori.dto.PhotographerDashboardStatsResponse;
 import com.example.fotori.model.Booking;
 import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.Review;
 import com.example.fotori.model.User;
-import com.example.fotori.repository.BookingRepository;
-import com.example.fotori.repository.PhotographerRepository;
-import com.example.fotori.repository.ReviewRepository;
-import com.example.fotori.repository.UserRepository;
+import com.example.fotori.model.Payment;
+import com.example.fotori.repository.*;
 import com.example.fotori.service.PhotographerDashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +27,7 @@ public class PhotographerDashboardServiceImpl implements PhotographerDashboardSe
     private final PhotographerRepository photographerRepository;
     private final BookingRepository bookingRepository;
     private final ReviewRepository reviewRepository;
+    private final PaymentRepository paymentRepository;
 
     @Override
     public PhotographerDashboardStatsResponse getStats(String email) {
@@ -40,7 +41,10 @@ public class PhotographerDashboardServiceImpl implements PhotographerDashboardSe
                 .orElseThrow(() -> new RuntimeException("Photographer profile not found"));
 
         long totalBookings =
-            bookingRepository.countByPhotographer(photographer);
+            bookingRepository.findByPhotographerAndStatus(
+                photographer, 
+                com.example.fotori.common.enums.BookingStatus.DONE
+            ).size();
 
         long pendingBookings =
             bookingRepository.countByPhotographerAndPhotographerStatus(
@@ -120,7 +124,36 @@ public class PhotographerDashboardServiceImpl implements PhotographerDashboardSe
                 .customerAvatar(r.getCustomer().getAvatarUrl())
                 .rating(r.getRating())
                 .comment(r.getComment())
-                .createdAt(r.getCreatedAt())
+                .build())
+            .toList();
+    }
+
+    @Override
+    public List<DashboardTransactionResponse> getRecentTransactions(String email) {
+
+        User user = userRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        PhotographerProfile photographer =
+            photographerRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Photographer profile not found"));
+
+        List<Payment> payments =
+            paymentRepository.findByPhotographer_Id(
+                photographer.getId(),
+                PageRequest.of(0, 5, Sort.by("createdAt").descending())
+            ).getContent();
+
+        return payments.stream()
+            .map(p -> DashboardTransactionResponse.builder()
+                .id(p.getId())
+                .type(p.getBooking() != null ? "BOOKING_REVENUE" : "SUBSCRIPTION_PAYMENT")
+                .partnerName(p.getBooking() != null ? p.getBooking().getUser().getFullName() : "Fotori")
+                .description(p.getBooking() != null ? p.getBooking().getPhotoPackage().getTitle() : (p.getSubscriptionPlan() != null ? p.getSubscriptionPlan().getName() : "Payment"))
+                .amount(p.getAmount())
+                .createdAt(p.getCreatedAt())
+                .status(p.getStatus() != null ? p.getStatus().name() : "PAID")
                 .build())
             .toList();
     }

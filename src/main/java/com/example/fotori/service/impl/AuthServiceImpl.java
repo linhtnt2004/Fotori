@@ -76,6 +76,13 @@ public class AuthServiceImpl implements AuthService {
                     .build();
 
             photographerRepository.save(photographer);
+
+            // Notify Admin about new photographer application
+            try {
+                emailService.sendAdminNewPhotographerNotification(user.getFullName(), user.getEmail());
+            } catch (Exception e) {
+                log.warn("Admin notification email failed for photographer: {}", user.getEmail(), e);
+            }
         }
 
         String token = emailVerificationService.createToken(user);

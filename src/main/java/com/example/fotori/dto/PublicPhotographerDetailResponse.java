@@ -20,4 +20,5 @@ public class PublicPhotographerDetailResponse {
     Integer startingPrice;
     Double avgRating;
     Long totalReviews;
+    String coverUrl;
 }

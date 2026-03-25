@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -78,39 +79,7 @@ public class PayoutServiceImpl implements PayoutService {
                 PayoutStatus.PENDING
             );
 
-        return bookings.stream().map(booking -> {
-
-            PhotographerProfile photographer = booking.getPhotographer();
-
-            PhotographerSubscription sub =
-                subscriptionRepository
-                    .findFirstByPhotographerAndActiveTrueOrderByEndDateDesc(photographer)
-                    .orElse(null);
-
-            int commission = (sub != null)
-                ? sub.getPlan().getCommissionPercent()
-                : 10;
-
-            double total = booking.getFinalPrice();
-            double fee = (total * commission / 100.0) + 40000;
-            double payout = total - fee;
-
-            return AdminPayoutItemResponse.builder()
-                .bookingId(booking.getId())
-                .photographerName(photographer.getUser().getFullName())
-                .totalAmount(total)
-                .platformFee(fee)
-                .payoutAmount(payout)
-                .commissionPercent(commission)
-                .planName(sub != null ? sub.getPlan().getName() : "DEFAULT")
-                .bankName(photographer.getBankName())
-                .bankAccountNumber(photographer.getBankAccountNumber())
-                .bankAccountName(photographer.getBankAccountName())
-                .payoutStatus(booking.getPayoutStatus().name())
-                .completedAt(booking.getUpdatedAt())
-                .build();
-
-        }).toList();
+        return bookings.stream().map(this::mapToAdminPayoutResponse).toList();
     }
 
     @Override
@@ -154,5 +123,90 @@ public class PayoutServiceImpl implements PayoutService {
             log.warn("Payout email failed for booking {}: {}",
                      booking.getId(), e.getMessage());
         }
+    }
+
+    @Override
+    public List<AdminPayoutItemResponse> getAllPayouts() {
+        List<Booking> bookings = bookingRepository.findAll().stream()
+                .filter(b -> b.getPaymentStatus() == PaymentStatus.PAID && b.getStatus() == BookingStatus.DONE)
+                .toList();
+        return bookings.stream().map(this::mapToAdminPayoutResponse).toList();
+    }
+
+    private AdminPayoutItemResponse mapToAdminPayoutResponse(Booking booking) {
+        PhotographerProfile photographer = booking.getPhotographer();
+
+        PhotographerSubscription sub =
+            subscriptionRepository
+                .findFirstByPhotographerAndActiveTrueOrderByEndDateDesc(photographer)
+                .orElse(null);
+
+        int commission = (sub != null)
+            ? sub.getPlan().getCommissionPercent()
+            : 10;
+
+        double total = booking.getFinalPrice();
+        double fee = (total * commission / 100.0) + 40000;
+        double payout = total - fee;
+
+        return AdminPayoutItemResponse.builder()
+            .bookingId(booking.getId())
+            .photographerName(photographer.getUser().getFullName())
+            .totalAmount(total)
+            .platformFee(fee)
+            .payoutAmount(payout)
+            .commissionPercent(commission)
+            .planName(sub != null ? sub.getPlan().getName() : "DEFAULT")
+            .bankName(photographer.getBankName())
+            .bankAccountNumber(photographer.getBankAccountNumber())
+            .bankAccountName(photographer.getBankAccountName())
+            .payoutStatus(booking.getPayoutStatus().name())
+            .completedAt(booking.getUpdatedAt())
+            .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PhotographerPayoutResponse> getPayoutHistory(String email) {
+        // ... rest of the existing hacky code ...
+        com.example.fotori.model.User user = com.example.fotori.repository.UserRepository.class.cast(
+            org.springframework.beans.factory.BeanFactoryUtils.beanOfTypeIncludingAncestors(
+                org.springframework.web.context.support.WebApplicationContextUtils.getRequiredWebApplicationContext(
+                    ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes()).getRequest().getServletContext()
+                ), com.example.fotori.repository.UserRepository.class)
+        ).findByEmail(email).orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
+
+        PhotographerProfile photographer = com.example.fotori.repository.PhotographerRepository.class.cast(
+            org.springframework.beans.factory.BeanFactoryUtils.beanOfTypeIncludingAncestors(
+                org.springframework.web.context.support.WebApplicationContextUtils.getRequiredWebApplicationContext(
+                    ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes()).getRequest().getServletContext()
+                ), com.example.fotori.repository.PhotographerRepository.class)
+        ).findByUser(user).orElseThrow(() -> new RuntimeException("PHOTOGRAPHER_NOT_FOUND"));
+
+        List<Booking> bookings = bookingRepository.findByPhotographer(photographer).stream()
+            .filter(b -> b.getPaymentStatus() == PaymentStatus.PAID)
+            .filter(b -> b.getPayoutStatus() == PayoutStatus.TRANSFERRED || b.getPayoutStatus() == PayoutStatus.PAID)
+            .toList();
+
+        return bookings.stream().map(b -> {
+            PhotographerSubscription sub = subscriptionRepository
+                    .findFirstByPhotographerAndActiveTrueOrderByEndDateDesc(photographer)
+                    .orElse(null);
+
+            int commission = (sub != null) ? sub.getPlan().getCommissionPercent() : 10;
+            double total = b.getFinalPrice();
+            double fee = (total * commission / 100.0) + 40000;
+            double payout = total - fee;
+
+            return PhotographerPayoutResponse.builder()
+                .bookingId(b.getId())
+                .totalAmount(total)
+                .platformFee(fee)
+                .payoutAmount(payout)
+                .commissionPercent(commission)
+                .planName(sub != null ? sub.getPlan().getName() : "DEFAULT")
+                .payoutStatus(b.getPayoutStatus() != null ? b.getPayoutStatus().name() : "PENDING")
+                .build();
+        }).collect(Collectors.toList());
     }
 }

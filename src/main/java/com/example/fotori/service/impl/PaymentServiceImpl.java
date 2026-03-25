@@ -233,7 +233,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public List<AdminPaymentDTO> getAllPayments() {
         return paymentRepository
-            .findAllByBookingIsNotNullOrderByCreatedAtDesc()
+            .findAllByOrderByCreatedAtDesc()
             .stream()
             .map(p -> {
                 AdminPaymentDTO.AdminPaymentDTOBuilder builder = AdminPaymentDTO.builder()

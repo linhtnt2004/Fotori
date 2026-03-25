@@ -14,4 +14,8 @@ public interface PayoutService {
     void markAsTransferred(Long bookingId);
     
     void confirmReceipt(Long bookingId);
+
+    List<PhotographerPayoutResponse> getPayoutHistory(String email);
+    
+    List<AdminPayoutItemResponse> getAllPayouts();
 }

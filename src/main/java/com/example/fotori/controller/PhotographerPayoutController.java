@@ -25,4 +25,20 @@ public class PhotographerPayoutController {
             )
         );
     }
+
+    @GetMapping("/history")
+    public ResponseEntity<ApiResponse> getPayoutHistory(
+        @org.springframework.security.core.annotation.AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails
+    ) {
+        java.util.List<com.example.fotori.dto.PhotographerPayoutResponse> history = 
+            payoutService.getPayoutHistory(userDetails.getUsername());
+        
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Payout history fetched successfully",
+                history
+            )
+        );
+    }
 }

@@ -39,7 +39,7 @@ public class Booking extends BaseEntity {
     PhotoPackage photoPackage;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "voucher_id")
+    @JoinColumn(name = "voucher_code")
     Voucher voucher;
 
     @Column(name = "start_time", nullable = false)

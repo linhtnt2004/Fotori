@@ -14,6 +14,7 @@ public class CustomerDashboardServiceImpl implements CustomerDashboardService {
 
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
+    private final com.example.fotori.repository.WishlistRepository wishlistRepository;
 
     @Override
     public CustomerDashboardStatsResponse getCustomerStats(String email) {
@@ -31,10 +32,13 @@ public class CustomerDashboardServiceImpl implements CustomerDashboardService {
         Long upcomingBookings =
             bookingRepository.countUpcomingBookings(user);
 
+        Long favoritePhotographers = wishlistRepository.countByUser(user);
+
         return CustomerDashboardStatsResponse.builder()
             .totalBookings(totalBookings)
             .totalSpent(totalSpent)
             .upcomingBookings(upcomingBookings)
+            .favoritePhotographers(favoritePhotographers)
             .build();
     }
 }

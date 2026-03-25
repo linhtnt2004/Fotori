@@ -65,10 +65,28 @@ public class FirebaseService {
             }
             return userRepository.save(existingUser);
         } else {
-            // NEW USER - login should not auto-create accounts.
-            // New OAuth users must go through the registration form first.
-            log.warn("New user from OAuth trying to sync without completing registration: {}", email);
-            throw new RuntimeException("USER_MUST_REGISTER");
+            // NEW USER - check if we allow auto-creation
+            if ("CUSTOMER".equalsIgnoreCase(userType)) {
+                log.info("Creating new CUSTOMER user from Firebase login: {}", email);
+                
+                Role customerRole = roleRepository.findByName("ROLE_CUSTOMER")
+                        .orElseThrow(() -> new RuntimeException("ROLE_CUSTOMER not found in database"));
+
+                User newUser = User.builder()
+                        .email(email)
+                        .fullName(fullName != null ? fullName : email)
+                        .avatarUrl(avatarUrl)
+                        .password("OAUTH_EXTERNAL_USER_" + java.util.UUID.randomUUID()) // Provide non-null random password for OAuth users
+                        .status(UserStatus.PENDING) // Set to PENDING to trigger verification email
+                        .roles(java.util.Set.of(customerRole))
+                        .build();
+
+                return userRepository.save(newUser);
+            } else {
+                // For PHOTOGRAPHERS, they must complete the registration form
+                log.warn("New user from OAuth trying to sync without completing registration: {}", email);
+                throw new RuntimeException("USER_MUST_REGISTER");
+            }
         }
     }
 

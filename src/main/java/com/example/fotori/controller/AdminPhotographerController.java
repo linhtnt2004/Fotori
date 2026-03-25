@@ -68,4 +68,19 @@ public class AdminPhotographerController {
             )
         );
     }
+
+    @PatchMapping("/{id}/cover-image")
+    public ResponseEntity<ApiResponse> updateCoverImage(
+        @PathVariable Long id,
+        @RequestBody String coverUrl
+    ) {
+        adminPhotographerService.updateCoverImage(id, coverUrl);
+        return ResponseEntity.ok(
+            new ApiResponse(
+                ErrorCode.SUCCESS.name(),
+                "Cover image updated successfully",
+                null
+            )
+        );
+    }
 }

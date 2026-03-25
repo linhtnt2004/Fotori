@@ -18,6 +18,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     );
 
     java.util.List<Payment> findAllByBookingIsNotNullOrderByCreatedAtDesc();
+    
+    java.util.List<Payment> findAllByOrderByCreatedAtDesc();
 
     java.util.List<Payment> findAllBySubscriptionPlanIsNotNullOrderByCreatedAtDesc();
 
@@ -29,6 +31,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     );
 
     void deleteByBooking_Id(Long bookingId);
+    void deleteByPhotographer_Id(Long photographerId);
 
     Page<Payment> findByPhotographer_Id(
         Long photographerId,

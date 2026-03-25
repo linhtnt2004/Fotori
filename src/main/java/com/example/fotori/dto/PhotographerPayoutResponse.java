@@ -19,4 +19,5 @@ public class PhotographerPayoutResponse {
     Integer commissionPercent;
 
     String planName;
+    String payoutStatus;
 }

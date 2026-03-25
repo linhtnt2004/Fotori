@@ -78,6 +78,7 @@ public class PublicPhotographerServiceImpl
             .startingPrice(startingPrice)
             .avgRating(avgRating)
             .totalReviews(totalReviews)
+            .coverUrl(profile.getUser().getCoverUrl())
             .build();
     }
 
@@ -295,6 +296,7 @@ public class PublicPhotographerServiceImpl
             .city(profile.getCity())
             .equipment(profile.getEquipment())
             .experienceYears(profile.getExperienceYears())
+            .coverUrl(profile.getUser().getCoverUrl())
             .build();
     }
 }

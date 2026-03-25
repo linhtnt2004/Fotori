@@ -1,7 +1,6 @@
-<<<<<<< HEAD
 HELP.md
 target/
-.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -32,15 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
-=======
+
 # Compiled class file
 *.class
 
 # Log file
 *.log
-
-# BlueJ files
-*.ctxt
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -54,7 +50,16 @@ build/
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# virtual machine crash logs
 hs_err_pid*
 replay_pid*
->>>>>>> 506d16f4bd319ea6e2f954299e6b73c0fba688c9
+
+# ---------------------------------------------
+# FO.TO.RI SENSITIVE CONFIGURATIONS (DO NOT COMMIT)
+# ---------------------------------------------
+firebase-credentials.json
+src/main/resources/firebase-credentials.json
+src/main/resources/application-local.yml
+src/main/resources/application-production.yml
+application-local.yml
+application-production.yml

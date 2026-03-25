@@ -13,4 +13,5 @@ public class CustomerDashboardStatsResponse {
 
     Long upcomingBookings;
 
+    Long favoritePhotographers;
 }

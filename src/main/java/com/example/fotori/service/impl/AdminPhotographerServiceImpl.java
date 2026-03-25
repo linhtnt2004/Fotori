@@ -8,7 +8,10 @@ import com.example.fotori.model.PhotographerProfile;
 import com.example.fotori.model.Role;
 import com.example.fotori.model.User;
 import com.example.fotori.repository.*;
+import com.example.fotori.repository.PaymentRepository;
 import com.example.fotori.service.AdminPhotographerService;
+import com.example.fotori.service.EmailService;
+import com.example.fotori.service.FirebaseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +32,9 @@ public class AdminPhotographerServiceImpl implements AdminPhotographerService {
     private final PhotographerAvailabilityRepository photographerAvailabilityRepository;
     private final BookingRepository bookingRepository;
     private final ReviewRepository reviewRepository;
+    private final PaymentRepository paymentRepository;
+    private final FirebaseService firebaseService;
+    private final EmailService emailService;
 
     @Override
     @Transactional(readOnly = true)
@@ -70,6 +76,13 @@ public class AdminPhotographerServiceImpl implements AdminPhotographerService {
                 .orElseThrow(() -> new BusinessException("ROLE_PHOTOGRAPHER_NOT_FOUND"));
 
             user.getRoles().add(photographerRole);
+
+            // Notify photographer about approval
+            try {
+                emailService.sendPhotographerApprovalNotification(user.getEmail(), user.getFullName());
+            } catch (Exception e) {
+                // Log and continue, don't fail the approval transaction
+            }
 
         } else if (request.getStatus() == ApprovalStatus.REJECTED) {
 
@@ -121,9 +134,31 @@ public class AdminPhotographerServiceImpl implements AdminPhotographerService {
         portfolioImageRepository.deleteByPhotographer(photographer);
         photographerSubscriptionRepository.deleteByPhotographer(photographer);
         photographerAvailabilityRepository.deleteByPhotographer(photographer);
-        bookingRepository.deleteByPhotographer(photographer);
+        
+        // Delete payments related to photographer (subs, etc)
+        paymentRepository.deleteByPhotographer_Id(photographer.getId());
+        
+        // Note: some payments might be linked via booking.
+        // We delete reviews before bookings because reviews depend on bookings
         reviewRepository.deleteByPhotographer(photographer);
+        bookingRepository.deleteByPhotographer(photographer);
+
+        // Delete from Firebase Auth
+        if (photographer.getUser() != null) {
+            firebaseService.deleteFirebaseUser(photographer.getUser().getEmail());
+        }
 
         photographerRepository.delete(photographer);
+    }
+
+    @Override
+    @Transactional
+    public void updateCoverImage(Long photographerId, String coverUrl) {
+        PhotographerProfile photographer = photographerRepository.findById(photographerId)
+            .orElseThrow(() -> new BusinessException("Photographer not found"));
+
+        User user = photographer.getUser();
+        user.setCoverUrl(coverUrl);
+        userRepository.save(user);
     }
 }

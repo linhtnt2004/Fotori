@@ -4,6 +4,7 @@ import com.example.fotori.common.ApiResponse;
 import com.example.fotori.common.enums.ErrorCode;
 import com.example.fotori.dto.DashboardRecentBookingResponse;
 import com.example.fotori.dto.DashboardRecentReviewResponse;
+import com.example.fotori.dto.DashboardTransactionResponse;
 import com.example.fotori.dto.PhotographerDashboardStatsResponse;
 import com.example.fotori.service.PhotographerDashboardService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class PhotographerDashboardController {
         java.util.Map<String, Object> data = new java.util.HashMap<>();
         data.put("stats", stats);
         data.put("upcomingBookings", dashboardService.getRecentBookings(userDetails.getUsername()));
+        data.put("recentTransactions", dashboardService.getRecentTransactions(userDetails.getUsername()));
         data.put("aiSuggestions", java.util.Collections.emptyList()); // Placeholder for AI
 
         return ResponseEntity.ok(

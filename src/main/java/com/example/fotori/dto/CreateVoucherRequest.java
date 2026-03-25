@@ -21,8 +21,10 @@ public class CreateVoucherRequest {
 
     Integer maxDiscount;
 
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "MM/dd/yyyy")
     LocalDateTime startsAt;
 
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "MM/dd/yyyy")
     LocalDateTime expiresAt;
 
     Integer usageLimit;

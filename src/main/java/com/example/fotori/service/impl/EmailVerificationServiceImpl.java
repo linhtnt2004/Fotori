@@ -6,6 +6,7 @@ import com.example.fotori.model.EmailVerificationToken;
 import com.example.fotori.model.User;
 import com.example.fotori.repository.EmailVerificationTokenRepository;
 import com.example.fotori.repository.UserRepository;
+import com.example.fotori.service.EmailService;
 import com.example.fotori.service.EmailVerificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,8 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
 
     private final EmailVerificationTokenRepository tokenRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
+    private final com.example.fotori.repository.PhotographerRepository photographerRepository;
 
     @Override
     public String createToken(User user) {
@@ -61,6 +64,17 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
 
         userRepository.save(user);
         tokenRepository.save(verificationToken);
+
+        // Notify admin if a new photographer verified their email
+        if (photographerRepository.findByUser(user).isPresent()) {
+            try {
+                emailService.sendAdminNewPhotographerNotification(user.getFullName(), user.getEmail());
+                emailService.sendPhotographerPendingNotification(user.getEmail(), user.getFullName());
+            } catch (Exception e) {
+                // Log and ignore to not fail the verification process
+                System.err.println("Failed to send notification emails: " + e.getMessage());
+            }
+        }
     }
 
     @Override

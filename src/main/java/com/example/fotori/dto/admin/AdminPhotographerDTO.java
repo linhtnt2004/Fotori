@@ -20,6 +20,7 @@ public class AdminPhotographerDTO {
     private String bio;
     private Integer experienceYears;
     private String city;
+    private String coverUrl;
     private LocalDateTime createdAt;
     private LocalDateTime approvedAt;
 }
