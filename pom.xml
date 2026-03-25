@@ -31,7 +31,6 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
-        <!-- Giữ nguyên tất cả dependencies như cũ -->
         <!-- WEB -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -4,30 +4,34 @@ import com.example.fotori.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EmailServiceImpl implements EmailService {
 
-    private final JavaMailSender mailSender;
-
     @Value("${MAIL_FROM:fotori.official@gmail.com}")
     private String fromEmail;
+
+    @Value("${MAIL_PASSWORD}")
+    private String apiKey;
 
     @Value("${app.frontend-url:https://fotori.vercel.app}")
     private String frontendUrl;
 
     @Value("${app.backend-url:https://fotori-production-87a3.up.railway.app/api}")
     private String backendUrl;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
     @Override
     @Async
@@ -105,20 +109,34 @@ public class EmailServiceImpl implements EmailService {
     @Override
     @Async
     public void sendHtmlEmail(String toEmail, String subject, String htmlContent) {
+        if (apiKey == null || apiKey.isBlank()) {
+            log.error("[API ERROR] Brevo API Key is missing! Check MAIL_PASSWORD in Environment Variables.");
+            return;
+        }
+
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            
-            helper.setFrom(fromEmail, "Fotori");
-            helper.setTo(toEmail);
-            helper.setSubject(subject);
-            helper.setText("<html><body>" + htmlContent + "</body></html>", true);
-            
-            mailSender.send(message);
-            log.info("[SUCCESS] Email sent successfully to {}", toEmail);
-        } catch (MessagingException | UnsupportedEncodingException e) {
-            log.error("[ERROR] Failed to send email to {}: {}", toEmail, e.getMessage(), e);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", apiKey);
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("sender", Map.of("email", fromEmail, "name", "Fotori"));
+            body.put("to", List.of(Map.of("email", toEmail)));
+            body.put("subject", subject);
+            body.put("htmlContent", "<html><body>" + htmlContent + "</body></html>");
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+            log.info("Sending request to Brevo API for {}", toEmail);
+            ResponseEntity<String> response = restTemplate.postForEntity(BREVO_API_URL, entity, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("[SUCCESS] Email sent via API to {}", toEmail);
+            } else {
+                log.error("[API ERROR] Brevo returned status {}: {}", response.getStatusCode(), response.getBody());
+            }
+        } catch (Exception e) {
+            log.error("[UNEXPECTED ERROR] Failed to send email via API to {}: {}", toEmail, e.getMessage(), e);
         }
     }
 }
-
