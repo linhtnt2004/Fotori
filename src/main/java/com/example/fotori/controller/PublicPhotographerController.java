@@ -46,7 +46,6 @@ public class PublicPhotographerController {
         );
     }
 
-<<<<<<< Updated upstream
     @GetMapping
     public ApiResponse getPhotographers(
         @RequestParam(defaultValue = "0") int page,
@@ -55,21 +54,6 @@ public class PublicPhotographerController {
         @RequestParam(required = false) Integer minPrice,
         @RequestParam(required = false) Integer maxPrice
     ) {
-=======
-    @GetMapping("/{id}/availability")
-    public ResponseEntity<ApiResponse> getAvailableSlots(
-        @PathVariable Long id
-    ) {
-        return ResponseEntity.ok(
-            new ApiResponse(
-                ErrorCode.SUCCESS.name(),
-                "Photographer availability",
-                availabilityService.getAvailableSlots(id)
-            )
-        );
-    }
-
->>>>>>> Stashed changes
 
         Page<PhotographerPublicDto> result =
             service.getPhotographers(
