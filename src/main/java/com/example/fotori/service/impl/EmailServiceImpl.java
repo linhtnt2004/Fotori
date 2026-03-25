@@ -23,10 +23,10 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.username:fotori.official@gmail.com}")
     private String fromEmail;
 
-    @Value("${app.frontend-url}")
+    @Value("${app.frontend-url:https://fotori.vercel.app}")
     private String frontendUrl;
 
-    @Value("${app.backend-url}")
+    @Value("${app.backend-url:https://fotori-production-87a3.up.railway.app/api}")
     private String backendUrl;
 
     @Override
